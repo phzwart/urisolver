@@ -3,17 +3,21 @@ from __future__ import annotations
 import io
 import uuid
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence, TypeVar
 from urllib.parse import urlparse
 from urisolver._resource import ResourceBase
-from urisolver.destinations import FileDestination, Form, MemoryDestination
+from urisolver._uriparse import split_uri
+from urisolver.destinations import FileDestination, Form, MemoryDestination, ReferencePolicy
 from urisolver.errors import (
-    InefficientOperationError, MemoryLimitError, PluginError,
-    UnsupportedDestinationError, UnsupportedFormError,
+    AuthenticationError, AuthorizationError, InefficientOperationError, MaterializationError,
+    MemoryLimitError, PluginError, ResolutionError, UnsupportedDestinationError, UnsupportedFormError,
 )
 from urisolver.info import Kind, ResourceInfo
+from urisolver.redaction import sanitize_exception
 from urisolver.results import MaterializedResult
 from urisolver.selection import Native, Selection
+
+_T = TypeVar("_T")
 
 def _require_tiled():
     try:
@@ -21,6 +25,44 @@ def _require_tiled():
     except ImportError as exc:
         raise PluginError("tiled resolver requires tiled; install urisolver[tiled]") from exc
     return tiled_client
+
+def _wrapper_for(exc: BaseException) -> type[Exception]:
+    response = getattr(exc, "response", None)
+    status = getattr(response, "status_code", None)
+    if status == 401:
+        return AuthenticationError
+    if status == 403:
+        return AuthorizationError
+    if status is not None and 400 <= int(status) < 500:
+        return AuthorizationError
+    return MaterializationError
+
+def _build_wrapped_error(
+    exc: BaseException,
+    *,
+    context: Any,
+    uri: str,
+    default: type[Exception] = MaterializationError,
+) -> Exception:
+    retain = bool(getattr(context, "retain_raw_exceptions", False))
+    mapped = _wrapper_for(exc)
+    wrapper = mapped if mapped is not MaterializationError else default
+    return sanitize_exception(
+        exc,
+        wrapper_type=wrapper,
+        retain_raw=retain,
+        opaque_uris=[uri],
+    )
+
+def _guard(fn: Callable[..., _T], /, *args: Any, context: Any, uri: str, **kwargs: Any) -> _T:
+    err: Exception | None = None
+    try:
+        return fn(*args, **kwargs)
+    except Exception as exc:
+        err = _build_wrapped_error(exc, context=context, uri=uri)
+    if err is not None:
+        raise err
+    raise RuntimeError("unreachable")
 
 class _ArrayFacet:
     def __init__(self, node: Any) -> None:
@@ -144,17 +186,24 @@ class TiledResolvedResource(ResourceBase):
     def _read(self, selection: Any) -> tuple[Any, str, tuple[str, ...]]:
         node = self._node
         if selection is None:
-            if hasattr(node, "read"): return node.read(), "native", ()
-            if hasattr(node, "__getitem__"): return node[...], "native", ()
+            if hasattr(node, "read"):
+                return _guard(node.read, context=self._context, uri=self._uri), "native", ()
+            if hasattr(node, "__getitem__"):
+                return _guard(node.__getitem__, Ellipsis, context=self._context, uri=self._uri), "native", ()
             return node, "native", ()
         try:
             if hasattr(node, "__getitem__"):
-                return node[selection], "native-selection", ()
-        except Exception:
+                return _guard(node.__getitem__, selection, context=self._context, uri=self._uri), "native-selection", ()
+        except (TypeError, IndexError, KeyError, ValueError):
             pass
         if getattr(self._context, "strict_efficiency", False):
             raise InefficientOperationError("selection requires read-then-select under strict_efficiency")
-        full = node.read() if hasattr(node, "read") else (node[...] if hasattr(node, "__getitem__") else node)
+        if hasattr(node, "read"):
+            full = _guard(node.read, context=self._context, uri=self._uri)
+        elif hasattr(node, "__getitem__"):
+            full = _guard(node.__getitem__, Ellipsis, context=self._context, uri=self._uri)
+        else:
+            full = node
         return full[selection], "read-then-select", (
             "selection applied locally after full retrieval (strategy=read-then-select)",
         )
@@ -213,6 +262,10 @@ class TiledResolvedResource(ResourceBase):
         )
 
     def _to_file(self, destination: FileDestination, info: ResourceInfo, selection: Any) -> MaterializedResult:
+        if destination.reference is not ReferencePolicy.COPY:
+            raise UnsupportedDestinationError(
+                f"Tiled resolver only supports reference={ReferencePolicy.COPY.value!r}"
+            )
         if info.kind is Kind.CONTAINER and info.canonical_media_type is None:
             raise UnsupportedDestinationError("container FileDestination requires canonical_media_type")
         if destination.media_type is not None and destination.media_type != info.canonical_media_type:
@@ -251,6 +304,7 @@ class TiledResolver:
         self.secret_id = secret_id
         self.allow_native = allow_native
         self._client = client
+        self._injected_client = client is not None
         self._sessions: dict[str, Any] = {}
     def _get_client(self, context: Any) -> Any:
         if self._client is not None:
@@ -264,18 +318,31 @@ class TiledResolver:
             secret = context.secrets.get_secret(self.secret_id)
             if "api_key" in secret: kwargs["api_key"] = secret["api_key"]
             if "token" in secret: kwargs["headers"] = {"Authorization": f"Bearer {secret['token']}"}
-        client = tiled_client.from_uri(self.base_uri or "http://localhost:8000", **kwargs)
+        try:
+            client = tiled_client.from_uri(self.base_uri or "http://localhost:8000", **kwargs)
+        except Exception as exc:
+            raise _build_wrapped_error(exc, context=context, uri=self.base_uri or "tiled://") from None
         self._sessions[key] = client
         return client
     def resolve(self, uri: str, context: Any) -> TiledResolvedResource:
-        parsed = urlparse(uri)
-        path = f"{parsed.netloc}{parsed.path}" if parsed.netloc else uri.split(":", 1)[1]
-        if path.startswith("//"): path = path[2:]
+        parts = split_uri(uri)
+        body = parts.body
+        if len(body) >= 2 and body[0:2] == "//":
+            parsed = urlparse("http:" + body)
+            path = f"{parsed.netloc}{parsed.path}"
+        else:
+            path = body
         path = path.strip("/")
-        node: Any = self._get_client(context)
-        if path:
-            for part in path.split("/"):
-                if part: node = node[part]
+        try:
+            node: Any = self._get_client(context)
+            if path:
+                for part in path.split("/"):
+                    if part:
+                        node = _guard(node.__getitem__, part, context=context, uri=uri)
+        except Exception as exc:
+            raise _build_wrapped_error(exc, context=context, uri=uri, default=ResolutionError) from None
         return TiledResolvedResource(uri=uri, resolved_uri=uri, node=node, context=context, resolver=self, allow_native=self.allow_native)
     def close(self) -> None:
-        self._sessions.clear(); self._client = None
+        self._sessions.clear()
+        if not self._injected_client:
+            self._client = None
