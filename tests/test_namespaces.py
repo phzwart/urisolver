@@ -209,6 +209,15 @@ def test_namespace_single_slash_identifier(tmp_path: Path):
         assert r.materialize(MemoryDestination()).value == b"s"
 
 
+def test_namespace_client_requires_https():
+    with pytest.raises(ValueError, match="https"):
+        NamespaceClient("http://example.com")
+    NamespaceClient("https://example.com")
+    NamespaceClient("http://127.0.0.1:8765", allow_insecure_transport=True)
+    with pytest.raises(ValueError, match="http\\(s\\)"):
+        NamespaceClient("ftp://example.com")
+
+
 def test_namespace_server_and_client(tmp_path: Path):
     ensure_builtin_file_resolver()
     data = tmp_path / "s.dat"
@@ -233,7 +242,7 @@ def test_namespace_server_and_client(tmp_path: Path):
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        client = NamespaceClient(f"http://{host}:{port}")
+        client = NamespaceClient(f"http://{host}:{port}", allow_insecure_transport=True)
         req = NamespaceRequestContext(
             principal=Principal(id="client"), secrets=None, request_id="1"
         )

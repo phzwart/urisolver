@@ -5,11 +5,31 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timedelta
 from typing import Any
+from urllib.parse import urlparse
 from urisolver.errors import NamespaceResolutionError
 from urisolver.namespaces.base import NamespaceRequestContext, NamespaceResolution, ResolutionStatus
 
 class NamespaceClient:
-    def __init__(self, base_url: str, *, token: str | None = None, timeout: float = 30.0) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        token: str | None = None,
+        timeout: float = 30.0,
+        allow_insecure_transport: bool = False,
+    ) -> None:
+        parsed = urlparse(base_url)
+        scheme = parsed.scheme.lower()
+        if scheme not in ("https", "http"):
+            raise ValueError(
+                f"namespace service base_url must be http(s); got {scheme!r}"
+            )
+        if scheme == "http" and not allow_insecure_transport:
+            raise ValueError(
+                "namespace service base_url must use https: a bearer token and an "
+                "opaque identifier sent over http are disclosed in transit. Pass "
+                "allow_insecure_transport=True only for loopback testing."
+            )
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.timeout = timeout
