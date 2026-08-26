@@ -6,25 +6,55 @@ import shutil
 import uuid
 from pathlib import Path
 from typing import IO, Any, Literal
-from urllib.parse import unquote, urlparse
+from urllib.parse import urlparse
 from urllib.request import url2pathname
 from urisolver._resource import ResourceBase
+from urisolver._uriparse import split_uri
 from urisolver.destinations import FileDestination, Form, MemoryDestination, ReferencePolicy
 from urisolver.errors import (
-    MemoryLimitError, SelectionNotSupportedError, UnsupportedDestinationError, UnsupportedFormError,
+    InvalidURIError, MemoryLimitError, SelectionNotSupportedError, UnsupportedDestinationError,
+    UnsupportedFormError,
 )
 from urisolver.info import Kind, ResourceInfo
 from urisolver.results import MaterializedResult
 from urisolver.selection import Selection
 
 def _uri_to_path(uri: str) -> Path:
+    """Map a file: URI to a local path (RFC 8089).
+
+    Percent-decoding happens exactly once, inside url2pathname (RFC 3986 §2.4).
+    Never call unquote() on the result or on the input.
+    """
+    parts = split_uri(uri)
+    if parts.scheme != "file":
+        raise InvalidURIError(
+            f"FileResolver received a URI with scheme {parts.scheme!r}: {uri!r}"
+        )
     parsed = urlparse(uri)
-    if parsed.scheme.lower() != "file":
-        return Path(unquote(uri.split(":", 1)[1])).expanduser()
-    path = url2pathname(unquote(parsed.path))
-    if parsed.netloc and parsed.netloc not in ("", "localhost"):
-        path = f"//{parsed.netloc}{path}"
-    return Path(path)
+    if parsed.query:
+        raise InvalidURIError(
+            f"file: URIs define no query component (RFC 8089); refusing {uri!r}"
+        )
+    path_part = parsed.path
+    if os.name == "posix" and ("%2F" in path_part.upper() or "%2f" in path_part):
+        raise InvalidURIError(
+            f"file: URI percent-encodes a path separator (RFC 3986 §2.2): {uri!r}"
+        )
+    host = parsed.netloc
+    if host and host.lower() != "localhost":
+        if os.name != "nt":
+            raise InvalidURIError(
+                f"file: URI names the non-local host {host!r}; only an empty "
+                f"authority or 'localhost' is supported on this platform "
+                f"(RFC 8089 §2, Appendix E.3.2)"
+            )
+        path = "//" + host + url2pathname(parsed.path)
+    else:
+        path = url2pathname(parsed.path)
+    result = Path(path)
+    if not result.is_absolute():
+        raise InvalidURIError(f"file: URI does not name an absolute path: {uri!r}")
+    return result
 
 class _StreamFacet:
     def __init__(self, path: Path) -> None:
@@ -65,14 +95,6 @@ class FileResolvedResource(ResourceBase):
             self._facet_objects["stream"] = _StreamFacet(path)
         if "container" in facets:
             self._facet_objects["container"] = _ContainerFacet(path, self)
-
-    def open(self, *args: Any, **kwargs: Any) -> Any:
-        self._ensure_valid()
-        return open(self._path, *args, **kwargs)
-
-    def stat(self) -> os.stat_result:
-        self._ensure_valid()
-        return self._path.stat()
 
     def info(self) -> ResourceInfo:
         self._ensure_valid()
@@ -145,6 +167,8 @@ class FileResolvedResource(ResourceBase):
                 raise UnsupportedFormError(f"requested media_type {destination.media_type!r} unsupported")
         dest = Path(destination.path)
         policy = destination.reference
+        if dest.exists() and not destination.overwrite:
+            raise FileExistsError(str(dest))
         if policy is ReferencePolicy.IN_PLACE:
             return MaterializedResult(
                 value=self._path.resolve(), source_uri=self._uri, resolved_uri=self._resolved_uri,
@@ -155,9 +179,7 @@ class FileResolvedResource(ResourceBase):
         if destination.make_parents:
             dest.parent.mkdir(parents=True, exist_ok=True)
         if policy is ReferencePolicy.SYMLINK:
-            if (dest.exists() or dest.is_symlink()) and not destination.overwrite:
-                raise FileExistsError(str(dest))
-            if dest.exists() or dest.is_symlink():
+            if dest.is_symlink() or dest.exists():
                 dest.unlink()
             os.symlink(self._path.resolve(), dest)
             return MaterializedResult(
@@ -166,21 +188,21 @@ class FileResolvedResource(ResourceBase):
                 size_bytes=info.size_bytes, selection=None, is_reference=True, strategy="reference",
             )
         if policy is ReferencePolicy.HARDLINK:
+            if dest.exists():
+                dest.unlink()
             try:
-                if dest.exists() and not destination.overwrite:
-                    raise FileExistsError(str(dest))
-                if dest.exists():
-                    dest.unlink()
                 os.link(self._path.resolve(), dest)
-                return MaterializedResult(
-                    value=dest, source_uri=self._uri, resolved_uri=self._resolved_uri, protocol="file",
-                    destination=destination, form=Form.PATH, media_type=info.canonical_media_type,
-                    size_bytes=info.size_bytes, selection=None, is_reference=True, strategy="reference",
-                )
-            except OSError:
-                pass
-        if dest.exists() and not destination.overwrite:
-            raise FileExistsError(str(dest))
+            except OSError as exc:
+                raise UnsupportedDestinationError(
+                    f"hardlink reference unavailable: {exc}"
+                ) from exc
+            return MaterializedResult(
+                value=dest, source_uri=self._uri, resolved_uri=self._resolved_uri, protocol="file",
+                destination=destination, form=Form.PATH, media_type=info.canonical_media_type,
+                size_bytes=info.size_bytes, selection=None, is_reference=True, strategy="reference",
+            )
+        if policy is not ReferencePolicy.COPY:
+            raise UnsupportedDestinationError(f"unsupported reference policy {policy!r}")
         tmp = dest.parent / f".urisolver-{uuid.uuid4().hex}.tmp"
         try:
             shutil.copy2(self._path, tmp)
