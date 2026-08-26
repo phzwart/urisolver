@@ -100,13 +100,14 @@ class ResolveContext:
             trail = []
         if depth > self.max_resolution_depth:
             raise ResolutionLoopError(f"resolution depth exceeded max_resolution_depth={self.max_resolution_depth}")
-        if uri in seen:
-            raise ResolutionLoopError(f"resolution loop detected at {uri!r}")
-        seen = set(seen); seen.add(uri)
         try:
             parts = split_uri(uri)
         except ValueError as exc:
             raise InvalidURIError(str(exc)) from exc
+        key = parts.scheme + ":" + uri[len(parts.raw_scheme) + 1 :]
+        if key in seen:
+            raise ResolutionLoopError(f"resolution loop detected at {uri!r}")
+        seen = set(seen); seen.add(key)
         scheme = parts.scheme
 
         if self.namespaces is not None and scheme in self.namespaces.resolvers:

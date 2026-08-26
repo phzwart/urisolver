@@ -178,6 +178,16 @@ def test_namespace_fragment_target_wins(tmp_path: Path):
         assert r.uri == "ns:abc#frag"
 
 
+def test_resolution_loop_case_insensitive_scheme():
+    router = MapRouter(
+        {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri="NS:abc")},
+    )
+    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        with pytest.raises(ResolutionLoopError, match="loop"):
+            ctx.resolve("ns:abc")
+    assert len(router.calls) <= 2
+
+
 def test_namespace_rejects_double_slash():
     router = MapRouter({})
     with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
