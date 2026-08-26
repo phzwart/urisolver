@@ -6,7 +6,7 @@ import shutil
 import uuid
 from pathlib import Path
 from typing import IO, Any, Literal
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 from urllib.request import url2pathname
 from urisolver._resource import ResourceBase
 from urisolver._uriparse import split_uri
@@ -18,6 +18,19 @@ from urisolver.errors import (
 from urisolver.info import Kind, ResourceInfo
 from urisolver.results import MaterializedResult
 from urisolver.selection import Selection
+
+def _safe_as_uri(path: Path, fallback: str) -> str:
+    """Best-effort file: URI for *path*.
+
+    Path.as_uri() raises ValueError for relative paths and UnicodeEncodeError
+    for surrogate-escaped names (PEP 383). A resolved_uri is diagnostic, not
+    load-bearing, so fall back rather than fail resolution.
+    """
+    try:
+        return path.resolve().as_uri()
+    except (OSError, ValueError, UnicodeEncodeError):
+        return fallback
+
 
 def _uri_to_path(uri: str) -> Path:
     """Map a file: URI to a local path (RFC 8089).
@@ -73,9 +86,24 @@ class _ContainerFacet:
     def keys(self):
         return (p.name for p in sorted(self._path.iterdir()))
     def __getitem__(self, key: str) -> "FileResolvedResource":
+        # Key injection guard only — a symlinked entry outside the container is
+        # a legitimate directory entry; confining it is the filesystem's job.
+        if (
+            not isinstance(key, str)
+            or key in ("", ".", "..")
+            or "/" in key
+            or "\\" in key
+            or "\x00" in key
+            or Path(key).is_absolute()
+        ):
+            raise KeyError(key)
         child = self._path / key
-        child_uri = child.resolve().as_uri()
-        return FileResolvedResource(uri=child_uri, resolved_uri=child_uri, path=child, context=self._resource._context)
+        parent_uri = self._resource.resolved_uri
+        fallback = f"{parent_uri.rstrip('/')}/{quote(key, safe='')}"
+        child_uri = _safe_as_uri(child, fallback)
+        return FileResolvedResource(
+            uri=child_uri, resolved_uri=child_uri, path=child, context=self._resource._context
+        )
     def __len__(self) -> int:
         return sum(1 for _ in self._path.iterdir())
 
@@ -128,8 +156,14 @@ class FileResolvedResource(ResourceBase):
                 raise UnsupportedFormError(str(destination.form))
             mapping = {
                 name: FileResolvedResource(
-                    uri=(self._path / name).resolve().as_uri(),
-                    resolved_uri=(self._path / name).resolve().as_uri(),
+                    uri=_safe_as_uri(
+                        self._path / name,
+                        f"{self._resolved_uri.rstrip('/')}/{quote(name, safe='')}",
+                    ),
+                    resolved_uri=_safe_as_uri(
+                        self._path / name,
+                        f"{self._resolved_uri.rstrip('/')}/{quote(name, safe='')}",
+                    ),
                     path=self._path / name, context=self._context,
                 )
                 for name in sorted(p.name for p in self._path.iterdir())
@@ -225,10 +259,7 @@ class FileResolver:
     opaque_payload = False
     def resolve(self, uri: str, context: Any) -> FileResolvedResource:
         path = _uri_to_path(uri)
-        try:
-            resolved_uri = path.resolve().as_uri()
-        except OSError:
-            resolved_uri = uri
+        resolved_uri = _safe_as_uri(path, uri)
         return FileResolvedResource(uri=uri, resolved_uri=resolved_uri, path=path, context=context)
     def close(self) -> None:
         return None
