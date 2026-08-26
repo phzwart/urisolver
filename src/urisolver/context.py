@@ -11,7 +11,7 @@ from urisolver.errors import (
 from urisolver.namespaces.base import (
     NamespaceCache, NamespaceRequestContext, NamespaceResolver, Principal, ResolutionStatus,
 )
-from urisolver._uriparse import split_uri
+from urisolver._uriparse import SplitURI, split_uri
 from urisolver.registry import Registry, get_global_registry
 if TYPE_CHECKING:
     from urisolver.protocols import ResolvedResource
@@ -89,10 +89,15 @@ class ResolveContext:
         if resolver not in self._instantiated:
             self._instantiated.append(resolver)
 
+    def _parse_uri(self, uri: str) -> SplitURI:
+        try:
+            return split_uri(uri)
+        except ValueError as exc:
+            raise InvalidURIError(str(exc)) from exc
+
     def resolve(self, uri: str) -> ResolvedResource:
         self._ensure_open()
-        if not uri or ":" not in uri:
-            raise InvalidURIError(f"URI has no scheme: {uri!r}")
+        self._parse_uri(uri)
         return self._resolve_chain(uri, depth=0, seen=set())
 
     def _resolve_chain(self, uri: str, *, depth: int, seen: set[str], trail: list[str] | None = None) -> ResolvedResource:
@@ -100,10 +105,7 @@ class ResolveContext:
             trail = []
         if depth > self.max_resolution_depth:
             raise ResolutionLoopError(f"resolution depth exceeded max_resolution_depth={self.max_resolution_depth}")
-        try:
-            parts = split_uri(uri)
-        except ValueError as exc:
-            raise InvalidURIError(str(exc)) from exc
+        parts = self._parse_uri(uri)
         key = parts.scheme + ":" + uri[len(parts.raw_scheme) + 1 :]
         if key in seen:
             raise ResolutionLoopError(f"resolution loop detected at {uri!r}")

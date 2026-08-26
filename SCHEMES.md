@@ -8,7 +8,6 @@ Every URI scheme registered with a `urisolver` deployment is defined here, per R
 - `file` — built-in; see DESIGN.md §27.1
 - `gov.bnl.nsls2.tiled` — Tiled deployment (local/dev)
 - `gov.bnl.nsls2.tiled-ssrl` — Tiled deployment (SSRL)
-- `tiled-local` — legacy test fixture name; migrate to reverse-DNS form
 
 ## Template
 

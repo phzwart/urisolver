@@ -79,19 +79,19 @@ def tiled_array_setup():
             raise KeyError(key)
 
     resolver = TiledResolver(
-        protocol_name="tiled-local",
+        protocol_name="com.urisolver.test.tiled",
         client=Root(),
         allow_native=True,
     )
     from urisolver.registry import get_global_registry
 
-    get_global_registry().override("tiled-local", resolver)
+    get_global_registry().override("com.urisolver.test.tiled", resolver)
     return resolver
 
 
 def test_tiled_array_tier0(tiled_array_setup):
     with Context() as ctx:
-        r = ctx.resolve("tiled-local://catalog/run/12345")
+        r = ctx.resolve("com.urisolver.test.tiled://catalog/run/12345")
         info = r.info()
         assert info.kind is Kind.ARRAY
         assert info.shape == (2, 2)
@@ -129,7 +129,7 @@ def test_tiled_policy_denies_native():
 
 def test_tiled_bytes_requires_numpy_or_raises(tiled_array_setup):
     with Context() as ctx:
-        r = ctx.resolve("tiled-local://catalog/run/12345")
+        r = ctx.resolve("com.urisolver.test.tiled://catalog/run/12345")
         try:
             import numpy  # noqa: F401
 
@@ -180,7 +180,7 @@ def test_tiled_baseline(tiled_array_setup):
     pytest.importorskip("numpy")
 
     def make_uri() -> str:
-        return "tiled-local://catalog/run/12345"
+        return "com.urisolver.test.tiled://catalog/run/12345"
 
     run_baseline_suite(
         make_uri,
