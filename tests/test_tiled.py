@@ -184,7 +184,7 @@ def test_tiled_baseline(tiled_array_setup):
 
     run_baseline_suite(
         make_uri,
-        context_factory=lambda: Context(),
+        context_factory=lambda **kw: Context(**kw),
         expect_array_selection=True,
         expect_bytes=True,
     )

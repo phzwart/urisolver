@@ -74,7 +74,7 @@ class ResourceBase:
 
     def capabilities(self) -> frozenset[str]:
         self._ensure_valid()
-        return self._capabilities
+        return self._TIER0 | self._capabilities
 
     @property
     def native(self) -> object:

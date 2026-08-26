@@ -30,6 +30,8 @@ class Registry:
             self._factories.pop(key, None)
             if getattr(resolver, "opaque_payload", False):
                 register_opaque_scheme(key)
+        from urisolver.plugins import clear_plugin_conflict
+        clear_plugin_conflict(key)
 
     def override(self, scheme: str, resolver: Resolver | ResolverFactory) -> None:
         key = scheme.lower()
@@ -38,6 +40,13 @@ class Registry:
 
     def get(self, scheme: str) -> Resolver:
         key = scheme.lower()
+        from urisolver.plugins import get_plugin_conflicts
+        conflicts = get_plugin_conflicts()
+        if key in conflicts:
+            a, b = conflicts[key]
+            raise PluginConflictError(
+                f"scheme {key!r} registered by both {a!r} and {b!r}"
+            )
         if key in self._overrides:
             item = self._overrides[key]
             if callable(item) and not hasattr(item, "resolve"):
@@ -76,5 +85,3 @@ def get_global_registry() -> Registry:
 
 def register_resolver(scheme: str, resolver: "Resolver | ResolverFactory", *, source: str = "explicit") -> None:
     _GLOBAL.register(scheme, resolver, source=source)
-
-get_global_registry = get_global_registry

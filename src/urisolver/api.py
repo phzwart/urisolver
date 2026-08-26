@@ -13,10 +13,7 @@ def _ensure_plugins() -> None:
     global _PLUGINS_READY
     if not _PLUGINS_READY:
         ensure_builtin_file_resolver()
-        try:
-            install_entry_points()
-        except Exception:
-            ensure_builtin_file_resolver()
+        install_entry_points()
         _PLUGINS_READY = True
 
 def _default_context() -> ResolveContext:

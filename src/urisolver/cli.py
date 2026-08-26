@@ -26,16 +26,14 @@ def _serve(args: argparse.Namespace) -> int:
         resolver = resolver()
     if isinstance(auth, type):
         auth = auth()
-    # ServerConfig field names may be include_detail or include_detail
-    kwargs = dict(namespace=args.namespace, resolver=resolver, authenticator=auth, host=args.host, port=args.port)
-    import inspect
-    from urisolver.namespaces.server import ServerConfig as SC
-    params = inspect.signature(SC).parameters
-    if "include_detail" in params:
-        kwargs["include_detail"] = args.detail
-    elif "include_detail" in params:
-        kwargs["include_detail"] = args.detail
-    config = SC(**kwargs)
+    config = ServerConfig(
+        namespace=args.namespace,
+        resolver=resolver,
+        authenticator=auth,
+        host=args.host,
+        port=args.port,
+        include_detail=args.detail,
+    )
     print(f"serving namespace {args.namespace!r} on http://{args.host}:{args.port}/resolve", file=sys.stderr)
     serve(config, blocking=True)
     return 0

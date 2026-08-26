@@ -1,3 +1,13 @@
-from urisolver.testing.baseline import run_baseline_suite
+from urisolver.testing.baseline import (
+    BaselineResult,
+    ConformanceFailure,
+    ConformanceFixtures,
+    run_baseline_suite,
+)
 
-__all__ = ["run_baseline_suite"]
+__all__ = [
+    "BaselineResult",
+    "ConformanceFailure",
+    "ConformanceFixtures",
+    "run_baseline_suite",
+]

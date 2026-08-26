@@ -37,5 +37,18 @@ implements it without architectural additions.
 Every resolver must pass the baseline suite:
 
 ```python
-from urisolver.testing.baseline import run_baseline_suite
+from urisolver.testing import run_baseline_suite, BaselineResult, ConformanceFixtures
 ```
+
+`run_baseline_suite` returns a `BaselineResult` with split skip reasons
+`(check_name, reason)`. With the default `raise_on_failure=True`, failures raise
+`ConformanceFailure` carrying the full result so coverage and skip summaries appear
+together in pytest output.
+
+Run CI tests as a **non-root** user when possible; see [DESIGN.md §36](DESIGN.md) for
+root-proof §11.2 hazard checks.
+
+## Footnotes
+
+- Missing local `file:` paths raise **`FileNotFoundError`** (Python stdlib), not a
+  urisolver error type. This is intentional for v0.

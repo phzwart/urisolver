@@ -145,6 +145,11 @@ def test_capabilities_agree(tmp_path: Path):
     f.write_bytes(b"1")
     with Context() as ctx:
         r = ctx.resolve(f.resolve().as_uri())
+        tier0 = {"info", "materialize", "facets", "facet", "supports", "capabilities"}
+        for name in tier0:
+            assert name in r.capabilities()
+            assert r.supports(name)
+            assert hasattr(r, name)
         for name in r.capabilities():
             assert r.supports(name)
             assert hasattr(r, name)
@@ -198,6 +203,52 @@ def test_registry_conflict():
     reg.register("filex", FileResolver(), source="a")
     with pytest.raises(PluginConflictError):
         reg.register("filex", FileResolver(), source="b")
+
+
+def test_copy_failure_preserves_preexisting(tmp_path: Path, monkeypatch):
+    src = tmp_path / "src.dat"
+    src.write_bytes(b"source")
+    dest = tmp_path / "dest.dat"
+    dest.write_bytes(b"keep-me")
+
+    def boom(*args, **kwargs):
+        raise OSError("simulated copy failure")
+
+    monkeypatch.setattr("urisolver.resolvers.file.shutil.copy2", boom)
+    with Context() as ctx:
+        r = ctx.resolve(src.resolve().as_uri())
+        with pytest.raises(OSError, match="simulated"):
+            r.materialize(FileDestination(dest, overwrite=True))
+        assert dest.read_bytes() == b"keep-me"
+        assert not list(tmp_path.glob(".urisolver-*.tmp"))
+
+
+def test_memory_limit_before_read(tmp_path: Path, monkeypatch):
+    src = tmp_path / "big.dat"
+    src.write_bytes(b"x" * 100)
+
+    def should_not_read(self):
+        raise AssertionError("read_bytes should not be called when size exceeds limit")
+
+    monkeypatch.setattr(Path, "read_bytes", should_not_read)
+    with Context(memory_limit=50) as ctx:
+        r = ctx.resolve(src.resolve().as_uri())
+        with pytest.raises(MemoryLimitError):
+            r.materialize(MemoryDestination())
+
+
+def test_failure_no_partial_file_directory_dest(tmp_path: Path):
+    src = tmp_path / "src.dat"
+    src.write_bytes(b"payload")
+    dest = tmp_path / "dest-dir"
+    dest.mkdir()
+    (dest / "keep").write_text("unchanged")
+    with Context() as ctx:
+        r = ctx.resolve(src.resolve().as_uri())
+        with pytest.raises(OSError):
+            r.materialize(FileDestination(dest, overwrite=True))
+        assert not list(tmp_path.glob(".urisolver-*.tmp"))
+        assert (dest / "keep").read_text() == "unchanged"
 
 
 def test_canary_secret_not_in_logs(caplog: pytest.LogCaptureFixture):

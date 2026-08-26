@@ -8,6 +8,7 @@ from urisolver.registry import Registry, get_global_registry
 SUPPORTED_API_VERSIONS = frozenset({1})
 _ENUMERATED: dict[str, Any] = {}
 _SOURCES: dict[str, str] = {}
+_CONFLICTS: dict[str, tuple[str, str]] = {}
 _LOADED = False
 
 def _entry_points(group: str):
@@ -16,18 +17,25 @@ def _entry_points(group: str):
         return list(eps.select(group=group))
     return list(eps.get(group, []))  # type: ignore[arg-type]
 
+def clear_plugin_conflict(scheme: str) -> None:
+    """Clear a deferred entry-point conflict after explicit registration (§19.3)."""
+    _CONFLICTS.pop(scheme.lower(), None)
+
+def get_plugin_conflicts() -> dict[str, tuple[str, str]]:
+    return dict(_CONFLICTS)
+
 def enumerate_resolver_entry_points() -> dict[str, Any]:
     global _LOADED
     found: dict[str, Any] = {}
     sources: dict[str, str] = {}
+    _CONFLICTS.clear()
     for ep in _entry_points("urisolver.resolvers"):
         scheme = ep.name.lower()
         dist = getattr(ep, "dist", None)
         source = dist.name if dist is not None else ep.value
         if scheme in found:
-            raise PluginConflictError(
-                f"scheme {scheme!r} registered by both {sources[scheme]!r} and {source!r}"
-            )
+            _CONFLICTS[scheme] = (sources[scheme], source)
+            continue
         found[scheme] = ep
         sources[scheme] = source
     _ENUMERATED.clear(); _ENUMERATED.update(found)
@@ -39,6 +47,11 @@ def _load_resolver(scheme: str) -> Any:
     if not _LOADED:
         enumerate_resolver_entry_points()
     key = scheme.lower()
+    if key in _CONFLICTS:
+        a, b = _CONFLICTS[key]
+        raise PluginConflictError(
+            f"scheme {key!r} registered by both {a!r} and {b!r}"
+        )
     if key not in _ENUMERATED:
         raise PluginError(f"no entry point for scheme {key!r}")
     try:
