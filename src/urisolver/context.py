@@ -11,7 +11,7 @@ from urisolver.errors import (
 from urisolver.namespaces.base import (
     NamespaceCache, NamespaceRequestContext, NamespaceResolver, Principal, ResolutionStatus,
 )
-from urisolver.redaction import extract_scheme
+from urisolver._uriparse import split_uri
 from urisolver.registry import Registry, get_global_registry
 if TYPE_CHECKING:
     from urisolver.protocols import ResolvedResource
@@ -104,12 +104,13 @@ class ResolveContext:
             raise ResolutionLoopError(f"resolution loop detected at {uri!r}")
         seen = set(seen); seen.add(uri)
         try:
-            scheme = extract_scheme(uri)
+            parts = split_uri(uri)
         except ValueError as exc:
             raise InvalidURIError(str(exc)) from exc
+        scheme = parts.scheme
 
         if self.namespaces is not None and scheme in self.namespaces.resolvers:
-            identifier = uri.split(":", 1)[1]
+            identifier = parts.body
             if identifier.startswith("//"):
                 identifier = identifier[2:]
             ns = self._resolve_namespace(scheme, identifier)
@@ -124,7 +125,8 @@ class ResolveContext:
             if ns.uri is None:
                 raise NamespaceResolutionError(f"namespace {scheme!r} returned AVAILABLE without uri")
             trail = trail + [uri]
-            resource = self._resolve_chain(ns.uri, depth=depth + 1, seen=seen, trail=trail)
+            target = _inherit_fragment(ns.uri, parts.fragment)
+            resource = self._resolve_chain(target, depth=depth + 1, seen=seen, trail=trail)
             bind = getattr(resource, "_bind_request_uri", None)
             if callable(bind):
                 bind(uri, trail=tuple(trail))
@@ -154,3 +156,16 @@ class ResolveContext:
         return result
 
 Context = ResolveContext
+
+
+def _inherit_fragment(target: str, fragment: str | None) -> str:
+    """Carry a request fragment onto a namespace target.
+
+    Mirrors RFC 9110 §10.2.2: a target that names its own fragment keeps it;
+    otherwise the fragment of the request is inherited.
+    """
+    if fragment is None:
+        return target
+    if "#" in target:
+        return target
+    return f"{target}#{fragment}"

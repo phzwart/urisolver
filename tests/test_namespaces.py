@@ -26,6 +26,7 @@ from urisolver.namespaces.base import (
 from urisolver.namespaces.client import NamespaceClient
 from urisolver.namespaces.server import NullAuthenticator, ServerConfig, serve
 from urisolver.plugins import ensure_builtin_file_resolver
+from urisolver.resolvers.file import FileResolver
 
 
 class MapRouter:
@@ -112,6 +113,68 @@ def test_resolution_loop():
     with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
         with pytest.raises(ResolutionLoopError):
             ctx.resolve("ns:a")
+
+
+def test_namespace_fragment_not_in_identifier(tmp_path: Path):
+    ensure_builtin_file_resolver()
+    data = tmp_path / "frag.dat"
+    data.write_bytes(b"frag")
+    target = data.resolve().as_uri()
+    router = MapRouter(
+        {"abc123": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
+    )
+    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        r = ctx.resolve("ns:abc123#/entry/data")
+        assert router.calls[-1][0] == "abc123"
+        assert r.uri == "ns:abc123#/entry/data"
+
+
+def test_namespace_fragment_inherited(tmp_path: Path):
+    ensure_builtin_file_resolver()
+    data = tmp_path / "frag.dat"
+    data.write_bytes(b"frag")
+    target = data.resolve().as_uri()
+    seen_file_uris: list[str] = []
+
+    class RecordingFileResolver(FileResolver):
+        def resolve(self, uri: str, context: object):
+            seen_file_uris.append(uri)
+            return super().resolve(uri, context)
+
+    from urisolver.registry import get_global_registry
+
+    get_global_registry().override("file", RecordingFileResolver())
+    router = MapRouter(
+        {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
+    )
+    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        r = ctx.resolve("ns:abc#frag")
+        assert seen_file_uris[-1] == f"{target}#frag"
+        assert r.uri == "ns:abc#frag"
+
+
+def test_namespace_fragment_target_wins(tmp_path: Path):
+    ensure_builtin_file_resolver()
+    data = tmp_path / "frag.dat"
+    data.write_bytes(b"frag")
+    target = data.resolve().as_uri()
+    seen_file_uris: list[str] = []
+
+    class RecordingFileResolver(FileResolver):
+        def resolve(self, uri: str, context: object):
+            seen_file_uris.append(uri)
+            return super().resolve(uri, context)
+
+    from urisolver.registry import get_global_registry
+
+    get_global_registry().override("file", RecordingFileResolver())
+    router = MapRouter(
+        {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=f"{target}#own")}
+    )
+    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        r = ctx.resolve("ns:abc#frag")
+        assert seen_file_uris[-1] == f"{target}#own"
+        assert r.uri == "ns:abc#frag"
 
 
 def test_namespace_server_and_client(tmp_path: Path):
