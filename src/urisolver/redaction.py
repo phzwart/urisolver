@@ -14,12 +14,8 @@ _SENSITIVE = (
 )
 
 def extract_scheme(uri: str) -> str:
-    if not uri or ":" not in uri:
-        raise ValueError(f"URI has no scheme: {uri!r}")
-    scheme, _ = uri.split(":", 1)
-    if not scheme:
-        raise ValueError(f"URI has empty scheme: {uri!r}")
-    return scheme.lower()
+    from urisolver._uriparse import split_uri
+    return split_uri(uri).scheme
 
 def register_opaque_scheme(scheme: str) -> None:
     _OPAQUE_SCHEMES.add(scheme.lower())
