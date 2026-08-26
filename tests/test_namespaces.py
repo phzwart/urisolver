@@ -56,11 +56,11 @@ def test_namespace_available(tmp_path: Path):
         {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
     )
     with Context(
-        namespaces=NamespaceConfig(resolvers={"lbl-mbib": router}),
+        namespaces=NamespaceConfig(resolvers={"gov.lbl.mbib": router}),
         principal=Principal(id="alice"),
     ) as ctx:
-        r = ctx.resolve("lbl-mbib:abc")
-        assert r.uri == "lbl-mbib:abc"
+        r = ctx.resolve("gov.lbl.mbib:abc")
+        assert r.uri == "gov.lbl.mbib:abc"
         assert r.resolved_uri == target
         assert r.materialize(MemoryDestination()).value == b"ns"
 
@@ -230,7 +230,7 @@ def test_namespace_server_and_client(tmp_path: Path):
         }
     )
     config = ServerConfig(
-        namespace="lbl-mbib",
+        namespace="gov.lbl.mbib",
         resolver=router,
         authenticator=NullAuthenticator(),
         host="127.0.0.1",
