@@ -10,6 +10,7 @@ import pytest
 
 from urisolver import (
     Context,
+    InvalidURIError,
     MemoryDestination,
     NamespaceConfig,
     NamespaceNotFoundError,
@@ -175,6 +176,27 @@ def test_namespace_fragment_target_wins(tmp_path: Path):
         r = ctx.resolve("ns:abc#frag")
         assert seen_file_uris[-1] == f"{target}#own"
         assert r.uri == "ns:abc#frag"
+
+
+def test_namespace_rejects_double_slash():
+    router = MapRouter({})
+    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        with pytest.raises(InvalidURIError, match="RFC 7595"):
+            ctx.resolve("ns://abc")
+
+
+def test_namespace_single_slash_identifier(tmp_path: Path):
+    ensure_builtin_file_resolver()
+    data = tmp_path / "slash.dat"
+    data.write_bytes(b"s")
+    target = data.resolve().as_uri()
+    router = MapRouter(
+        {"/abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
+    )
+    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        r = ctx.resolve("ns:/abc")
+        assert router.calls[-1][0] == "/abc"
+        assert r.materialize(MemoryDestination()).value == b"s"
 
 
 def test_namespace_server_and_client(tmp_path: Path):

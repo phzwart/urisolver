@@ -111,8 +111,12 @@ class ResolveContext:
 
         if self.namespaces is not None and scheme in self.namespaces.resolvers:
             identifier = parts.body
-            if identifier.startswith("//"):
-                identifier = identifier[2:]
+            if parts.body.startswith("//"):
+                raise InvalidURIError(
+                    f"namespace scheme {scheme!r} defines no authority component; "
+                    f"{uri!r} uses '//' after the scheme (RFC 7595 §3.2). "
+                    f"Use the opaque form {scheme}:<identifier>."
+                )
             ns = self._resolve_namespace(scheme, identifier)
             if ns.status is ResolutionStatus.NOT_FOUND:
                 raise NamespaceNotFoundError(f"namespace {scheme!r}: not found")
