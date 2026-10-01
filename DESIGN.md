@@ -1213,6 +1213,17 @@ Each requires a page in `SCHEMES.md` (§4.5).
 10. implement Tier 0 for every node type
 ```
 
+Rectangular arrays declare `application/x-npy`. Tables declare
+`application/vnd.apache.arrow.file` and `materialize` writes that Arrow IPC file.
+Sparse, awkward, and ragged nodes are `Kind.OPAQUE` with `canonical_media_type` left
+unset: there is no single established encoding the resolver can honestly promise (§8.1).
+`MemoryDestination()` still returns the client's native `read()`. Byte-level delivery
+raises `UnsupportedFormError`.
+
+Path segments are percent-decoded, so `%2F` is one Tiled key containing a slash. An empty
+interior segment (`a//b`) is `InvalidURIError`. A client session is cached per
+`(base_uri, secret_id)`, so two credential ids against one server do not share a client.
+
 Selection: numpy basic indexing is pushed to Tiled server-side wherever the node supports
 it (`strategy="native-selection"`). Tiled-specific selections travel through
 `Native(...)`. Do not define a second slicing grammar. Do not materialize an entire
@@ -1229,6 +1240,12 @@ The plugin owns source interpretation, destination semantics, authentication, tr
 submission and status handling. Tier 0 still applies: a Globus-backed resource must
 support `FileDestination` and `MemoryDestination` even if it does so by staging. The core
 builds no transfer graph.
+
+A resolution-catalog entry may list `native: [memory]`, `native: [file]`, or both. That
+list is the delivery the server can perform without staging. Tiled is `memory`. Globus is
+`file`. The other Tier 0 delivery remains available and is reported as a non-native
+strategy. `Context(strict_efficiency=True)` raises `InefficientOperationError` for a
+delivery outside `native`.
 
 Cross-protocol optimizations (`urisolver-tiled-globus`) must be pluggable without core
 changes. Do not build general cross-protocol routing in the core.

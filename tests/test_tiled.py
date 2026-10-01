@@ -7,16 +7,23 @@ from typing import Any
 import pytest
 
 from urisolver import (
+    AuthenticationError,
+    AuthorizationError,
     Context,
+    FileDestination,
     Form,
     InefficientOperationError,
+    InvalidURIError,
     Kind,
+    MaterializationError,
     MemoryDestination,
     NativeAccessDenied,
+    ResolutionError,
+    UnsupportedFormError,
 )
 from urisolver.plugins import ensure_builtin_file_resolver
 from urisolver.registry import register_resolver
-from urisolver.resolvers.tiled import TiledResolver
+from urisolver.resolvers.tiled import TiledResolver, _wrapper_for
 from urisolver.testing.baseline import run_baseline_suite
 
 
@@ -188,3 +195,204 @@ def test_tiled_baseline(tiled_array_setup):
         expect_array_selection=True,
         expect_bytes=True,
     )
+
+
+def _resolve(node: Any, uri: str) -> Any:
+    return TiledResolver(client=node, protocol_name="ex").resolve(uri, Context())
+
+
+class _StatusError(Exception):
+    def __init__(self, status_code: int) -> None:
+        self.response = type("Response", (), {"status_code": status_code})()
+
+
+def test_http_status_mapping():
+    assert _wrapper_for(_StatusError(401)) is AuthenticationError
+    assert _wrapper_for(_StatusError(403)) is AuthorizationError
+    assert _wrapper_for(_StatusError(404)) is ResolutionError
+    assert _wrapper_for(_StatusError(400)) is MaterializationError
+    assert _wrapper_for(_StatusError(422)) is MaterializationError
+
+
+def test_array_chunks_tolerate_none():
+    class Node:
+        structure_family = "array"
+        shape = (4,)
+        dtype = "float64"
+        chunks = ((4,), None, None)
+
+        def structure(self) -> Any:
+            return self
+
+        def read(self) -> list[float]:
+            return [1.0]
+
+    resource = _resolve(Node(), "ex:")
+    assert resource.info().kind is Kind.ARRAY
+    assert resource._facet_objects["array"].chunks == ((4,), None, None)
+
+
+def test_special_nodes_are_opaque_and_container_children_are_lazy(tmp_path):
+    built = {"n": 0}
+
+    class Ragged:
+        structure_family = "ragged"
+
+        def __init__(self) -> None:
+            built["n"] += 1
+
+        def read(self) -> list[int]:
+            return [1]
+
+    class Box:
+        structure_family = "container"
+
+        def keys(self):
+            return ["ragged_array", "awkward_array", "sparse_image"]
+
+        def __getitem__(self, key: str) -> Any:
+            families = {
+                "ragged_array": "ragged",
+                "awkward_array": "awkward",
+                "sparse_image": "sparse",
+            }
+            node = Ragged()
+            node.structure_family = families[key]
+            return node
+
+        def __len__(self) -> int:
+            return 3
+
+    resource = _resolve(Box(), "ex:")
+    children = resource.materialize(MemoryDestination()).value
+    assert built["n"] == 0
+    for name in ("ragged_array", "awkward_array", "sparse_image"):
+        child = children[name]
+        assert child.info().kind is Kind.OPAQUE
+        assert child.info().canonical_media_type is None
+    assert built["n"] == 3
+    with pytest.raises(UnsupportedFormError):
+        children["ragged_array"].materialize(FileDestination(tmp_path / "nope"))
+
+
+def test_typeerror_from_materialize_is_wrapped():
+    class Node:
+        structure_family = "array"
+        shape = (1,)
+        dtype = "float64"
+
+        def structure(self) -> Any:
+            return self
+
+        def read(self) -> Any:
+            raise TypeError("boom")
+
+    resource = _resolve(Node(), "ex:")
+    with pytest.raises(MaterializationError):
+        resource.materialize(MemoryDestination())
+
+
+def test_table_file_is_arrow_ipc(tmp_path):
+    pa = pytest.importorskip("pyarrow")
+    pd = pytest.importorskip("pandas")
+
+    frame = pd.DataFrame({"a": [1, 2], "b": ["x", "y"]})
+
+    class Node:
+        structure_family = "table"
+        columns = ("a", "b")
+
+        def read(self) -> pd.DataFrame:
+            return frame
+
+    dest = tmp_path / "short_table.arrow"
+    resource = _resolve(Node(), "ex:")
+    result = resource.materialize(FileDestination(dest))
+    assert result.media_type == "application/vnd.apache.arrow.file"
+    table = pa.ipc.open_file(dest).read_all()
+    assert table.column("a").to_pylist() == [1, 2]
+    assert table.column("b").to_pylist() == ["x", "y"]
+
+
+def test_path_percent_decodes_and_rejects_empty_segments():
+    seen: list[str] = []
+
+    class Leaf:
+        structure_family = "array"
+        shape = (1,)
+        dtype = "float64"
+
+        def structure(self) -> Any:
+            return self
+
+        def read(self) -> list[int]:
+            return [1]
+
+    class Root:
+        def __getitem__(self, key: str) -> Any:
+            seen.append(key)
+            if key == "/":
+                return Leaf()
+            return self
+
+    resource = _resolve(Root(), "ex://foo/%2F")
+    assert seen == ["foo", "/"]
+    assert resource.info().kind is Kind.ARRAY
+    with pytest.raises(InvalidURIError):
+        _resolve(Root(), "ex://foo//bar")
+
+
+def test_session_cache_key_includes_secret_id(monkeypatch):
+    calls: list[str | None] = []
+
+    class FakeClient:
+        @staticmethod
+        def from_uri(uri: str, **kwargs: Any) -> object:
+            calls.append(kwargs.get("api_key"))
+            return object()
+
+    monkeypatch.setattr("urisolver.resolvers.tiled._require_tiled", lambda: FakeClient)
+
+    class Secrets:
+        def __init__(self, api_key: str) -> None:
+            self._api_key = api_key
+
+        def get_secret(self, secret_id: str) -> dict[str, str]:
+            return {"api_key": self._api_key}
+
+    alpha = TiledResolver(base_uri="http://tiled.example", secret_id="alpha")
+    beta = TiledResolver(base_uri="http://tiled.example", secret_id="beta")
+    alpha_ctx = Context(secrets=Secrets("aaa"))
+    beta_ctx = Context(secrets=Secrets("bbb"))
+    alpha._get_client(alpha_ctx)
+    alpha._get_client(alpha_ctx)
+    beta._get_client(beta_ctx)
+    assert calls == ["aaa", "bbb"]
+    assert ("http://tiled.example", "alpha") in alpha._sessions
+    assert ("http://tiled.example", "beta") in beta._sessions
+
+
+def test_native_modes_refuse_staged_file_when_strict(tmp_path):
+    pytest.importorskip("numpy")
+
+    class Node:
+        structure_family = "array"
+        shape = (2,)
+        dtype = "float64"
+
+        def structure(self) -> Any:
+            return self
+
+        def read(self) -> list[float]:
+            return [1.0, 2.0]
+
+    resolver = TiledResolver(client=Node(), protocol_name="ex", native_modes=frozenset({"memory"}))
+    with Context(strict_efficiency=True) as ctx:
+        resource = resolver.resolve("ex:", ctx)
+        assert resource.materialize(MemoryDestination()).strategy == "native"
+        with pytest.raises(InefficientOperationError, match="file delivery is not native"):
+            resource.materialize(FileDestination(tmp_path / "staged.npy"))
+    with Context() as ctx:
+        resource = resolver.resolve("ex:", ctx)
+        staged = resource.materialize(FileDestination(tmp_path / "ok.npy"))
+        assert staged.strategy == "converted"

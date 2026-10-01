@@ -15,6 +15,24 @@ Every URI scheme registered with a `urisolver` deployment is defined here, per R
 Deployment-specific schemes follow the template below and get a page in this file before
 they are registered.
 
+A local resolution catalog binds a scheme to a server. `examples/catalog.yaml` is the
+example. Each entry names one scheme:
+
+```yaml
+com.urisolver.example.tiled:
+  protocol: tiled
+  base_uri: https://tiled.example
+  native: [memory]
+  secret_id: tiled
+```
+
+`protocol` and `base_uri` are required for a tiled server. `secret_id` is optional. When
+set, the resolver calls `SecretsProvider.get_secret(secret_id)` and uses `api_key` or
+`token` from the returned map. `native` is the efficient path: `memory`, `file`, or both.
+It does not remove Tier 0. A caller that sets `strict_efficiency` is refused a delivery
+outside that list. The same file can hold other protocols later; each scheme is a separate
+entry.
+
 ## Template
 
 ### Scheme name

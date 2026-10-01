@@ -2,15 +2,17 @@
 from __future__ import annotations
 import io
 import uuid
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Callable, Sequence, TypeVar
-from urllib.parse import urlparse
+from typing import Any, Callable, Iterator, Sequence, TypeVar
+from urllib.parse import unquote, urlparse
 from urisolver._resource import ResourceBase
 from urisolver._uriparse import split_uri
 from urisolver.destinations import FileDestination, Form, MemoryDestination, ReferencePolicy
 from urisolver.errors import (
-    AuthenticationError, AuthorizationError, InefficientOperationError, MaterializationError,
-    MemoryLimitError, PluginError, ResolutionError, UnsupportedDestinationError, UnsupportedFormError,
+    AuthenticationError, AuthorizationError, InefficientOperationError, InvalidURIError,
+    MaterializationError, MemoryLimitError, PluginError, ResolutionError,
+    UnsupportedDestinationError, UnsupportedFormError,
 )
 from urisolver.info import Kind, ResourceInfo
 from urisolver.redaction import sanitize_exception
@@ -33,8 +35,8 @@ def _wrapper_for(exc: BaseException) -> type[Exception]:
         return AuthenticationError
     if status == 403:
         return AuthorizationError
-    if status is not None and 400 <= int(status) < 500:
-        return AuthorizationError
+    if status == 404:
+        return ResolutionError
     return MaterializationError
 
 def _build_wrapped_error(
@@ -74,7 +76,10 @@ class _ArrayFacet:
         dtype = getattr(structure, "data_type", None) or getattr(node, "dtype", "float64")
         self.dtype = str(getattr(dtype, "name", dtype))
         chunks = getattr(structure, "chunks", None)
-        self.chunks = tuple(tuple(c) for c in chunks) if chunks else None
+        if chunks:
+            self.chunks = tuple(None if entry is None else tuple(entry) for entry in chunks)
+        else:
+            self.chunks = None
     def __getitem__(self, selection: object) -> object:
         return self._node[selection]
 
@@ -112,13 +117,35 @@ class _ContainerFacet:
     def __len__(self) -> int:
         return len(self._node)
 
+class _LazyChildren(Mapping[str, "TiledResolvedResource"]):
+    """Child resources built on lookup, not when the container is materialized."""
+
+    def __init__(self, facet: _ContainerFacet) -> None:
+        self._facet = facet
+
+    def __getitem__(self, key: str) -> "TiledResolvedResource":
+        return self._facet[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._facet.keys())
+
+    def __len__(self) -> int:
+        return len(self._facet)
+
+_OPAQUE_FAMILIES = frozenset({"sparse", "awkward", "ragged"})
+_OPAQUE_TYPES = frozenset({"sparseclient", "awkwardclient", "raggedclient"})
+
 def _kind_for(node: Any) -> Kind:
+    if type(node).__name__.lower() in _OPAQUE_TYPES:
+        return Kind.OPAQUE
     family = getattr(node, "structure_family", None)
     if family is not None:
         name = str(getattr(family, "value", family)).lower()
+        if name in _OPAQUE_FAMILIES:
+            return Kind.OPAQUE
         if "array" in name or "xarray" in name:
             return Kind.ARRAY
-        if name in {"table", "dataframe", "awkward"}:
+        if name in {"table", "dataframe"}:
             return Kind.TABLE
         if name in {"container", "node"}:
             return Kind.CONTAINER
@@ -148,16 +175,22 @@ class TiledResolvedResource(ResourceBase):
         self._resolver = resolver
         kind = _kind_for(node)
         facets: set[str] = set()
-        if kind is Kind.ARRAY: facets.add("array")
-        if kind is Kind.TABLE: facets.add("table")
-        if kind is Kind.CONTAINER: facets.add("container")
+        if kind is Kind.ARRAY:
+            facets.add("array")
+        if kind is Kind.TABLE:
+            facets.add("table")
+        if kind is Kind.CONTAINER:
+            facets.add("container")
         super().__init__(
             uri=uri, resolved_uri=resolved_uri, protocol=resolver.protocol_name, context=context,
             native=node, capabilities=_caps(node), facets=frozenset(facets), allow_native=allow_native,
         )
-        if "array" in facets: self._facet_objects["array"] = _ArrayFacet(node)
-        if "table" in facets: self._facet_objects["table"] = _TableFacet(node)
-        if "container" in facets: self._facet_objects["container"] = _ContainerFacet(node, self)
+        if "array" in facets:
+            self._facet_objects["array"] = _ArrayFacet(node)
+        if "table" in facets:
+            self._facet_objects["table"] = _TableFacet(node)
+        if "container" in facets:
+            self._facet_objects["container"] = _ContainerFacet(node, self)
         self._kind = kind
 
     def info(self) -> ResourceInfo:
@@ -175,6 +208,13 @@ class TiledResolvedResource(ResourceBase):
 
     def materialize(self, destination: FileDestination | MemoryDestination, *, selection: Selection | None = None, **kwargs: object) -> MaterializedResult:
         self._ensure_valid()
+        try:
+            return self._materialize(destination, selection=selection)
+        except TypeError as exc:
+            raise _build_wrapped_error(exc, context=self._context, uri=self._uri) from None
+
+    def _materialize(self, destination: FileDestination | MemoryDestination, *, selection: Selection | None = None) -> MaterializedResult:
+        self._require_native(destination)
         info = self.info()
         sel = selection.value if isinstance(selection, Native) else selection
         if isinstance(destination, MemoryDestination):
@@ -182,6 +222,18 @@ class TiledResolvedResource(ResourceBase):
         if isinstance(destination, FileDestination):
             return self._to_file(destination, info, sel)
         raise UnsupportedDestinationError(type(destination).__name__)
+
+    def _require_native(self, destination: FileDestination | MemoryDestination) -> None:
+        modes = getattr(self._resolver, "native_modes", None)
+        if not modes or not getattr(self._context, "strict_efficiency", False):
+            return
+        mode = "file" if isinstance(destination, FileDestination) else "memory"
+        if isinstance(destination, MemoryDestination) and destination.form is Form.BYTES:
+            mode = "file"
+        if mode not in modes:
+            raise InefficientOperationError(
+                f"{mode} delivery is not native for this server"
+            )
 
     def _read(self, selection: Any) -> tuple[Any, str, tuple[str, ...]]:
         node = self._node
@@ -217,8 +269,11 @@ class TiledResolvedResource(ResourceBase):
                 import numpy as np
             except ImportError as exc:
                 raise UnsupportedFormError("application/x-npy requires numpy") from exc
-            buf = io.BytesIO(); np.save(buf, value)
+            buf = io.BytesIO()
+            np.save(buf, value)
             return buf.getvalue(), "converted", warnings
+        if info.canonical_media_type == "application/vnd.apache.arrow.file":
+            return _arrow_file_bytes(value), "converted", warnings
         raise UnsupportedFormError(f"cannot serialize to {info.canonical_media_type!r}")
 
     def _to_memory(self, destination: MemoryDestination, info: ResourceInfo, selection: Any) -> MaterializedResult:
@@ -229,7 +284,7 @@ class TiledResolvedResource(ResourceBase):
             if form is not Form.NATIVE:
                 raise UnsupportedFormError(str(form))
             facet = self._facet_objects["container"]
-            mapping = {k: facet[k] for k in facet.keys()}
+            mapping = _LazyChildren(facet)
             return MaterializedResult(
                 value=mapping, source_uri=self._uri, resolved_uri=self._resolved_uri, protocol=self._protocol,
                 destination=destination, form=Form.NATIVE, media_type=None, size_bytes=None,
@@ -295,29 +350,62 @@ class TiledResolvedResource(ResourceBase):
             strategy="converted" if strategy == "native" else strategy, warnings=warnings,
         )
 
+def _arrow_file_bytes(value: Any) -> bytes:
+    try:
+        import pyarrow as pa
+        import pyarrow.ipc as ipc
+    except ImportError as exc:
+        raise UnsupportedFormError(
+            "application/vnd.apache.arrow.file requires pyarrow"
+        ) from exc
+    table = value if isinstance(value, pa.Table) else pa.Table.from_pandas(value)
+    buf = io.BytesIO()
+    with ipc.new_file(buf, table.schema) as writer:
+        writer.write_table(table)
+    return buf.getvalue()
+
+def _path_segments(uri: str) -> list[str]:
+    parts = split_uri(uri)
+    body = parts.body
+    if len(body) >= 2 and body[0:2] == "//":
+        parsed = urlparse("http:" + body)
+        path = f"{parsed.netloc}{parsed.path}"
+    else:
+        path = body
+    path = path.strip("/")
+    if not path:
+        return []
+    raw = path.split("/")
+    if any(segment == "" for segment in raw):
+        raise InvalidURIError(f"empty path segment in {uri!r}")
+    return [unquote(segment) for segment in raw]
+
 class TiledResolver:
     api_version = 1
     opaque_payload = False
-    def __init__(self, *, base_uri: str | None = None, protocol_name: str = "tiled", secret_id: str | None = None, allow_native: bool = True, client: Any | None = None) -> None:
+    def __init__(self, *, base_uri: str | None = None, protocol_name: str = "tiled", secret_id: str | None = None, allow_native: bool = True, client: Any | None = None, native_modes: frozenset[str] | None = None) -> None:
         self.base_uri = base_uri
         self.protocol_name = protocol_name
         self.secret_id = secret_id
         self.allow_native = allow_native
+        self.native_modes = native_modes
         self._client = client
         self._injected_client = client is not None
-        self._sessions: dict[str, Any] = {}
+        self._sessions: dict[tuple[str, str | None], Any] = {}
     def _get_client(self, context: Any) -> Any:
         if self._client is not None:
             return self._client
-        key = self.base_uri or "default"
+        key = (self.base_uri or "default", self.secret_id)
         if key in self._sessions:
             return self._sessions[key]
         tiled_client = _require_tiled()
         kwargs: dict[str, Any] = {}
         if self.secret_id and getattr(context, "secrets", None) is not None:
             secret = context.secrets.get_secret(self.secret_id)
-            if "api_key" in secret: kwargs["api_key"] = secret["api_key"]
-            if "token" in secret: kwargs["headers"] = {"Authorization": f"Bearer {secret['token']}"}
+            if "api_key" in secret:
+                kwargs["api_key"] = secret["api_key"]
+            if "token" in secret:
+                kwargs["headers"] = {"Authorization": f"Bearer {secret['token']}"}
         try:
             client = tiled_client.from_uri(self.base_uri or "http://localhost:8000", **kwargs)
         except Exception as exc:
@@ -325,20 +413,11 @@ class TiledResolver:
         self._sessions[key] = client
         return client
     def resolve(self, uri: str, context: Any) -> TiledResolvedResource:
-        parts = split_uri(uri)
-        body = parts.body
-        if len(body) >= 2 and body[0:2] == "//":
-            parsed = urlparse("http:" + body)
-            path = f"{parsed.netloc}{parsed.path}"
-        else:
-            path = body
-        path = path.strip("/")
+        segments = _path_segments(uri)
         try:
             node: Any = self._get_client(context)
-            if path:
-                for part in path.split("/"):
-                    if part:
-                        node = _guard(node.__getitem__, part, context=context, uri=uri)
+            for part in segments:
+                node = _guard(node.__getitem__, part, context=context, uri=uri)
         except Exception as exc:
             raise _build_wrapped_error(exc, context=context, uri=uri, default=ResolutionError) from None
         return TiledResolvedResource(uri=uri, resolved_uri=uri, node=node, context=context, resolver=self, allow_native=self.allow_native)

@@ -5,3 +5,4 @@
 com.urisolver.example.tiled:
   protocol: tiled
   base_uri: https://tiled-demo.nsls2.bnl.gov
+  native: [memory]
