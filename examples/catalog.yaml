@@ -1,0 +1,7 @@
+# Local resolution catalog. A scheme names a server. The URI path is the
+# object on that server. Another protocol (for example Globus) is another
+# scheme in this file.
+
+com.urisolver.example.tiled:
+  protocol: tiled
+  base_uri: https://tiled-demo.nsls2.bnl.gov

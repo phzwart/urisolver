@@ -29,12 +29,12 @@ MIT — see [LICENSE](LICENSE).
 
 ## Design
 
-v0 is frozen in [DESIGN.md](DESIGN.md). That document is the authority; this package
-implements it without architectural additions.
+Architecture, contracts, and scope boundaries are specified in [DESIGN.md](DESIGN.md).
+Deployable URI schemes are documented in [SCHEMES.md](SCHEMES.md).
 
 ## Conformance
 
-Every resolver must pass the baseline suite:
+Third-party resolvers can check against the baseline suite:
 
 ```python
 from urisolver.testing import run_baseline_suite, BaselineResult, ConformanceFixtures
@@ -48,7 +48,7 @@ together in pytest output.
 Run CI tests as a **non-root** user when possible; see [DESIGN.md §36](DESIGN.md) for
 root-proof §11.2 hazard checks.
 
-## Footnotes
+## Behavior notes
 
 - Missing local `file:` paths raise **`FileNotFoundError`** (Python stdlib), not a
-  urisolver error type. This is intentional for v0.
+  urisolver error type.

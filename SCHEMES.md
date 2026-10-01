@@ -3,11 +3,17 @@
 Every URI scheme registered with a `urisolver` deployment is defined here, per RFC 7595
 §3.3, §3.4, and §3.7. A scheme with no entry is not deployable.
 
-## Stubs (not yet documented)
+## Registered schemes
 
-- `file` — built-in; see DESIGN.md §27.1
-- `gov.bnl.nsls2.tiled` — Tiled deployment (local/dev)
-- `gov.bnl.nsls2.tiled-ssrl` — Tiled deployment (SSRL)
+| Scheme | Status | Notes |
+| --- | --- | --- |
+| `file` | Built-in | See DESIGN.md §27.1 |
+| `gov.bnl.nsls2.tiled` | Optional (`[tiled]` extra) | Tiled deployment; document before deploy |
+| `gov.bnl.nsls2.tiled-ssrl` | Optional (`[tiled]` extra) | Tiled deployment; document before deploy |
+| `gov.lbl.mbib` | Documented below | Facility namespace (opaque name → concrete URI) |
+
+Deployment-specific schemes follow the template below and get a page in this file before
+they are registered.
 
 ## Template
 
@@ -38,8 +44,8 @@ the sense of the W3C Web Architecture — does dereferencing incur any obligatio
 
 ### Fragments
 
-Per §4.3 of DESIGN.md, v0 interprets no fragments. Record what a fragment would mean for
-this scheme when that changes, and per which media type.
+Fragments are not interpreted by `urisolver` (see DESIGN.md §4.3). Record any
+media-type-specific fragment meaning the scheme may define later.
 
 ### Encoding
 
@@ -76,7 +82,7 @@ gov.lbl.mbib:<identifier>
 
 - `<identifier>` is opaque to the core; characters are passed verbatim to the namespace
   router after scheme dispatch.
-- No query component is defined for v0.
+- No query component is defined.
 - Case-sensitive identifier (deployment policy; the scheme itself is case-insensitive per
   RFC 3986 §6.2.2.1).
 
@@ -94,7 +100,7 @@ dereference without the router.
 
 ### Fragments
 
-v0 interprets no fragments (DESIGN.md §4.3). A fragment on a namespace URI is split off
+Fragments are not interpreted (DESIGN.md §4.3). A fragment on a namespace URI is split off
 before the identifier reaches the router and may be inherited onto the resolved backend
 URI per RFC 9110 §10.2.2.
 

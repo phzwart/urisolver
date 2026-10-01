@@ -24,7 +24,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-tiled = ["tiled>=0.1"]
+tiled = ["tiled>=0.1", "pyyaml>=6"]
 dev = ["pytest>=8.0", "pytest-cov>=5.0"]
 
 [project.scripts]
@@ -32,6 +32,7 @@ urisolver = "urisolver.cli:main"
 
 [project.entry-points."urisolver.resolvers"]
 file = "urisolver.resolvers.file:FileResolver"
+"com.urisolver.example.tiled" = "urisolver.resolvers.example_tiled:ExampleCatalogResolver"
 
 [project.entry-points."urisolver.namespaces"]
 [project.entry-points."urisolver.secrets"]

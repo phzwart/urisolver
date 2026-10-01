@@ -1,66 +1,14 @@
-# `urisolver` — v0 Design Specification (revision 3 — frozen for v0)
-
-## 0. What changed in this revision
-
-The previous draft made **native pass-through the only access path** and `materialize()` the
-only universal operation, with its semantics left almost entirely to the resolver. The
-consequence was that a caller who wanted nothing more than *"give me this as a file"* or
-*"give me this in memory"* still had to know whether the URI was Tiled, Globus, S3 or a
-local path — because nothing about the delivered result was contractual.
-
-This revision inverts that. `urisolver` now defines **three tiers**:
-
-```text
-Tier 0   Baseline contract     MUST be implemented by every resolver.
-                               Protocol-agnostic. Never requires the caller
-                               to know the backend.
-
-Tier 1   Facets                Small, optional, declared protocols borrowed
-                               from existing de-facto standards (bytes,
-                               array, table, container). Generic code may
-                               use them after checking.
-
-Tier 2   Native pass-through   Everything the protocol genuinely provides.
-                               Caller opts in and accepts protocol coupling.
-```
-
-The guiding rule is now:
-
-> **Ordinary things must work identically everywhere. Extraordinary things must not be
-> flattened into a lowest common denominator.**
-
-Other substantive changes: `MaterializedResult` is fully specified; copy-vs-reference is
-explicit; overwrite policy has an API; policy filtering is described as intent signalling
-rather than as a security boundary; there is one authoritative capability mechanism;
-`ResolveContext` owns session lifetime and is a context manager; namespace resolutions
-carry TTL and a richer status set; opaque URI payloads are treated as secrets.
-
-**Revision 3** makes three corrections and freezes the document:
-
-1. Universal `BYTES` materialization is relaxed for structured resources. Byte-level
-   delivery now depends on a resolver-declared `canonical_media_type` rather than
-   obliging every resolver to invent a serialization (§8.1, §9).
-2. The reason numpy basic indexing sits at Tier 0 — and why nothing else may join it —
-   is now stated rather than assumed (§13.1).
-3. Tier 0 operations are universally **present** but may fail at call time with
-   `AuthorizationError` or `ResourceUnavailableError`. Resolution establishes
-   addressability, not entitlement; resolvers must not probe read authorization eagerly
-   to force early failure (§16.1, §25).
-
-§35 adds an implementation directive constraining what may be added during the build.
-
----
+# urisolver — Design Specification
 
 ## 1. Purpose
 
 `urisolver` resolves **absolute URIs** into usable resources.
 
 > Relative references and base-URI reference resolution (RFC 3986 §4.1, §5) are out of
-> scope for v0: a URI without a scheme raises `InvalidURIError`. Note also that
-> "resolution" in this document means *dereference the identifier, following namespace
-> indirection*, which is a different operation from RFC 3986 §5 reference resolution.
-> Where ambiguity is possible, this document says "namespace indirection" or
-> "dereference".
+> scope: a URI without a scheme raises `InvalidURIError`. Note also that "resolution" in
+> this document means *dereference the identifier, following namespace indirection*, which
+> is a different operation from RFC 3986 §5 reference resolution. Where ambiguity is
+> possible, this document says "namespace indirection" or "dereference".
 
 > **Given a URI, resolve it through the appropriate resolver; guarantee a small set of
 > universal delivery operations; expose the underlying protocol's native capabilities to
@@ -77,6 +25,27 @@ a generalized filesystem
 a transfer planner
 a replacement for Tiled, Globus, S3, HDF5, Zarr, etc.
 ```
+
+`urisolver` defines three tiers:
+
+```text
+Tier 0   Baseline contract     MUST be implemented by every resolver.
+                               Protocol-agnostic. Never requires the caller
+                               to know the backend.
+
+Tier 1   Facets                Small, optional, declared protocols borrowed
+                               from existing de-facto standards (bytes,
+                               array, table, container). Generic code may
+                               use them after checking.
+
+Tier 2   Native pass-through   Everything the protocol genuinely provides.
+                               Caller opts in and accepts protocol coupling.
+```
+
+Guiding rule:
+
+> **Ordinary things must work identically everywhere. Extraordinary things must not be
+> flattened into a lowest common denominator.**
 
 Architecture:
 
@@ -217,9 +186,9 @@ The scheme may always appear in the clear (it is needed to diagnose
 > - a scheme not intended for relative references SHOULD avoid `/` entirely, to avoid
 >   unintended dot-segment processing (§3.2).
 >
-> **Deployments that have already minted `ns://identifier` references must migrate to
-> `ns:identifier`.** The core no longer strips the double slash, because doing so aliased
-> two distinct URIs onto one identifier.
+> Namespace schemes use opaque form without an authority: **`ns:identifier`**. The form
+> `ns://identifier` is invalid and rejected (RFC 7595 §3.2); the two spellings must not be
+> treated as aliases.
 
 ### 4.3 Fragments
 
@@ -236,10 +205,10 @@ The scheme may always appear in the clear (it is needed to diagnose
 >   own, following the redirect rule of RFC 9110 §10.2.2;
 > - the resolver still receives the complete original URI, fragment included, and the
 >   resource's `uri` preserves it verbatim;
-> - **v0 interprets no fragments.** No resolver may fold a fragment into a path, a key, or
->   a selection. Selection is a Python argument (§13), not a URI component, and it stays
->   that way. If a future version defines fragment semantics for a scheme, it does so per
->   media type, in that scheme's definition.
+> - **Fragments are not interpreted.** No resolver may fold a fragment into a path, a key,
+>   or a selection. Selection is a Python argument (§13), not a URI component. Any future
+>   fragment semantics for a scheme must be defined per media type, in that scheme's
+>   definition.
 
 ### 4.4 Equivalence
 
@@ -250,8 +219,8 @@ The scheme may always appear in the clear (it is needed to diagnose
 >
 > Percent-encoding normalisation, dot-segment removal, host case-folding, and default-port
 > elision are **not** performed and are the resolver's business if its scheme needs them.
-> Two URIs that differ only in such details are treated as different by the core. This is
-> a deliberate v0 limitation: a general normaliser that is wrong is worse than none.
+> Two URIs that differ only in such details are treated as different by the core. A general
+> normaliser that is wrong is worse than none.
 
 ### 4.5 Scheme definitions are a deliverable
 
@@ -514,8 +483,7 @@ any such awareness in the core (§28).
 `Context(strict_efficiency=True)` turns any `"read-then-select"` into an
 `InefficientOperationError` before the transfer starts. Default is `False`: the ordinary
 caller gets the right answer automatically, and the caller who cares about not pulling a
-terabyte can opt into strictness. This replaces the previous draft's prohibition, which
-forbade the fallback without providing a portable alternative.
+terabyte can opt into strictness.
 
 ---
 
@@ -564,9 +532,8 @@ the caller must not mutate or delete result.value
 overwrite semantics do not apply
 ```
 
-This resolves the contradiction in the previous draft between "avoid unnecessary copying"
-and "failures should clean up incomplete data", which together could delete a user's
-source data.
+These rules keep reference delivery and failure cleanup separate: incomplete artefacts are
+removed, but the caller's original source path is never deleted as "cleanup."
 
 The default is `COPY`. A resolver may only return a reference when the caller asked for
 one.
@@ -600,7 +567,7 @@ For `Kind.CONTAINER`:
 ```text
 materialize(MemoryDestination())      → a Mapping of child name → ResolvedResource
                                         (lazy; children are not materialized)
-materialize(FileDestination(path))    → v0: raises UnsupportedDestinationError
+materialize(FileDestination(path))    → raises UnsupportedDestinationError
                                         unless the resolver declares a single-file
                                         serialization of the container (e.g. Tiled
                                         node → HDF5) via canonical_media_type,
@@ -608,8 +575,7 @@ materialize(FileDestination(path))    → v0: raises UnsupportedDestinationError
 materialize(MemoryDestination(BYTES)) → same condition
 ```
 
-Directory destinations and recursive export are out of scope for v0 and are the obvious
-first post-v0 extension.
+Directory destinations and recursive export are out of scope.
 
 ---
 
@@ -644,20 +610,18 @@ The core defines no query language, no filter grammar, and no `SliceSpec` type.
 
 ### 13.1 Why basic indexing is Tier 0, and why nothing else may join it
 
-This is the only place in the document where the core adopts an access semantics instead
-of deferring to the protocol. The reason belongs on the record, both to justify it and to
-bound it.
+This is the only place where the core adopts an access semantics instead of deferring to
+the protocol.
 
 **It is not an invention.** Basic indexing is already the shared vocabulary of numpy,
 h5py, zarr, xarray, Dask and Tiled. The core defines it by reference to numpy's rules and
-adds nothing of its own. Nobody has to learn, implement, or disagree about a new concept.
+adds nothing of its own.
 
 **Without it, Tier 0 is a bulk-only promise.** The only portable way to obtain part of a
 resource would be to obtain all of it. At facility scale that turns "protocol-agnostic
-access" into "protocol-agnostic full download" — which is precisely why the previous
-revision tried to forbid the fallback, and precisely why protocol knowledge kept leaking
-back into the caller. `shape` and `dtype` from `ResourceInfo` plus basic indexing is the
-smallest interface that lets generic code decide *what to fetch* before fetching it.
+access" into "protocol-agnostic full download," and protocol knowledge leaks back into the
+caller. `shape` and `dtype` from `ResourceInfo` plus basic indexing is the smallest
+interface that lets generic code decide *what to fetch* before fetching it.
 
 **It is closed.** Basic indexing is a fixed, finite, decades-stable specification. It
 cannot grow into a query language, which is exactly what makes it safe here. Fancy
@@ -668,14 +632,12 @@ it.
 
 **Not supporting it server-side is not disqualifying.** A resolver that cannot push the
 selection down falls back to `read-then-select` and says so (§10.1). No resolver is
-blocked from conformance by lacking backend selection, so the requirement costs
-implementers nothing.
+blocked from conformance by lacking backend selection.
 
-**The counterfactual is worse.** If the core omits it, every generic tool built over
-`urisolver` reimplements the same slicing on top of full materialization — separately,
-unreviewably, and usually with the whole-object fetch left in. The parallel abstraction
-appears either way. The only question is whether it exists once, inside, where it can be
-pushed down to the backend.
+**Generic tools need one place to put it.** Without Tier 0 selection, every tool built
+over `urisolver` reimplements the same slicing on top of full materialization —
+separately, and usually with the whole-object fetch left in. Defining it once inside the
+core is where it can be pushed down to the backend.
 
 ---
 
@@ -691,7 +653,7 @@ if "stream" in resource.facets():
         header = fh.read(4096)
 ```
 
-v0 defines exactly four:
+There are exactly four facets:
 
 ### 14.1 `stream`
 
@@ -1045,7 +1007,7 @@ names, and existence of identifiers the caller may not be entitled to know about
 
 ### 21.3 Ownership
 
-`urisolver` does not own namespaces. For v0 the deployer configures which namespace their
+`urisolver` does not own namespaces. The deployer configures which namespace their
 service serves. Do not build a global registry, DNS discovery, facility federation, or
 automatic namespace ownership.
 
@@ -1077,17 +1039,15 @@ without the persisted URI changing.
 RFC 8141 URNs are the standards-native construct for exactly this job: a persistent,
 location-independent name, assigned under a registered namespace identifier, dereferenced
 by out-of-band means. RFC 8141 §6 replaced the old IETF-consensus barrier with a process
-designed to encourage registration. `urn:` also reserves syntax this design will
-eventually want: q-components (`?=`) passed to the named resource and f-components (`#`)
+designed to encourage registration. `urn:` also reserves syntax that a namespace scheme may
+want later: q-components (`?=`) passed to the named resource and f-components (`#`)
 applied client-side. Note that the r-component (`?+`), intended for passing parameters to
 resolution services, is deliberately left undefined by RFC 8141 and should not be used —
-which is independent confirmation that a private routing API is the pragmatic choice
-today.
+which is independent confirmation that a private routing API is the pragmatic choice.
 
 The cost is an IANA NID registration and a dispatch change: every URN presents scheme
 `urn`, so the flat scheme→resolver registry cannot dispatch it. NID-level dispatch under a
-single `urn` resolver would be required. Out of scope for v0; revisit before the first
-externally published identifier.
+single `urn` resolver would be required. That work is out of scope.
 
 HTTP URIs (the w3id / PURL / N2T pattern) buy the most existing tooling, and collide
 directly with §21.1: the reason resolution is a POST is that opaque identifiers must stay
@@ -1203,8 +1163,8 @@ sanitization. Preserve chaining where it is safe to do so.
 
 ## 26. Async
 
-v0 does not build an async abstraction, but reserves the names so that the ecosystem does
-not fork later:
+There is no async abstraction yet, but the names are reserved so the ecosystem does not
+fork later:
 
 ```python
 async def aresolve(uri, *, context=None) -> ResolvedResource: ...
@@ -1224,7 +1184,7 @@ document which, and must not present an incomplete transfer as a completed one.
 
 ## 27. Reference resolvers
 
-### 27.1 `file:` (required in v0)
+### 27.1 `file:` (required)
 
 ```text
 Kind          FILE (or CONTAINER for a directory)
@@ -1235,7 +1195,7 @@ FileDest      copy by default; hardlink/symlink/in-place on request (§11.2)
 MemoryDest    NATIVE == BYTES == file contents; mmap where beneficial
 ```
 
-### 27.2 Tiled (required in v0)
+### 27.2 Tiled (required)
 
 Independently configured schemes: `gov.bnl.nsls2.tiled:`, `gov.bnl.nsls2.tiled-ssrl:`.
 Each requires a page in `SCHEMES.md` (§4.5).
@@ -1271,7 +1231,7 @@ support `FileDestination` and `MemoryDestination` even if it does so by staging.
 builds no transfer graph.
 
 Cross-protocol optimizations (`urisolver-tiled-globus`) must be pluggable without core
-changes. Do not build general cross-protocol routing in v0.
+changes. Do not build general cross-protocol routing in the core.
 
 ---
 
@@ -1373,7 +1333,7 @@ resource is not picklable and says why
 ```
 
 The suite is shipped as `urisolver.testing.baseline` so third-party resolvers can import
-and run it. A plugin that does not pass it is not a v0 resolver.
+and run it. A plugin that does not pass it is not a conforming resolver.
 
 ### Core
 
@@ -1419,9 +1379,9 @@ Mock all external infrastructure in ordinary CI.
 
 ---
 
-## 32. Phase 0 demonstration
+## 32. Illustrative examples
 
-### The protocol-agnostic path — the headline case
+### The protocol-agnostic path
 
 ```python
 # Nothing here knows or cares what the URI resolves to.
@@ -1484,12 +1444,11 @@ a universal query or filter language
 automatic transfer graphs, replication, synchronization, mirror selection
 persistent credential storage
 facility-specific routing logic or security policy
-directory/recursive materialization (post-v0)
+directory/recursive materialization
 ```
 
-Note the change from revision 1: a *universal delivery contract* (Tier 0) and four small
-adopted facets (Tier 1) are no longer non-goals. Universal *semantics* — query languages,
-capability ontologies, metadata models — remain non-goals.
+Universal *semantics* — query languages, capability ontologies, metadata models — remain
+non-goals. The Tier 0 delivery contract and the four Tier 1 facets are in scope.
 
 ---
 
@@ -1544,13 +1503,9 @@ The defining design rules:
 
 ---
 
-## 35. Implementation directive
+## 35. Scope boundaries
 
-This document is frozen for v0. It is a build order, not a starting point for
-architectural improvement. The abstractions absent from it were removed deliberately and
-under review; their absence *is* the design.
-
-Do not add, without a written amendment to this document:
+The following are out of scope and must not be added without amending this document:
 
 ```text
 a capability enum or capability ontology
@@ -1564,7 +1519,7 @@ a convenience API that hides which tier a call lands in
 an async abstraction beyond the reserved names in §26
 ```
 
-Rules for the implementer:
+Rules for implementers:
 
 ```text
 if a requirement here looks wrong, stop and say so; do not route around it
@@ -1573,16 +1528,18 @@ prefer thirty duplicated lines across two resolvers over a shared abstraction
     in the core; the core earns an abstraction on the third implementation
     that wants it, not the first
 every public name in this document must appear in the code with that name
-anything not in this document is out of scope for v0, including things that
-    are obviously good ideas
+anything not in this document is out of scope, including things that are
+    obviously good ideas
 ```
 
-v0 is done when the baseline conformance suite (§31) passes for the `file:` and Tiled
-resolvers, and a third-party resolver can be written against this document alone.
+### Acceptance criteria
+
+The design is satisfied when the baseline conformance suite (§31) passes for the `file:`
+and Tiled resolvers, and a third-party resolver can be written against this document alone.
 
 ---
 
-## 36. Resolver-author checklist (post-v0 implementation notes)
+## 36. Resolver-author checklist
 
 Items intentionally **not** in the automated baseline suite but required of every
 resolver author:
