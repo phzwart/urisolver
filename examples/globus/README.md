@@ -19,7 +19,7 @@ com.urisolver.example.globus:
 
 `native` is `file`. A transfer into a local path is the delivery Globus can do without an extra copy. `MemoryDestination` still works: the resolver transfers into a temporary file under `staging.accessible` and reads it back. That result is `strategy="staged"`. `Context(strict_efficiency=True)` allows the file delivery and refuses the memory one.
 
-`staging` is this machine, not a second source. `root` is the local path that corresponds to `/` on your collection. `accessible` lists prefixes the resolver is willing to write. The committed UUID and `/CHANGE_ME` are placeholders. Replace both. Another Globus scheme in the same file can point at the same block with `staging: *example-staging`.
+`staging` is this machine, not a second source. `root` is the local path that corresponds to `/` on your collection. `accessible` lists prefixes the resolver is willing to write. The committed UUID and `/CHANGE_ME` are placeholders. Do not edit those in the repo. `setup.py` writes your collection into `~/.config/urisolver/catalog.yaml`, and that file wins over the repo catalog. Another Globus scheme in the same file can point at the same block with `staging: *example-staging`.
 
 `import urisolver` does not load the Globus SDK. The SDK is imported inside urisolver on the first transfer.
 
@@ -29,7 +29,19 @@ Install [Globus Connect Personal](https://www.globus.org/globus-connect-personal
 
 The tutorial collection is the source. Your GCP collection is only the place files land. You do not need a second tutorial endpoint.
 
+Record that collection. This does not store a credential:
+
+```bash
+python examples/globus/setup.py \
+    --collection "<your GCP collection UUID>" \
+    --accessible "$HOME"
+```
+
+Repeat `--accessible` for each directory GCP is allowed to write. The command writes `~/.config/urisolver/catalog.yaml`.
+
 ## Log in
+
+Credentials go to the local secrets manager, `~/.config/urisolver/secrets/<secret_id>.json`, mode `0600`. The manager is not attached to a `Context` unless a script passes it. `login.py` is the setup write. `resolve.py` and the worker's parent are the readers. The child process never opens the directory.
 
 Register a native app at [https://app.globus.org](https://app.globus.org). The redirect URL is `https://auth.globus.org/v2/web/auth-code`.
 
@@ -39,7 +51,7 @@ export URISOLVER_GLOBUS_CLIENT_ID="<app client id>"
 python examples/globus/login.py
 ```
 
-The script opens a consent URL on stderr. Paste the code it asks for. It writes `~/.config/urisolver/secrets/globus-example.json` mode `0600` with `client_id` and `refresh_token`, then prints that path. An access token is not stored.
+The script opens a consent URL on stderr. Paste the code it asks for. It stores `client_id` and `refresh_token` through `LocalSecretsManager` and prints the path. An access token is not stored.
 
 Tutorial collections and Globus Connect Personal do not need a `data_access` scope. A GCSv5 mapped collection does. `login.py` requests it only after the transfer scope is in hand and the collection's `entity_type` says so. If Globus answers `consent_required` later, the error lists `required_scopes` and says to run `login.py` again.
 
@@ -75,7 +87,7 @@ With no `staging` block, `FileDestination` and `MemoryDestination` raise `Unsupp
 
 ## Confidential client
 
-Skip `login.py` when the app is confidential. Share the source collection and the staging collection with `<client_id>@clients.auth.globus.org`. Write the same secret path by hand, mode `0600`:
+Skip `login.py` when the app is confidential. Share the source collection and the staging collection with `<client_id>@clients.auth.globus.org`. Store the same map with the local secrets manager, mode `0600`:
 
 ```json
 {"client_id": "<client id>", "client_secret": "<client secret>"}

@@ -1,7 +1,8 @@
 """Local resolution catalog shared by the example schemes.
 
-Lookup order: ``catalog_path``, ``URISOLVER_CATALOG``, the repo
-``examples/catalog.yaml``, then ``~/.config/urisolver/catalog.yaml``.
+Lookup order: ``catalog_path``, ``URISOLVER_CATALOG``,
+``~/.config/urisolver/catalog.yaml`` when that file exists, then the repo
+``examples/catalog.yaml``.
 """
 from __future__ import annotations
 
@@ -20,10 +21,13 @@ def _catalog_file(catalog_path: str | None) -> Path:
     env = os.environ.get(CATALOG_ENV)
     if env:
         return Path(env)
+    user_catalog = Path.home() / ".config" / "urisolver" / "catalog.yaml"
+    if user_catalog.is_file():
+        return user_catalog
     repo_catalog = Path(__file__).resolve().parents[3] / "examples" / "catalog.yaml"
     if repo_catalog.is_file():
         return repo_catalog
-    return Path.home() / ".config" / "urisolver" / "catalog.yaml"
+    return user_catalog
 
 
 def _native_modes(raw: dict, scheme: str) -> frozenset[str] | None:

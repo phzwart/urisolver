@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Resolve one file on the Globus tutorial collection.
 
-examples/catalog.yaml names the collection. The path is the file on that
-collection. Credentials come from ~/.config/urisolver/secrets/.
+The resolution catalog names the collection. The path is the file on that
+collection. Credentials come from the local secrets manager.
 """
 from pathlib import Path
 import sys
 
 from urisolver import Context, FileDestination, MemoryDestination, resolve
-from urisolver.secrets.jsonfile import JsonFileSecrets
+from urisolver.secrets.jsonfile import LocalSecretsManager
 
 uri = "com.urisolver.example.globus:///share/godata/file1.txt"
-secrets = JsonFileSecrets(Path.home() / ".config" / "urisolver" / "secrets")
+secrets = LocalSecretsManager.default()
 dest_root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.home()
 
 with Context(secrets=secrets) as ctx:

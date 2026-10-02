@@ -48,6 +48,7 @@ def test_catalog_binds_scheme_to_tiled_server(monkeypatch, tmp_path):
     assert tiled_base_uri(str(CATALOG)) == "https://tiled-demo.nsls2.bnl.gov"
     monkeypatch.delenv("URISOLVER_CATALOG", raising=False)
     monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path / "empty-home"))
     assert tiled_base_uri() == "https://tiled-demo.nsls2.bnl.gov"
     assert ExampleCatalogResolver().native_modes == frozenset({"memory"})
 

@@ -16,7 +16,7 @@ from pathlib import Path
 from urisolver import Context, FileDestination, resolve
 from urisolver.exchange import StreamExchange, serve_stream
 from urisolver.secrets.exchange import ExchangeSecrets, secrets_handler
-from urisolver.secrets.jsonfile import JsonFileSecrets
+from urisolver.secrets.jsonfile import LocalSecretsManager
 
 URI = "com.urisolver.example.globus:///share/godata/file1.txt"
 
@@ -32,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _parent(dest: str) -> int:
-    store = JsonFileSecrets(Path.home() / ".config" / "urisolver" / "secrets")
+    store = LocalSecretsManager.default()
     parent, child = socket.socketpair()
     parent_stream = parent.makefile("rwb", buffering=0)
     thread = threading.Thread(

@@ -1,16 +1,26 @@
-"""Read one JSON object per secret id from a directory of mode-0600 files.
+"""Local secrets manager: one mode-0600 JSON file per secret id.
 
-Not registered as a default secrets provider. A process that should not see
-the files uses :class:`urisolver.secrets.exchange.ExchangeSecrets` instead.
+Not registered as a default secrets provider, and not attached to a
+``Context`` unless the caller passes it. A process that should not see the
+files uses :class:`urisolver.secrets.exchange.ExchangeSecrets` instead.
 """
 from __future__ import annotations
 
 import json
+import os
+import re
 import stat
 from collections.abc import Mapping
 from pathlib import Path
 
 from urisolver.errors import SecretLookupError
+
+_SECRET_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+
+
+def default_secrets_directory() -> Path:
+    """Directory the local secrets manager uses when none is given."""
+    return Path.home() / ".config" / "urisolver" / "secrets"
 
 
 class JsonFileSecrets:
@@ -39,3 +49,48 @@ class JsonFileSecrets:
 
     def __repr__(self) -> str:
         return f"JsonFileSecrets({str(self._directory)!r})"
+
+
+class LocalSecretsManager(JsonFileSecrets):
+    """Store and read string maps. ``put_secret`` is the setup write.
+
+    Files are mode ``0600``. The directory is mode ``0700``. Values are not
+    included in errors or ``repr``.
+    """
+
+    @classmethod
+    def default(cls) -> "LocalSecretsManager":
+        return cls(default_secrets_directory())
+
+    def put_secret(self, secret_id: str, secret: Mapping[str, str]) -> Path:
+        if not isinstance(secret_id, str) or _SECRET_ID.fullmatch(secret_id) is None:
+            raise SecretLookupError("secret id is not a single path-safe name")
+        if isinstance(secret, (str, bytes)) or not isinstance(secret, Mapping):
+            raise SecretLookupError("secret is not a string map")
+        if not all(
+            isinstance(key, str) and isinstance(value, str) for key, value in secret.items()
+        ):
+            raise SecretLookupError("secret is not a string map")
+        payload = json.dumps({key: secret[key] for key in secret})
+        try:
+            self._directory.mkdir(parents=True, exist_ok=True)
+            os.chmod(self._directory, 0o700)
+            path = self._directory / f"{secret_id}.json"
+            temporary = self._directory / f".{secret_id}.{os.getpid()}.tmp"
+            temporary.write_text(payload, encoding="utf-8")
+            os.chmod(temporary, 0o600)
+            os.replace(temporary, path)
+            os.chmod(path, 0o600)
+        except OSError as exc:
+            raise SecretLookupError("secret could not be stored") from exc
+        finally:
+            temporary = self._directory / f".{secret_id}.{os.getpid()}.tmp"
+            if temporary.exists():
+                try:
+                    temporary.unlink()
+                except OSError:
+                    pass
+        return path
+
+    def __repr__(self) -> str:
+        return f"LocalSecretsManager({str(self._directory)!r})"

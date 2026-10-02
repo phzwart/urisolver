@@ -5,20 +5,19 @@ Register a native app at https://app.globus.org. The redirect URL is
 https://auth.globus.org/v2/web/auth-code. The client id comes from
 URISOLVER_GLOBUS_CLIENT_ID or --client-id.
 
-The file written is mode 0600 and holds client_id and refresh_token.
-An access token is not stored. After the file is written, stdout is the
+The local secrets manager stores client_id and refresh_token, mode 0600.
+An access token is not stored. After the secret is stored, stdout is the
 path and nothing else.
 """
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
-from pathlib import Path
 
 from urisolver.resolvers._catalog import entry
 from urisolver.resolvers.example_globus import SCHEME
+from urisolver.secrets.jsonfile import LocalSecretsManager
 
 _TRANSFER_SCOPE = "urn:globus:auth:scope:transfer.api.globus.org:all"
 _TRANSFER_RS = "transfer.api.globus.org"
@@ -55,13 +54,10 @@ def _run(client_id: str) -> int:
     if extra:
         refresh = _login(globus_sdk, client_id, [_TRANSFER_SCOPE, *extra])
     secret_id = found.get("secret_id") or "globus-example"
-    path = Path.home() / ".config" / "urisolver" / "secrets" / f"{secret_id}.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({"client_id": client_id, "refresh_token": refresh}),
-        encoding="utf-8",
+    path = LocalSecretsManager.default().put_secret(
+        secret_id,
+        {"client_id": client_id, "refresh_token": refresh},
     )
-    os.chmod(path, 0o600)
     print(path)
     return 0
 

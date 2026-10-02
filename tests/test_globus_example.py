@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RESOLVE = ROOT / "examples" / "globus" / "resolve.py"
 WORKER = ROOT / "examples" / "globus" / "worker.py"
 LOGIN = ROOT / "examples" / "globus" / "login.py"
+SETUP = ROOT / "examples" / "globus" / "setup.py"
 CATALOG = ROOT / "examples" / "catalog.yaml"
 TUTORIAL = "6c54cade-bde5-45c1-bdea-f4bd71dba2cc"
 CANARY = "globus-refresh-canary-value"
@@ -41,7 +42,7 @@ def test_import_urisolver_does_not_load_globus() -> None:
 
 
 def test_scripts_do_not_name_the_sdk_or_the_collection() -> None:
-    for path in (RESOLVE, WORKER):
+    for path in (RESOLVE, WORKER, SETUP):
         text = path.read_text(encoding="utf-8")
         assert "globus_sdk" not in text
         assert "globus-sdk" not in text
@@ -132,3 +133,52 @@ def test_worker_round_trip_leaves_the_secret_off_stdio(tmp_path: Path) -> None:
     assert seen == ["globus-example"]
     assert proc.returncode == 1
     assert "delivery failed" in proc.stderr
+
+
+def test_local_secrets_manager_stores_a_private_map(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from urisolver.errors import SecretLookupError
+    from urisolver.secrets.jsonfile import LocalSecretsManager
+
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    manager = LocalSecretsManager.default()
+    path = manager.put_secret("globus-example", {"client_id": "cid", "refresh_token": CANARY})
+    assert path == tmp_path / ".config" / "urisolver" / "secrets" / "globus-example.json"
+    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+    assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
+    assert manager.get_secret("globus-example")["refresh_token"] == CANARY
+    assert CANARY not in repr(manager)
+    with pytest.raises(SecretLookupError, match="string map") as raised:
+        manager.put_secret("globus-example", {"token": CANARY, "n": 1})  # type: ignore[dict-item]
+    assert CANARY not in str(raised.value)
+    with pytest.raises(SecretLookupError, match="path-safe"):
+        manager.put_secret("../globus-example", {"client_id": "cid"})
+
+
+def test_setup_writes_user_catalog_over_the_placeholder(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pytest.importorskip("yaml")
+    from urisolver.resolvers._catalog import entry
+
+    collection = "11111111-1111-1111-1111-111111111111"
+    env = dict(os.environ)
+    env["HOME"] = str(tmp_path)
+    env.pop("URISOLVER_CATALOG", None)
+    proc = subprocess.run(
+        [sys.executable, str(SETUP), "--collection", collection, "--accessible", "/data/stage"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert proc.returncode == 0, proc.stderr
+    written = Path(proc.stdout.strip())
+    assert written == tmp_path / ".config" / "urisolver" / "catalog.yaml"
+    assert "CHANGE_ME" in CATALOG.read_text(encoding="utf-8")
+    monkeypatch.delenv("URISOLVER_CATALOG", raising=False)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    found = entry("com.urisolver.example.globus", protocol="globus")
+    assert found["staging"]["collection"] == collection
+    assert found["staging"]["accessible"] == ["/data/stage"]
