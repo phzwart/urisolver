@@ -2,13 +2,17 @@
 """Resolve one file on the Globus tutorial collection.
 
 The resolution catalog names the collection. The path is the file on that
-collection. Credentials come from the local secrets manager.
+collection. The local secrets manager holds every secret; the catalog selects
+the id for this resource.
 """
-from pathlib import Path
 import sys
+from pathlib import Path
 
-from urisolver import Context, FileDestination, MemoryDestination, resolve
+from urisolver import Context, FileDestination, MemoryDestination, register_resolver, resolve
+from urisolver.resolvers.example_globus import SCHEME, ExampleGlobusResolver
 from urisolver.secrets.jsonfile import LocalSecretsManager
+
+register_resolver(SCHEME, ExampleGlobusResolver(), source="example")
 
 uri = "com.urisolver.example.globus:///share/godata/file1.txt"
 secrets = LocalSecretsManager.default()

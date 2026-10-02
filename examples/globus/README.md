@@ -17,9 +17,23 @@ com.urisolver.example.globus:
 
 `collection` is Globus Tutorial Collection 1. The URI path is the absolute path on that collection. `com.urisolver.example.globus:///share/godata/file1.txt` is `/share/godata/file1.txt`.
 
-`native` is `file`. A transfer into a local path is the delivery Globus can do without an extra copy. `MemoryDestination` still works: the resolver transfers into a temporary file under `staging.accessible` and reads it back. That result is `strategy="staged"`. `Context(strict_efficiency=True)` allows the file delivery and refuses the memory one.
+## One manager, one id per resource
 
-`staging` is this machine, not a second source. `root` is the local path that corresponds to `/` on your collection. `accessible` lists prefixes the resolver is willing to write. The committed UUID and `/CHANGE_ME` are placeholders. Do not edit those in the repo. `setup.py` writes your collection into `~/.config/urisolver/catalog.yaml`, and that file wins over the repo catalog. Another Globus scheme in the same file can point at the same block with `staging: *example-staging`.
+`LocalSecretsManager` holds every secret, one file per id under `~/.config/urisolver/secrets/`. Resolve picks the id for this path from the catalog, then asks the manager for that id.
+
+`secret_id` is the credential for every path on this collection. `secrets` maps a path prefix to a different id. The longest prefix that is the path, or a parent of it, wins:
+
+```yaml
+  secret_id: globus-example
+  secrets:
+    share/godata/secret: globus-secret
+```
+
+`/share/godata/file1.txt` asks for `globus-example`. `/share/godata/secret/a` asks for `globus-secret`. The committed catalog sets only `secret_id`. Secret values stay out of the URI and the catalog.
+
+`native` is `file`. A transfer into a local path is the delivery Globus can do without an extra copy. `MemoryDestination` still works, including `form=BYTES`: the resolver transfers into a temporary file under `staging.accessible` and reads it back. That result is `strategy="staged"`. `Context(strict_efficiency=True)` allows the file delivery and refuses both memory forms.
+
+`staging` is this machine, not a second source. `root` is the local path that corresponds to `/` on your collection. `accessible` lists prefixes the resolver is willing to write. The committed UUID and `/CHANGE_ME` are placeholders. Do not edit those in the repo. `setup.py` writes only the `staging` block into `~/.config/urisolver/catalog.yaml`. That block is merged over the bundled catalog, so a later edit to the repo catalog still applies. If an older `setup.py` copied the whole catalog into that file, run `setup.py` again. Optional `transfer_timeout` is a number of seconds; when it is omitted, a blocking transfer waits until the task finishes and is not cancelled. Another Globus scheme in the same file can point at the same block with `staging: *example-staging`. The example script registers this scheme. Installing the package does not.
 
 `import urisolver` does not load the Globus SDK. The SDK is imported inside urisolver on the first transfer.
 
@@ -77,7 +91,7 @@ The child prints the staged path and the size.
 
 ## File, memory, and a task id
 
-`FileDestination` submits one transfer to a hidden name in the destination directory and waits. On success it renames that name onto the destination. The call blocks until Globus reports the task. `strategy` is `"native"`.
+`FileDestination` of a file submits one transfer to a hidden name in the destination directory and waits. On success it renames that name onto the destination. The call blocks until Globus reports the task, or until `transfer_timeout` when that is set. `strategy` is `"native"`. A directory is copied only when the URI ends in `?recursive`. `Context(allow_recursive=False)` refuses that copy. The flag is not part of the collection path, and a container materialized to memory does not pass it on to children.
 
 `GlobusDestination(collection, path)` submits and returns. `value` is the task id, `strategy` is `"submitted"`, and the warning says the transfer is not finished. `strict_efficiency` does not apply. Waiting is the Tier 2 `wait(task_id, timeout)` on the resource.
 

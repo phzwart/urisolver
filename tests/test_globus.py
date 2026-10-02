@@ -17,6 +17,7 @@ from urisolver import (
     Kind,
     MaterializationError,
     MemoryDestination,
+    MemoryLimitError,
     NativeAccessDenied,
     ResolutionError,
     ResourceUnavailableError,
@@ -170,10 +171,13 @@ def _install(tmp_path: Path, client: FakeTransfer, **kwargs: object) -> GlobusRe
 def test_collection_path_decodes_and_rejects_authority() -> None:
     assert collection_path(f"{SCHEME}:///share/godata/file%201.txt") == "/share/godata/file 1.txt"
     assert collection_path(f"{SCHEME}:///") == "/"
+    assert collection_path(f"{SCHEME}:///share/folder?recursive") == "/share/folder"
     with pytest.raises(InvalidURIError):
         collection_path(f"{SCHEME}://6c54cade-bde5-45c1-bdea-f4bd71dba2cc/share/godata/file1.txt")
     with pytest.raises(InvalidURIError):
         collection_path(f"{SCHEME}:///share//godata")
+    with pytest.raises(InvalidURIError):
+        collection_path(f"{SCHEME}:///share/folder?download")
 
 
 def test_baseline_file(tmp_path: Path) -> None:
@@ -267,7 +271,7 @@ def test_recursive_container_copy(tmp_path: Path) -> None:
     _install(tmp_path, client)
     dest = tmp_path / "out" / "folder"
     with Context() as ctx:
-        result = ctx.resolve(DIR_URI).materialize(FileDestination(dest))
+        result = ctx.resolve(f"{DIR_URI}?recursive").materialize(FileDestination(dest))
     assert (dest / "a.txt").read_bytes() == b"aaa"
     assert (dest / "b.txt").read_bytes() == b"bbbb"
     assert result.size_bytes is None
@@ -275,17 +279,84 @@ def test_recursive_container_copy(tmp_path: Path) -> None:
     assert client.submitted[0].items[0].recursive is True
 
 
+def test_plain_directory_file_destination_is_refused(tmp_path: Path) -> None:
+    _tree(tmp_path)
+    client = FakeTransfer(tmp_path)
+    _install(tmp_path, client)
+    dest = tmp_path / "out" / "folder"
+    with Context() as ctx:
+        with pytest.raises(UnsupportedDestinationError, match="recursive query flag"):
+            ctx.resolve(DIR_URI).materialize(FileDestination(dest))
+    assert client.submitted == []
+
+
+def test_allow_recursive_disables_flagged_copy_and_submit(tmp_path: Path) -> None:
+    _tree(tmp_path)
+    client = FakeTransfer(tmp_path)
+    _install(tmp_path, client)
+    dest = tmp_path / "out" / "folder"
+    with Context(allow_recursive=False) as ctx:
+        resource = ctx.resolve(f"{DIR_URI}?recursive")
+        with pytest.raises(UnsupportedDestinationError, match="recursive export is disabled"):
+            resource.materialize(FileDestination(dest))
+        submitted = resource.materialize(
+            GlobusDestination("dest-collection", "/incoming/folder", recursive=True)
+        )
+    assert submitted.strategy == "submitted"
+    assert client.submitted[0].items[0].recursive is False
+
+
 def test_container_memory_is_a_lazy_map(tmp_path: Path) -> None:
     _tree(tmp_path)
     _install(tmp_path, FakeTransfer(tmp_path))
     with Context() as ctx:
-        result = ctx.resolve(DIR_URI).materialize(MemoryDestination())
+        result = ctx.resolve(f"{DIR_URI}?recursive").materialize(MemoryDestination())
         assert result.strategy == "reference"
         assert result.is_reference is True
         assert sorted(result.value) == ["a.txt", "b.txt"]
         child = result.value["a.txt"]
         assert child.info().kind is Kind.FILE
         assert child.info().size_bytes == 3
+        assert "?recursive" not in child.uri
+
+
+def test_child_names_are_quoted_per_segment(tmp_path: Path) -> None:
+    folder = tmp_path / "share" / "folder"
+    folder.mkdir(parents=True)
+    (folder / "b#c").write_bytes(b"1")
+    (folder / "a%b").write_bytes(b"2")
+    (folder / "c?d").write_bytes(b"3")
+    _install(tmp_path, FakeTransfer(tmp_path))
+    with Context() as ctx:
+        result = ctx.resolve(DIR_URI).materialize(MemoryDestination())
+        for name in ("b#c", "a%b", "c?d"):
+            child = result.value[name]
+            assert collection_path(child.uri) == f"/share/folder/{name}"
+            assert "?" not in child.uri
+            assert "#" not in child.uri
+
+
+def test_unknown_size_is_checked_before_the_memory_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _tree(tmp_path)
+
+    class _NoSize(FakeTransfer):
+        def operation_ls(self, *args: object, **kwargs: object):
+            payload = super().operation_ls(*args, **kwargs)
+            for row in payload.get("DATA", []):
+                row.pop("size", None)
+            return payload
+
+    _install(tmp_path, _NoSize(tmp_path))
+
+    def _refuse_read(self: Path) -> bytes:
+        raise AssertionError("read before size check")
+
+    monkeypatch.setattr(Path, "read_bytes", _refuse_read)
+    with Context(memory_limit=1) as ctx:
+        with pytest.raises(MemoryLimitError):
+            ctx.resolve(FILE_URI).materialize(MemoryDestination())
 
 
 def test_strict_efficiency_refuses_memory_not_file_or_submit(tmp_path: Path) -> None:
@@ -297,10 +368,10 @@ def test_strict_efficiency_refuses_memory_not_file_or_submit(tmp_path: Path) -> 
         resource = ctx.resolve(FILE_URI)
         with pytest.raises(InefficientOperationError, match="memory delivery"):
             resource.materialize(MemoryDestination())
-        staged = resource.materialize(MemoryDestination(form=Form.BYTES))
+        with pytest.raises(InefficientOperationError, match="memory delivery"):
+            resource.materialize(MemoryDestination(form=Form.BYTES))
         copied = resource.materialize(FileDestination(dest))
         submitted = resource.materialize(GlobusDestination("dest-collection", "/incoming/file1.txt"))
-    assert staged.strategy == "staged"
     assert copied.strategy == "native"
     assert submitted.strategy == "submitted"
 
@@ -336,12 +407,13 @@ def test_http_status_mapping(tmp_path: Path) -> None:
     for status, exc_type in expectations:
         class _Fail(FakeTransfer):
             def operation_ls(self, *args: object, **kwargs: object):
-                if status == 503:
-                    raise _APIError(status)
                 raise _APIError(status)
 
         _install(tmp_path, _Fail(tmp_path))
         with Context() as ctx:
+            if status == 404:
+                assert ctx.resolve(FILE_URI).info().exists is False
+                continue
             with pytest.raises(exc_type):
                 ctx.resolve(FILE_URI).info()
 

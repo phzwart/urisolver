@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
-from urisolver import MemoryDestination, resolve
+"""Resolve one object on the example Tiled server.
 
-# examples/catalog.yaml binds this scheme to a server.
-# The path is one object on that server.
+The resolution catalog names the server. The path is one object on that
+server. The local secrets manager holds every secret; the catalog selects
+the id for this resource, or none.
+"""
+from urisolver import Context, MemoryDestination, register_resolver, resolve
+from urisolver.resolvers.example_tiled import SCHEME, ExampleCatalogResolver
+from urisolver.secrets.jsonfile import LocalSecretsManager
+
+register_resolver(SCHEME, ExampleCatalogResolver(), source="example")
+
 uri = "com.urisolver.example.tiled://examples/images/astronaut"
+secrets = LocalSecretsManager.default()
 
-resource = resolve(uri)
-array = resource.materialize(MemoryDestination()).value
-
-print(array.shape)
-print(array.nbytes)
+with Context(secrets=secrets) as ctx:
+    resource = resolve(uri, context=ctx)
+    array = resource.materialize(MemoryDestination()).value
+    print(array.shape)
+    print(array.nbytes)

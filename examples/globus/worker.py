@@ -13,10 +13,14 @@ import sys
 import threading
 from pathlib import Path
 
-from urisolver import Context, FileDestination, resolve
+from urisolver import Context, FileDestination, register_resolver, resolve
+from urisolver.errors import URIResolverError
 from urisolver.exchange import StreamExchange, serve_stream
+from urisolver.resolvers.example_globus import SCHEME, ExampleGlobusResolver
 from urisolver.secrets.exchange import ExchangeSecrets, secrets_handler
 from urisolver.secrets.jsonfile import LocalSecretsManager
+
+register_resolver(SCHEME, ExampleGlobusResolver(), source="example")
 
 URI = "com.urisolver.example.globus:///share/godata/file1.txt"
 
@@ -62,8 +66,11 @@ def _worker(dest: str, fd: int) -> int:
             result = resource.materialize(FileDestination(dest))
         print(result.value)
         print(result.size_bytes)
-    except Exception:
-        print("delivery failed", file=sys.stderr)
+    except URIResolverError as exc:
+        print(f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:
+        print(type(exc).__name__, file=sys.stderr)
         return 1
     return 0
 

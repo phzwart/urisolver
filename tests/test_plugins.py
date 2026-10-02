@@ -10,7 +10,6 @@ from urisolver.errors import PluginConflictError, UnknownSchemeError
 from urisolver.plugins import (
     _CONFLICTS,
     _ENUMERATED,
-    _LOADED,
     _SOURCES,
     clear_plugin_conflict,
     enumerate_resolver_entry_points,
@@ -24,13 +23,10 @@ def _reset_plugin_state():
     _ENUMERATED.clear()
     _SOURCES.clear()
     _CONFLICTS.clear()
-    global _LOADED
-    _LOADED = False
     yield
     _ENUMERATED.clear()
     _SOURCES.clear()
     _CONFLICTS.clear()
-    _LOADED = False
 
 
 def _fake_entry_point(name: str, source: str):

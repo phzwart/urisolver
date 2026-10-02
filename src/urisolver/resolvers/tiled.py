@@ -392,16 +392,20 @@ class TiledResolver:
         self._client = client
         self._injected_client = client is not None
         self._sessions: dict[tuple[str, str | None], Any] = {}
-    def _get_client(self, context: Any) -> Any:
+    def _secret_id_for(self, uri: str) -> str | None:
+        del uri
+        return self.secret_id
+
+    def _get_client(self, context: Any, secret_id: str | None) -> Any:
         if self._client is not None:
             return self._client
-        key = (self.base_uri or "default", self.secret_id)
+        key = (self.base_uri or "default", secret_id)
         if key in self._sessions:
             return self._sessions[key]
         tiled_client = _require_tiled()
         kwargs: dict[str, Any] = {}
-        if self.secret_id and getattr(context, "secrets", None) is not None:
-            secret = context.secrets.get_secret(self.secret_id)
+        if secret_id and getattr(context, "secrets", None) is not None:
+            secret = context.secrets.get_secret(secret_id)
             if "api_key" in secret:
                 kwargs["api_key"] = secret["api_key"]
             if "token" in secret:
@@ -415,7 +419,8 @@ class TiledResolver:
     def resolve(self, uri: str, context: Any) -> TiledResolvedResource:
         segments = _path_segments(uri)
         try:
-            node: Any = self._get_client(context)
+            secret_id = self._secret_id_for(uri)
+            node: Any = self._get_client(context, secret_id)
             for part in segments:
                 node = _guard(node.__getitem__, part, context=context, uri=uri)
         except Exception as exc:

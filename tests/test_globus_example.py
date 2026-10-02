@@ -52,6 +52,55 @@ def test_scripts_do_not_name_the_sdk_or_the_collection() -> None:
     login = LOGIN.read_text(encoding="utf-8")
     assert TUTORIAL not in login
     assert CANARY not in login
+    resolve_text = RESOLVE.read_text(encoding="utf-8")
+    assert "LocalSecretsManager.default()" in resolve_text
+    assert "Context(secrets=secrets)" in resolve_text
+
+
+def test_secret_id_follows_the_resource_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pytest.importorskip("yaml")
+    from urisolver.resolvers._catalog import select_secret_id
+    from urisolver.resolvers.example_globus import ExampleGlobusResolver
+    from urisolver.resolvers.example_tiled import ExampleCatalogResolver
+
+    catalog = tmp_path / "catalog.yaml"
+    catalog.write_text(
+        "com.urisolver.example.tiled:\n"
+        "  protocol: tiled\n"
+        "  base_uri: https://tiled.example\n"
+        "  secret_id: tiled-default\n"
+        "  secrets:\n"
+        "    examples/private: tiled-lab\n"
+        "    examples/private/raw: tiled-raw\n"
+        "com.urisolver.example.globus:\n"
+        "  protocol: globus\n"
+        f"  collection: {TUTORIAL}\n"
+        "  secret_id: globus-example\n"
+        "  secrets:\n"
+        "    share/godata/secret: globus-secret\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("URISOLVER_CATALOG", str(catalog))
+    tiled = ExampleCatalogResolver()
+    assert tiled._secret_id_for(
+        "com.urisolver.example.tiled://examples/images/astronaut"
+    ) == "tiled-default"
+    assert tiled._secret_id_for(
+        "com.urisolver.example.tiled://examples/private/scan"
+    ) == "tiled-lab"
+    assert tiled._secret_id_for(
+        "com.urisolver.example.tiled://examples/private/raw/frame"
+    ) == "tiled-raw"
+    globus = ExampleGlobusResolver()
+    assert globus._secret_id_for(
+        "com.urisolver.example.globus:///share/godata/file1.txt"
+    ) == "globus-example"
+    assert globus._secret_id_for(
+        "com.urisolver.example.globus:///share/godata/secret/a"
+    ) == "globus-secret"
+    assert select_secret_id("anywhere", default=None, by_prefix={}) is None
 
 
 def test_catalog_entry_parses_staging() -> None:
@@ -66,6 +115,34 @@ def test_catalog_entry_parses_staging() -> None:
     assert staging["root"] == "/"
     assert staging["accessible"] == ["/CHANGE_ME"]
     assert staging["collection"] == "00000000-0000-0000-0000-000000000000"
+
+
+def test_catalog_transfer_timeout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    pytest.importorskip("yaml")
+    from urisolver.errors import ResolutionError
+    from urisolver.resolvers._catalog import entry
+    from urisolver.resolvers.example_globus import ExampleGlobusResolver
+
+    catalog = tmp_path / "catalog.yaml"
+    catalog.write_text(
+        "com.urisolver.example.globus:\n"
+        "  protocol: globus\n"
+        f"  collection: {TUTORIAL}\n"
+        "  transfer_timeout: 1200\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("URISOLVER_CATALOG", str(catalog))
+    resolver = ExampleGlobusResolver()
+    assert resolver.transfer_timeout == 1200.0
+    catalog.write_text(
+        "com.urisolver.example.globus:\n"
+        "  protocol: globus\n"
+        f"  collection: {TUTORIAL}\n"
+        "  transfer_timeout: -1\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ResolutionError, match="transfer_timeout"):
+        entry("com.urisolver.example.globus", protocol="globus", catalog_path=str(catalog))
 
 
 def test_json_file_secrets_refuses_group_readable(tmp_path: Path) -> None:
@@ -132,7 +209,8 @@ def test_worker_round_trip_leaves_the_secret_off_stdio(tmp_path: Path) -> None:
     assert OTHER not in combined
     assert seen == ["globus-example"]
     assert proc.returncode == 1
-    assert "delivery failed" in proc.stderr
+    assert proc.stderr.strip()
+    assert "delivery failed" not in proc.stderr
 
 
 def test_local_secrets_manager_stores_a_private_map(
@@ -143,7 +221,16 @@ def test_local_secrets_manager_stores_a_private_map(
 
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
     manager = LocalSecretsManager.default()
+    modes: list[int] = []
+    real_replace = os.replace
+
+    def checking_replace(src: str, dst: str) -> None:
+        modes.append(stat.S_IMODE(os.stat(src).st_mode))
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "replace", checking_replace)
     path = manager.put_secret("globus-example", {"client_id": "cid", "refresh_token": CANARY})
+    assert modes == [0o600]
     assert path == tmp_path / ".config" / "urisolver" / "secrets" / "globus-example.json"
     assert stat.S_IMODE(path.stat().st_mode) == 0o600
     assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
@@ -163,6 +250,17 @@ def test_setup_writes_user_catalog_over_the_placeholder(
     from urisolver.resolvers._catalog import entry
 
     collection = "11111111-1111-1111-1111-111111111111"
+    stale = tmp_path / ".config" / "urisolver"
+    stale.mkdir(parents=True)
+    (stale / "catalog.yaml").write_text(
+        "com.urisolver.example.tiled:\n"
+        "  protocol: tiled\n"
+        "  base_uri: https://old.example\n"
+        "com.urisolver.example.globus:\n"
+        "  protocol: globus\n"
+        "  collection: old-collection\n",
+        encoding="utf-8",
+    )
     env = dict(os.environ)
     env["HOME"] = str(tmp_path)
     env.pop("URISOLVER_CATALOG", None)
@@ -177,8 +275,15 @@ def test_setup_writes_user_catalog_over_the_placeholder(
     written = Path(proc.stdout.strip())
     assert written == tmp_path / ".config" / "urisolver" / "catalog.yaml"
     assert "CHANGE_ME" in CATALOG.read_text(encoding="utf-8")
+    written_text = written.read_text(encoding="utf-8")
+    assert "CHANGE_ME" not in written_text
+    assert "tiled" not in written_text
+    assert collection in written_text
     monkeypatch.delenv("URISOLVER_CATALOG", raising=False)
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
     found = entry("com.urisolver.example.globus", protocol="globus")
+    assert found["collection"] == TUTORIAL
     assert found["staging"]["collection"] == collection
     assert found["staging"]["accessible"] == ["/data/stage"]
+    tiled = entry("com.urisolver.example.tiled", protocol="tiled")
+    assert tiled["base_uri"] == "https://tiled-demo.nsls2.bnl.gov"

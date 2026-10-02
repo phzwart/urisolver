@@ -40,6 +40,8 @@ def test_resolve_script_imports_urisolver_only():
     assert "from tiled" not in text
     assert "TiledResolver" not in text
     assert "tiled-demo.nsls2.bnl.gov" not in text
+    assert "LocalSecretsManager.default()" in text
+    assert "Context(secrets=secrets)" in text
 
 
 def test_catalog_binds_scheme_to_tiled_server(monkeypatch, tmp_path):

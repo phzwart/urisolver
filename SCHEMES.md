@@ -23,13 +23,18 @@ com.urisolver.example.tiled:
   protocol: tiled
   base_uri: https://tiled.example
   native: [memory]
-  secret_id: tiled
+  secret_id: tiled-default
+  secrets:
+    examples/private: tiled-lab
+    examples/private/raw: tiled-raw
 
 com.urisolver.example.globus:
   protocol: globus
   collection: 6c54cade-bde5-45c1-bdea-f4bd71dba2cc
   native: [file]
   secret_id: globus-example
+  secrets:
+    share/godata/secret: globus-secret
   staging: &lab-staging
     collection: 00000000-0000-0000-0000-000000000000
     root: /
@@ -37,8 +42,17 @@ com.urisolver.example.globus:
       - /CHANGE_ME
 ```
 
-`protocol` selects the server kind. A tiled entry requires `base_uri`. `secret_id` is
-optional. When set, the resolver calls `SecretsProvider.get_secret(secret_id)`. Tiled
+`protocol` selects the server kind. A tiled entry requires `base_uri`. One secrets
+manager holds every secret, one file per id. Resolve asks that manager for the id this
+resource selected.
+
+`secret_id` is the credential for every object on the server. `secrets` maps a path
+prefix to a different id. The longest prefix that is the resource path, or a parent of
+it, wins. `examples/images/astronaut` asks for `tiled-default`. `examples/private/scan`
+asks for `tiled-lab`. `examples/private/raw/frame` asks for `tiled-raw`. A Globus path
+uses the same rule: `/share/godata/file1.txt` asks for `globus-example`, and
+`/share/godata/secret/a` asks for `globus-secret`. When neither field matches, resolve
+does not ask for a secret. Secret values stay out of the URI and the catalog. Tiled
 reads `api_key` or `token`. Globus reads `client_id` plus `refresh_token` or
 `client_secret`.
 
@@ -47,10 +61,21 @@ collection on this machine that receives a file or memory delivery: `collection`
 and `accessible` (absolute local prefixes). Another scheme in this file reuses one block
 with `staging: *lab-staging`. There is no top-level machine key. `staging.collection` and
 `accessible` in the committed example are placeholders; replace them before a transfer.
+Optional `transfer_timeout` is a positive number of seconds for a blocking transfer.
+When it is omitted, the transfer waits until the task finishes.
+
+Lookup order is an explicit path, then `$URISOLVER_CATALOG`, then the bundled catalog
+(`examples/catalog.yaml` in a checkout, the copy packaged with the wheel otherwise).
+`~/.config/urisolver/catalog.yaml` merges over that bundled catalog: user keys replace
+base keys for the same scheme. An explicit path or `$URISOLVER_CATALOG` is a complete
+catalog and is not merged. `examples/globus/setup.py` writes only the Globus `staging`
+block. Rerun it if an older full copy of the catalog is still in the user file. The
+example scripts register `com.urisolver.example.tiled` and
+`com.urisolver.example.globus`. Installing the package does not.
 
 `native` is the efficient path: `memory`, `file`, or both. It does not remove Tier 0. A
 caller that sets `strict_efficiency` is refused a delivery outside that list. Tiled is
-`memory`. Globus is `file`.
+`memory`. Globus is `file`, so memory delivery, including `Form.BYTES`, is refused.
 
 The Globus URI path is the absolute path on `collection`.
 `com.urisolver.example.globus:///share/godata/file1.txt` is `/share/godata/file1.txt` on
@@ -183,8 +208,10 @@ com.urisolver.example.globus:///<absolute-path>
 ```
 
 - `/` separates path segments. An empty interior segment (`a//b`) is `InvalidURIError`.
-- Each segment is percent-decoded once.
-- No query component is defined.
+- Each segment is percent-decoded once. A child name is percent-encoded again when a
+  container builds that child's URI.
+- The only query is the flag `recursive`. It is not part of the path. Any other query is
+  `InvalidURIError`.
 - The path is case-sensitive. The scheme is case-insensitive (RFC 3986 §6.2.2.1).
 
 ### Semantics
@@ -195,13 +222,17 @@ Tutorial Collection 1 (`6c54cade-bde5-45c1-bdea-f4bd71dba2cc`). The path
 
 ### Operations
 
-`resolve` checks the path and does not contact Globus. `info` lists the parent.
-`materialize(FileDestination)` submits a checksum transfer into the staging collection
-and blocks until the task succeeds, then renames the file into place.
-`materialize(MemoryDestination)` stages through a temporary file on that collection and
-returns the bytes (`strategy="staged"`). `GlobusDestination` submits and returns the
-task id (`strategy="submitted"`) without waiting. A missing `staging` block makes file
-and memory delivery `UnsupportedDestinationError` and does not affect `GlobusDestination`.
+`resolve` checks the path and does not contact Globus. `info` lists the parent. A 404
+on that listing is `exists=False`. `materialize(FileDestination)` of a file submits a
+checksum transfer into the staging collection and blocks until the task succeeds, then
+renames the file into place. A container copy requires `?recursive` and
+`Context.allow_recursive` (the default). Otherwise it is `UnsupportedDestinationError`.
+`materialize(MemoryDestination)`, including `Form.BYTES`, stages through a temporary file
+on that collection and returns the bytes (`strategy="staged"`). `GlobusDestination`
+submits and returns the task id (`strategy="submitted"`) without waiting.
+`Context(allow_recursive=False)` forces that submit to be non-recursive. A missing
+`staging` block makes file and memory delivery `UnsupportedDestinationError` and does
+not affect `GlobusDestination`. `strict_efficiency` refuses memory delivery.
 
 ### Fragments
 

@@ -14,7 +14,6 @@ from urisolver.destinations import FileDestination, Form, MemoryDestination, Ref
 from urisolver.errors import (
     AuthorizationError,
     ContextClosedError,
-    InefficientOperationError,
     MemoryLimitError,
     UnsupportedDestinationError,
     UnsupportedFormError,

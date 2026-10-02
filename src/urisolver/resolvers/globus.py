@@ -14,7 +14,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
-from urllib.parse import unquote, urlparse
+from urllib.parse import quote, unquote, urlparse
 
 from urisolver._resource import ResourceBase
 from urisolver._uriparse import split_uri
@@ -93,32 +93,40 @@ def _sdk() -> Any:
 
 def collection_path(uri: str) -> str:
     """Absolute collection path. An authority or an empty segment is invalid."""
+    path, _recursive = _split_collection(uri)
+    return path
+
+
+def _split_collection(uri: str) -> tuple[str, bool]:
+    """Return the decoded collection path and whether ``?recursive`` was set.
+
+    The flag is not part of the path. Any other query is invalid.
+    """
     try:
         body = split_uri(uri).body
     except ValueError as exc:
         raise InvalidURIError(str(exc)) from None
-    if "?" in body:
-        raise InvalidURIError("globus URI has no query")
-    if body.startswith("//"):
-        parsed = urlparse("http:" + body)
+    path, sep, query = body.partition("?")
+    if sep and query != "recursive":
+        raise InvalidURIError("globus URI query must be the recursive flag")
+    if path.startswith("//"):
+        parsed = urlparse("http:" + path)
         if parsed.netloc:
             raise InvalidURIError("globus URI has no authority")
         path = parsed.path
-    else:
-        path = body
     if not path.startswith("/"):
         raise InvalidURIError("globus path must be absolute")
     if path != "/" and path.endswith("/"):
         path = path.rstrip("/")
     if path == "/":
-        return "/"
+        return "/", bool(sep)
     segments = path.split("/")[1:]
     if any(segment == "" for segment in segments):
         raise InvalidURIError(f"empty path segment in {uri!r}")
     decoded = [unquote(segment) for segment in segments]
     if any(segment == "" for segment in decoded):
         raise InvalidURIError(f"empty path segment in {uri!r}")
-    return "/" + "/".join(decoded)
+    return "/" + "/".join(decoded), bool(sep)
 
 
 def _parent_name(path: str) -> tuple[str, str]:
@@ -185,10 +193,13 @@ class _LazyChildren(Mapping[str, Any]):
 
 
 class GlobusResource(ResourceBase):
-    def __init__(self, *, resolver: GlobusResolver, path: str, **kwargs: Any) -> None:
+    def __init__(
+        self, *, resolver: GlobusResolver, path: str, recursive: bool = False, **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         self._resolver = resolver
         self._path = path
+        self._recursive = recursive
         self._collection = resolver.collection
 
     def __repr__(self) -> str:
@@ -226,7 +237,7 @@ class GlobusResource(ResourceBase):
     def transfer_client(self) -> Any:
         self._ensure_valid()
         self._deny_native()
-        return self._resolver.client(self._context)
+        return self._resolver.client(self._context, self._uri)
 
     def operation_ls(self, path: str | None = None) -> list:
         self._ensure_valid()
@@ -244,8 +255,6 @@ class GlobusResource(ResourceBase):
         if not modes or not getattr(self._context, "strict_efficiency", False):
             return
         mode = "file" if isinstance(destination, FileDestination) else "memory"
-        if isinstance(destination, MemoryDestination) and destination.form is Form.BYTES:
-            mode = "file"
         if mode not in modes:
             raise InefficientOperationError(f"{mode} delivery is not native for this server")
 
@@ -254,6 +263,8 @@ class GlobusResource(ResourceBase):
         if not info.exists:
             raise ResolutionError(f"globus path does not exist: {self._path}")
         recursive = info.kind is Kind.CONTAINER if destination.recursive is None else destination.recursive
+        if recursive and not getattr(self._context, "allow_recursive", True):
+            recursive = False
         submission = _Submission(
             source_endpoint=self._collection,
             destination_endpoint=destination.collection,
@@ -291,6 +302,13 @@ class GlobusResource(ResourceBase):
                 raise UnsupportedFormError(
                     f"requested media_type {destination.media_type!r} unsupported"
                 )
+        if info.kind is Kind.CONTAINER:
+            if not self._recursive:
+                raise UnsupportedDestinationError(
+                    "directory copy requires the recursive query flag"
+                )
+            if not getattr(self._context, "allow_recursive", True):
+                raise UnsupportedDestinationError("recursive export is disabled")
         dest = Path(destination.path)
         if dest.exists() and not destination.overwrite:
             raise FileExistsError(str(dest))
@@ -394,11 +412,12 @@ class GlobusResource(ResourceBase):
         try:
             result = self._resolver.submit(self._context, self._uri, submission)
             self._resolver.finish(self._context, self._uri, _task_id(result), tmp)
+            size = tmp.stat().st_size
+            if limit is not None and size > limit:
+                raise MemoryLimitError(f"resource size {size} exceeds memory limit {limit}")
             data = tmp.read_bytes()
         finally:
             _discard(folder)
-        if limit is not None and len(data) > limit:
-            raise MemoryLimitError(f"resource size {len(data)} exceeds memory limit {limit}")
         form = Form.BYTES if destination.form is Form.BYTES else Form.NATIVE
         return MaterializedResult(
             value=data,
@@ -418,8 +437,10 @@ class GlobusResource(ResourceBase):
         from urisolver.api import resolve
 
         scheme = self._uri.split(":", 1)[0]
-        child_path = self._path.rstrip("/") + "/" + name
-        return resolve(f"{scheme}:{child_path}", context=self._context)
+        segments = [segment for segment in self._path.split("/") if segment]
+        segments.append(name)
+        encoded = "/".join(quote(segment, safe="") for segment in segments)
+        return resolve(f"{scheme}:/{encoded}", context=self._context)
 
 
 def _memory_limit(destination: MemoryDestination, context: Any) -> int | None:
@@ -455,7 +476,7 @@ class GlobusResolver:
         native_modes: frozenset[str] | None = None,
         allow_native: bool = True,
         transfer_client: Any | None = None,
-        transfer_timeout: float = 600.0,
+        transfer_timeout: float | None = None,
     ) -> None:
         self.collection = collection
         self.protocol_name = protocol_name
@@ -472,11 +493,12 @@ class GlobusResolver:
         return f"GlobusResolver(collection={self.collection!r})"
 
     def resolve(self, uri: str, context: Any) -> GlobusResource:
-        path = collection_path(uri)
+        path, recursive = _split_collection(uri)
         extra = _TIER2 if self.allow_native else frozenset()
         return GlobusResource(
             resolver=self,
             path=path,
+            recursive=recursive,
             uri=uri,
             resolved_uri=uri,
             protocol=self.protocol_name,
@@ -496,7 +518,12 @@ class GlobusResolver:
         def _list() -> list:
             return self.list_path(context, uri, parent, name_filter=name)
 
-        rows = self._call(context, uri, ResolutionError, _list)
+        try:
+            rows = self._call(context, uri, ResolutionError, _list)
+        except ResolutionError as exc:
+            if getattr(exc, "globus_missing", False):
+                return self._info(uri, path, Kind.FILE, False, None, name)
+            raise
         match = next((row for row in rows if isinstance(row, dict) and row.get("name") == name), None)
         if match is None:
             return self._info(uri, path, Kind.FILE, False, None, name)
@@ -526,7 +553,7 @@ class GlobusResolver:
         return tuple(names)
 
     def list_path(self, context: Any, uri: str, path: str, *, name_filter: str | None = None) -> list:
-        client = self.client(context)
+        client = self.client(context, uri)
         kwargs: dict[str, Any] = {"path": path}
         if name_filter is not None:
             kwargs["filter"] = f"name:={name_filter}"
@@ -563,7 +590,7 @@ class GlobusResolver:
         return staging.collection, remote
 
     def submit(self, context: Any, uri: str, submission: _Submission) -> object:
-        client = self.client(context)
+        client = self.client(context, uri)
 
         def _send() -> object:
             module = type(client).__module__
@@ -586,15 +613,17 @@ class GlobusResolver:
         return self._call(context, uri, MaterializationError, _send)
 
     def finish(self, context: Any, uri: str, task_id: str, tmp: Path) -> None:
-        client = self.client(context)
+        client = self.client(context, uri)
 
         def _wait() -> None:
             finished = client.task_wait(
                 task_id, timeout=self.transfer_timeout, polling_interval=2
             )
             if not finished:
-                self._cancel(client, task_id)
-                raise MaterializationError("transfer timed out")
+                if self.transfer_timeout is not None:
+                    self._cancel(client, task_id)
+                    raise MaterializationError("transfer timed out")
+                raise MaterializationError("transfer did not finish")
             status = _task_status(client.get_task(task_id))
             if status == "SUCCEEDED":
                 return
@@ -607,44 +636,51 @@ class GlobusResolver:
             raise MaterializationError("transfer reported success but the staged file is missing")
 
     def wait_task(self, context: Any, uri: str, task_id: str, timeout: float | None) -> str:
-        client = self.client(context)
+        client = self.client(context, uri)
         limit = self.transfer_timeout if timeout is None else timeout
 
         def _wait() -> str:
             finished = client.task_wait(task_id, timeout=limit, polling_interval=2)
             if not finished:
+                if limit is None:
+                    raise MaterializationError("transfer did not finish")
                 raise MaterializationError("transfer timed out")
             return _task_status(client.get_task(task_id))
 
         return self._call(context, uri, MaterializationError, _wait)
 
-    def client(self, context: Any) -> Any:
+    def _secret_id_for(self, uri: str) -> str | None:
+        del uri
+        return self.secret_id
+
+    def client(self, context: Any, uri: str | None = None) -> Any:
+        secret_id = self._secret_id_for(uri) if uri else self.secret_id
         if self._injected is not None:
-            self._note_secret(context)
+            self._note_secret(context, secret_id)
             return self._injected
-        key = (self.collection, self.secret_id)
+        key = (self.collection, secret_id)
         cached = self._clients.get(key)
         if cached is not None:
             return cached
-        secret = self._require_secret(context)
+        secret = self._require_secret(context, secret_id)
         self._remember(secret)
         built = _transfer_client(secret)
         self._clients[key] = built
         return built
 
-    def _require_secret(self, context: Any) -> Mapping[str, str]:
-        if not self.secret_id or getattr(context, "secrets", None) is None:
+    def _require_secret(self, context: Any, secret_id: str | None) -> Mapping[str, str]:
+        if not secret_id or getattr(context, "secrets", None) is None:
             raise SecretLookupError("globus resolver requires a secret")
-        secret = context.secrets.get_secret(self.secret_id)
+        secret = context.secrets.get_secret(secret_id)
         if not isinstance(secret, Mapping):
             raise SecretLookupError("secret map is missing client_id")
         return secret
 
-    def _note_secret(self, context: Any) -> None:
-        if self._secret_values or not self.secret_id or getattr(context, "secrets", None) is None:
+    def _note_secret(self, context: Any, secret_id: str | None) -> None:
+        if self._secret_values or not secret_id or getattr(context, "secrets", None) is None:
             return
         try:
-            secret = context.secrets.get_secret(self.secret_id)
+            secret = context.secrets.get_secret(secret_id)
         except Exception:
             return
         if isinstance(secret, Mapping):
@@ -685,7 +721,10 @@ class GlobusResolver:
             message = str(exc) or default.__name__
             wrapper = default
         message = self._scrub(message)
-        return sanitize_exception(exc, wrapper_type=wrapper, message=message, opaque_uris=(uri,))
+        wrapped = sanitize_exception(exc, wrapper_type=wrapper, message=message, opaque_uris=(uri,))
+        if kind == "missing":
+            wrapped.globus_missing = True  # type: ignore[attr-defined]
+        return wrapped
 
     def _scrub(self, message: str) -> str:
         text = message

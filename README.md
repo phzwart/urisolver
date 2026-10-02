@@ -6,15 +6,6 @@ Given a URI, `urisolver` dispatches to the appropriate resolver plugin, guarante
 small set of universal delivery operations (Tier 0), and exposes the underlying
 protocol's native capabilities to callers who opt in (Tier 2).
 
-```python
-from urisolver import Context, FileDestination, MemoryDestination
-
-with Context() as ctx:
-    resource = ctx.resolve("file:///tmp/data.h5")
-    path = resource.materialize(FileDestination("/scratch/x")).value
-    data = resource.materialize(MemoryDestination()).value
-```
-
 ## Install
 
 ```bash
@@ -24,6 +15,21 @@ pip install -e ".[tiled,dev]"
 # Optional Globus Transfer support:
 pip install -e ".[globus,dev]"
 ```
+
+## Resolve one URI
+
+A catalog entry names a server. The URI names an object on that server. `examples/catalog.yaml` is the example, and [examples/README.md](examples/README.md) walks through tiled, then testdrive, then globus.
+
+```python
+from urisolver import Context, FileDestination, MemoryDestination
+
+with Context() as ctx:
+    resource = ctx.resolve("file:///tmp/data.h5")
+    path = resource.materialize(FileDestination("/scratch/x")).value
+    data = resource.materialize(MemoryDestination()).value
+```
+
+A third-party resolver implements the contract in [DESIGN.md](DESIGN.md). Scheme pages live in [SCHEMES.md](SCHEMES.md).
 
 ## License
 

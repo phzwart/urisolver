@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import gc
 import logging
 import pickle
+import weakref
 from pathlib import Path
 
 import pytest
@@ -167,6 +169,21 @@ def test_context_close_invalidates(tmp_path: Path):
     with pytest.raises(ContextClosedError):
         r.info()
     ctx.close()
+
+
+def test_context_does_not_retain_dropped_resources(tmp_path: Path):
+    f = tmp_path / "x.bin"
+    f.write_bytes(b"1")
+    ctx = Context()
+    dropped = ctx.resolve(f.resolve().as_uri())
+    ref = weakref.ref(dropped)
+    del dropped
+    gc.collect()
+    assert ref() is None
+    held = ctx.resolve(f.resolve().as_uri())
+    ctx.close()
+    with pytest.raises(ContextClosedError):
+        held.info()
 
 
 def test_not_picklable(tmp_path: Path):

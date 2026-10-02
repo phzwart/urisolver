@@ -9,7 +9,7 @@ description = "Resolve URI references into usable resources with a universal Tie
 readme = "README.md"
 requires-python = ">=3.10,<4"
 license = "MIT"
-authors = [{ name = "urisolver contributors" }]
+authors = [{ name = "phzwart" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -26,25 +26,23 @@ dependencies = []
 [project.optional-dependencies]
 tiled = ["tiled>=0.2.16", "pyyaml>=6", "pyarrow>=14"]
 globus = ["globus-sdk>=3.40", "pyyaml>=6"]
-dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.8"]
 
 [project.scripts]
 urisolver = "urisolver.cli:main"
 
 [project.entry-points."urisolver.resolvers"]
 file = "urisolver.resolvers.file:FileResolver"
-"com.urisolver.example.tiled" = "urisolver.resolvers.example_tiled:ExampleCatalogResolver"
-"com.urisolver.example.globus" = "urisolver.resolvers.example_globus:ExampleGlobusResolver"
 
 [project.entry-points."urisolver.namespaces"]
 [project.entry-points."urisolver.secrets"]
 [project.entry-points."urisolver.codecs"]
 
-[tool.hatch.build.targets.wheel]
-
+[tool.hatch.build.targets.wheel.force-include]
+"examples/catalog.yaml" = "urisolver/catalog.yaml"
 
 [tool.hatch.build.targets.sdist]
-include = ["src/urisolver", "DESIGN.md", "README.md", "LICENSE", "tests"]
+include = ["src/urisolver", "DESIGN.md", "README.md", "LICENSE", "tests", "examples/catalog.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -53,3 +51,9 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
+# Ruff's built-in default is wider than this repository. Keep the historical
+# pycodestyle-error and pyflakes set. One-line statements are an existing style.
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E701", "E702"]

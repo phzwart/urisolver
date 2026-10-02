@@ -575,7 +575,9 @@ materialize(FileDestination(path))    → raises UnsupportedDestinationError
 materialize(MemoryDestination(BYTES)) → same condition
 ```
 
-Directory destinations and recursive export are out of scope.
+Directory destinations and recursive export are out of scope. Globus is the
+documented exception in §27.3: a container copy runs only when the URI sets the
+`recursive` query flag and the context allows it.
 
 ---
 
@@ -1066,6 +1068,7 @@ class ResolveContext:
     namespaces: NamespaceConfig | None = None
     memory_limit: int | None = 2 * 2**30
     strict_efficiency: bool = False
+    allow_recursive: bool = True
     namespace_cache: bool = True
     max_resolution_depth: int = 4
     tmpdir: Path | None = None
@@ -1221,8 +1224,10 @@ unset: there is no single established encoding the resolver can honestly promise
 raises `UnsupportedFormError`.
 
 Path segments are percent-decoded, so `%2F` is one Tiled key containing a slash. An empty
-interior segment (`a//b`) is `InvalidURIError`. A client session is cached per
-`(base_uri, secret_id)`, so two credential ids against one server do not share a client.
+interior segment (`a//b`) is `InvalidURIError`. The catalog selects the secret id for
+the resource path (`secret_id`, or the longest `secrets` prefix). A client session is
+cached per `(base_uri, secret_id)`, so two credential ids against one server do not
+share a client.
 
 Selection: numpy basic indexing is pushed to Tiled server-side wherever the node supports
 it (`strategy="native-selection"`). Tiled-specific selections travel through
@@ -1237,21 +1242,34 @@ safely expose, `urisolver-core` must not need modification.
 ### 27.3 Globus
 
 `GlobusResolver` (extra `[globus]`) is one path on a Transfer collection. The example
-scheme reads the collection UUID, `secret_id`, and `staging` from the resolution catalog.
+scheme reads the collection UUID, the secret id for this path, and `staging` from the
+resolution catalog. `secret_id` is the default. `secrets` maps a path prefix to another
+id, and the longest matching prefix wins.
 `import urisolver` does not import the SDK. The SDK is imported on the first transfer.
 
-`native: [file]`. `FileDestination` is a checksum-verified copy (`strategy="native"`).
-`MemoryDestination` writes a temporary file on the staging collection and returns the
-bytes (`strategy="staged"`). Without `staging`, both raise `UnsupportedDestinationError`.
+`native: [file]`. `FileDestination` of a file is a checksum-verified copy
+(`strategy="native"`). A container `FileDestination` is `UnsupportedDestinationError`
+unless the URI query is the flag `recursive` (`?recursive`). That flag is not part of
+the collection path. `Context(allow_recursive=False)` refuses the copy even when the URI
+asks, and forces `GlobusDestination` to submit non-recursive. `?recursive` does not
+change file delivery or a container memory map, and child URIs do not inherit it.
+`MemoryDestination`, including `Form.BYTES`, writes a temporary file on the staging
+collection and returns the bytes (`strategy="staged"`). The staged size is checked
+before the bytes are read. Without `staging`, both raise `UnsupportedDestinationError`.
 `GlobusDestination` submits and returns the task id (`strategy="submitted"`) and does not
-claim the transfer has finished. `strict_efficiency` refuses memory delivery and does
-not apply to `GlobusDestination`.
+claim the transfer has finished. `strict_efficiency` refuses every memory delivery,
+including `Form.BYTES`, and does not apply to `GlobusDestination`.
+
+`transfer_timeout` on the resolver, or the catalog key of the same name, bounds a
+blocking transfer in seconds. When it is unset, the resolver waits until the task
+finishes and does not cancel it. `wait(task_id, timeout)` uses the caller's timeout
+when one is passed.
 
 A secret is `client_id` plus `refresh_token` or `client_secret`. The client is cached per
-`(collection, secret_id)`. HTTP 401, 403, and 404 are authentication, authorization, and
-resolution. `consent_required` names `required_scopes` and tells the caller to rerun
-login. Paths may be private; `opaque_payload` stays false. The core builds no transfer
-graph. Cross-protocol optimizations stay in plugins.
+`(collection, secret_id)`. HTTP 401 and 403 are authentication and authorization. A 404
+on the parent listing is `exists=False`. `consent_required` names `required_scopes` and
+tells the caller to rerun login. Paths may be private; `opaque_payload` stays false. The
+core builds no transfer graph. Cross-protocol optimizations stay in plugins.
 
 ---
 

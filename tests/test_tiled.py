@@ -364,9 +364,9 @@ def test_session_cache_key_includes_secret_id(monkeypatch):
     beta = TiledResolver(base_uri="http://tiled.example", secret_id="beta")
     alpha_ctx = Context(secrets=Secrets("aaa"))
     beta_ctx = Context(secrets=Secrets("bbb"))
-    alpha._get_client(alpha_ctx)
-    alpha._get_client(alpha_ctx)
-    beta._get_client(beta_ctx)
+    alpha._get_client(alpha_ctx, "alpha")
+    alpha._get_client(alpha_ctx, "alpha")
+    beta._get_client(beta_ctx, "beta")
     assert calls == ["aaa", "bbb"]
     assert ("http://tiled.example", "alpha") in alpha._sessions
     assert ("http://tiled.example", "beta") in beta._sessions

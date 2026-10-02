@@ -84,6 +84,8 @@ The two stories above do not open a back channel. A local file is readable becau
 
 When a resolver does need a credential, it asks through an exchange of opaque bytes. The exchange does not know which transport it is on, and it does not know that a secret provider exists. A helper above it translates `get_secret(secret_id)` into those bytes and back into a string map.
 
+One secrets manager holds every id. The resolution catalog selects which id applies to the resource being resolved: `secret_id` is the default for the scheme, and `secrets` maps a path prefix to another id. The longest matching prefix wins. The Tiled and Globus example READMEs show the paths.
+
 The same helper works on the three ways this package already communicates:
 
 | Transport | What it is | Where it already appears |

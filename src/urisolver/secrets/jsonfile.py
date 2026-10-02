@@ -18,6 +18,22 @@ from urisolver.errors import SecretLookupError
 _SECRET_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 
+def _write_private(path: Path, payload: str) -> None:
+    """Create ``path`` at mode 0600 and write ``payload``. Retry once if it exists."""
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    for attempt in range(2):
+        try:
+            fd = os.open(path, flags, 0o600)
+        except FileExistsError:
+            if attempt == 1:
+                raise
+            path.unlink()
+            continue
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(payload)
+        return
+
+
 def default_secrets_directory() -> Path:
     """Directory the local secrets manager uses when none is given."""
     return Path.home() / ".config" / "urisolver" / "secrets"
@@ -72,19 +88,17 @@ class LocalSecretsManager(JsonFileSecrets):
         ):
             raise SecretLookupError("secret is not a string map")
         payload = json.dumps({key: secret[key] for key in secret})
+        temporary = self._directory / f".{secret_id}.{os.getpid()}.tmp"
         try:
             self._directory.mkdir(parents=True, exist_ok=True)
             os.chmod(self._directory, 0o700)
             path = self._directory / f"{secret_id}.json"
-            temporary = self._directory / f".{secret_id}.{os.getpid()}.tmp"
-            temporary.write_text(payload, encoding="utf-8")
-            os.chmod(temporary, 0o600)
+            _write_private(temporary, payload)
             os.replace(temporary, path)
             os.chmod(path, 0o600)
         except OSError as exc:
             raise SecretLookupError("secret could not be stored") from exc
         finally:
-            temporary = self._directory / f".{secret_id}.{os.getpid()}.tmp"
             if temporary.exists():
                 try:
                     temporary.unlink()

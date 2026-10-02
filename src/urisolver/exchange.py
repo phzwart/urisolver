@@ -76,7 +76,7 @@ class HttpExchange:
                 return resp.read()
         except HTTPError as exc:
             raise OSError(f"exchange HTTP {exc.code}") from None
-        except URLError as exc:
+        except URLError:
             raise OSError("exchange HTTP request failed") from None
 
     def close(self) -> None:

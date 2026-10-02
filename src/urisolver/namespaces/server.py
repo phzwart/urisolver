@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Protocol
 from urllib.parse import urlparse
 from urisolver.namespaces.base import (
-    NamespaceRequestContext, NamespaceResolution, NamespaceResolver, Principal, ResolutionStatus,
+    NamespaceRequestContext, NamespaceResolution, NamespaceResolver, Principal,
 )
 
 class Authenticator(Protocol):

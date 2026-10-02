@@ -1,6 +1,7 @@
 """ResolveContext — session ownership (§5, §23)."""
 from __future__ import annotations
 import uuid
+import weakref
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -29,6 +30,7 @@ class ResolveContext:
     namespaces: NamespaceConfig | None = None
     memory_limit: int | None = 2 * 2**30
     strict_efficiency: bool = False
+    allow_recursive: bool = True
     namespace_cache: bool = True
     max_resolution_depth: int = 4
     tmpdir: Path | None = None
@@ -37,7 +39,7 @@ class ResolveContext:
 
     _closed: bool = field(default=False, init=False, repr=False)
     _instantiated: list[Any] = field(default_factory=list, init=False, repr=False)
-    _resources: list[Any] = field(default_factory=list, init=False, repr=False)
+    _resources: weakref.WeakSet[Any] = field(default_factory=weakref.WeakSet, init=False, repr=False)
     _cache: NamespaceCache | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
@@ -62,7 +64,7 @@ class ResolveContext:
         if self._closed:
             return
         self._closed = True
-        for resource in self._resources:
+        for resource in list(self._resources):
             inv = getattr(resource, "_invalidate", None)
             if callable(inv):
                 inv()
@@ -83,7 +85,7 @@ class ResolveContext:
             raise ContextClosedError("ResolveContext is closed")
 
     def track_resource(self, resource: Any) -> None:
-        self._resources.append(resource)
+        self._resources.add(resource)
 
     def track_resolver(self, resolver: Any) -> None:
         if resolver not in self._instantiated:

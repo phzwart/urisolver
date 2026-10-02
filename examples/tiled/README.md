@@ -7,12 +7,33 @@ com.urisolver.example.tiled:
   protocol: tiled
   base_uri: https://tiled-demo.nsls2.bnl.gov
   native: [memory]
-  # secret_id: tiled   # optional; passed to the secrets provider
 ```
 
 `native` lists the deliveries this server can do without staging: `memory`, `file`, or both. Tiled reads an object into memory directly, so this entry is `memory`. A Globus entry would be `file`. Tier 0 still allows the other delivery; it is staged. `Context(strict_efficiency=True)` refuses that staged path.
 
-`secret_id`, when present, is the name `urisolver` asks the secrets provider for when it opens that server. The public demo does not set it.
+## One manager, one id per resource
+
+`LocalSecretsManager` holds every secret, one file per id under `~/.config/urisolver/secrets/`. Resolve picks the id for this resource from the catalog, then asks the manager for that id.
+
+`secret_id` is the credential for every object on the server. `secrets` maps a path prefix to a different id. The longest prefix that is the path, or a parent of it, wins:
+
+```yaml
+com.urisolver.example.tiled:
+  protocol: tiled
+  base_uri: https://tiled-demo.nsls2.bnl.gov
+  secret_id: tiled-default
+  secrets:
+    examples/private: tiled-lab
+    examples/private/raw: tiled-raw
+```
+
+| Resource path | Secret id |
+| --- | --- |
+| `examples/images/astronaut` | `tiled-default` |
+| `examples/private/scan` | `tiled-lab` |
+| `examples/private/raw/frame` | `tiled-raw` |
+
+The public demo sets neither field, so resolve asks for nothing. `resolve.py` still attaches the manager. Secret values stay out of the URI and the catalog.
 
 `com.urisolver.example.tiled://examples/images/astronaut` is the node `examples/images/astronaut` on that server: a `512×512×3` array. Another protocol is another scheme in the same file.
 
