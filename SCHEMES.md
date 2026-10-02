@@ -24,14 +24,38 @@ com.urisolver.example.tiled:
   base_uri: https://tiled.example
   native: [memory]
   secret_id: tiled
+
+com.urisolver.example.globus:
+  protocol: globus
+  collection: 6c54cade-bde5-45c1-bdea-f4bd71dba2cc
+  native: [file]
+  secret_id: globus-example
+  staging: &lab-staging
+    collection: 00000000-0000-0000-0000-000000000000
+    root: /
+    accessible:
+      - /CHANGE_ME
 ```
 
-`protocol` and `base_uri` are required for a tiled server. `secret_id` is optional. When
-set, the resolver calls `SecretsProvider.get_secret(secret_id)` and uses `api_key` or
-`token` from the returned map. `native` is the efficient path: `memory`, `file`, or both.
-It does not remove Tier 0. A caller that sets `strict_efficiency` is refused a delivery
-outside that list. The same file can hold other protocols later; each scheme is a separate
-entry.
+`protocol` selects the server kind. A tiled entry requires `base_uri`. `secret_id` is
+optional. When set, the resolver calls `SecretsProvider.get_secret(secret_id)`. Tiled
+reads `api_key` or `token`. Globus reads `client_id` plus `refresh_token` or
+`client_secret`.
+
+A globus entry requires `collection`, the source collection UUID. `staging` is the
+collection on this machine that receives a file or memory delivery: `collection`, `root`,
+and `accessible` (absolute local prefixes). Another scheme in this file reuses one block
+with `staging: *lab-staging`. There is no top-level machine key. `staging.collection` and
+`accessible` in the committed example are placeholders; replace them before a transfer.
+
+`native` is the efficient path: `memory`, `file`, or both. It does not remove Tier 0. A
+caller that sets `strict_efficiency` is refused a delivery outside that list. Tiled is
+`memory`. Globus is `file`.
+
+The Globus URI path is the absolute path on `collection`.
+`com.urisolver.example.globus:///share/godata/file1.txt` is `/share/godata/file1.txt` on
+Tutorial Collection 1. An authority (`scheme://<uuid>/path`) is rejected. A sibling scheme
+that puts the collection UUID in the authority is future work.
 
 ## Template
 
@@ -137,3 +161,67 @@ True`. The core redacts opaque payloads in logs and exceptions (DESIGN.md §4.1)
 
 Identifiers are assigned by the facility namespace authority. Identifiers MUST NOT be
 reassigned to a different resource once published.
+
+---
+
+## com.urisolver.example.globus
+
+### Scheme name
+
+`com.urisolver.example.globus` — reverse-DNS private use (RFC 7595 §3.8). Example
+scheme for one Globus Transfer collection. Not registered with IANA. The optional
+`[globus]` extra supplies the SDK.
+
+### Syntax
+
+No authority component. `com.urisolver.example.globus://<uuid>/path` is invalid.
+The path is absolute on the collection named by the resolution catalog:
+
+```text
+com.urisolver.example.globus:/<absolute-path>
+com.urisolver.example.globus:///<absolute-path>
+```
+
+- `/` separates path segments. An empty interior segment (`a//b`) is `InvalidURIError`.
+- Each segment is percent-decoded once.
+- No query component is defined.
+- The path is case-sensitive. The scheme is case-insensitive (RFC 3986 §6.2.2.1).
+
+### Semantics
+
+A locator for one path on the catalog's source collection. The example entry points at
+Tutorial Collection 1 (`6c54cade-bde5-45c1-bdea-f4bd71dba2cc`). The path
+`/share/godata/file1.txt` is that tutorial's sample file.
+
+### Operations
+
+`resolve` checks the path and does not contact Globus. `info` lists the parent.
+`materialize(FileDestination)` submits a checksum transfer into the staging collection
+and blocks until the task succeeds, then renames the file into place.
+`materialize(MemoryDestination)` stages through a temporary file on that collection and
+returns the bytes (`strategy="staged"`). `GlobusDestination` submits and returns the
+task id (`strategy="submitted"`) without waiting. A missing `staging` block makes file
+and memory delivery `UnsupportedDestinationError` and does not affect `GlobusDestination`.
+
+### Fragments
+
+Fragments are not interpreted (DESIGN.md §4.3).
+
+### Encoding
+
+UTF-8 percent-encoding (RFC 3986 §2.1). Reserved characters in a segment must be
+percent-encoded by the caller. The resolver decodes each segment once.
+
+### Security and privacy
+
+The path may name a private file, a user directory, or an instrument path. That is
+sensitive in a log or a paper. This scheme sets `opaque_payload = False`: the core does
+not redact the path. Callers that log URIs of this scheme should redact them. Credential
+values never appear in resolver errors. A refresh token or client secret is read from
+the secrets provider and is not part of the URI.
+
+### Change control
+
+The example scheme name is stable for this repository. The collection it points at is
+deployment data in `examples/catalog.yaml` and can change without renaming the scheme.
+Paths on the tutorial collection are assigned by Globus.

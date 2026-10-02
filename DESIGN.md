@@ -1234,21 +1234,24 @@ Capabilities derive from the actual resolved object. If a node has no `read_bloc
 advertise or synthesize one. If a future Tiled version adds an operation the adapter can
 safely expose, `urisolver-core` must not need modification.
 
-### 27.3 Globus (future, must remain possible)
+### 27.3 Globus
 
-The plugin owns source interpretation, destination semantics, authentication, transfer
-submission and status handling. Tier 0 still applies: a Globus-backed resource must
-support `FileDestination` and `MemoryDestination` even if it does so by staging. The core
-builds no transfer graph.
+`GlobusResolver` (extra `[globus]`) is one path on a Transfer collection. The example
+scheme reads the collection UUID, `secret_id`, and `staging` from the resolution catalog.
+`import urisolver` does not import the SDK. The SDK is imported on the first transfer.
 
-A resolution-catalog entry may list `native: [memory]`, `native: [file]`, or both. That
-list is the delivery the server can perform without staging. Tiled is `memory`. Globus is
-`file`. The other Tier 0 delivery remains available and is reported as a non-native
-strategy. `Context(strict_efficiency=True)` raises `InefficientOperationError` for a
-delivery outside `native`.
+`native: [file]`. `FileDestination` is a checksum-verified copy (`strategy="native"`).
+`MemoryDestination` writes a temporary file on the staging collection and returns the
+bytes (`strategy="staged"`). Without `staging`, both raise `UnsupportedDestinationError`.
+`GlobusDestination` submits and returns the task id (`strategy="submitted"`) and does not
+claim the transfer has finished. `strict_efficiency` refuses memory delivery and does
+not apply to `GlobusDestination`.
 
-Cross-protocol optimizations (`urisolver-tiled-globus`) must be pluggable without core
-changes. Do not build general cross-protocol routing in the core.
+A secret is `client_id` plus `refresh_token` or `client_secret`. The client is cached per
+`(collection, secret_id)`. HTTP 401, 403, and 404 are authentication, authorization, and
+resolution. `consent_required` names `required_scopes` and tells the caller to rerun
+login. Paths may be private; `opaque_payload` stays false. The core builds no transfer
+graph. Cross-protocol optimizations stay in plugins.
 
 ---
 

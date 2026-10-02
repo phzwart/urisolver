@@ -6,3 +6,17 @@ com.urisolver.example.tiled:
   protocol: tiled
   base_uri: https://tiled-demo.nsls2.bnl.gov
   native: [memory]
+
+# Tutorial Collection 1. staging is this machine's Globus Connect Personal
+# collection. Replace the placeholder UUID and the accessible prefix.
+# Another Globus scheme can reuse the block with `staging: *example-staging`.
+com.urisolver.example.globus:
+  protocol: globus
+  collection: 6c54cade-bde5-45c1-bdea-f4bd71dba2cc
+  native: [file]
+  secret_id: globus-example
+  staging: &example-staging
+    collection: 00000000-0000-0000-0000-000000000000
+    root: /
+    accessible:
+      - /CHANGE_ME

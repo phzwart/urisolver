@@ -21,6 +21,8 @@ with Context() as ctx:
 pip install -e ".[dev]"
 # Optional Tiled support:
 pip install -e ".[tiled,dev]"
+# Optional Globus Transfer support:
+pip install -e ".[globus,dev]"
 ```
 
 ## License
