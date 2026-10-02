@@ -2,9 +2,19 @@
 
 Each demo starts from a URI. urisolver turns it into a file or an in-memory object. The caller does not branch on the backend.
 
-Start with tiled, then testdrive, then globus.
+Start with the shared frontend, then the multi-machine workflow, then tiled, testdrive, and globus.
 
-`examples/catalog.yaml` maps a scheme name to a server. An explicit path or `$URISOLVER_CATALOG` replaces that file. Otherwise `~/.config/urisolver/catalog.yaml` is merged over it. The example Tiled and Globus schemes are not package entry points. Each script registers its resolver before `resolve`. The Zenodo resolver stays inside the testdrive script.
+`examples/catalog.yaml` maps a scheme name to a server. An explicit path or `$URISOLVER_CATALOG` replaces that file. Otherwise `~/.config/urisolver/catalog.yaml` is merged over it. The example Tiled, Globus, and Zenodo resolvers are not package entry points. Each script registers its resolver before `resolve`.
+
+## frontend
+
+[examples/frontend.py](frontend.py) is one `stage` function for the Tiled demo, the Zenodo record, and the Globus tutorial file. It does not branch on the scheme. `--memory` delivers `MemoryDestination` instead of a file.
+
+## workflow
+
+[examples/workflow/](workflow/) is the holder and the worker. Local mode needs no second machine. The holder opens one loopback endpoint per job and closes it when the worker exits.
+
+See [examples/workflow/README.md](workflow/README.md).
 
 ## tiled
 
