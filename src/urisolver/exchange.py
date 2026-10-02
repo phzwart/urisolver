@@ -6,11 +6,14 @@ An in-process call is the third communication type already used in this package.
 """
 from __future__ import annotations
 
+import hmac
+import ipaddress
 import struct
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import BinaryIO, Callable, Protocol, runtime_checkable
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 # A credential map is small. Refuse a frame that would allocate without bound.
@@ -63,14 +66,33 @@ class HttpExchange:
     """POST the payload and return the response body.
 
     The URL belongs to this transport. It is not part of the message.
+    Plain ``http`` to a non-loopback host is refused unless
+    ``allow_insecure_transport`` is set. Loopback ``http`` is allowed.
     """
 
-    def __init__(self, url: str, *, timeout: float = 30.0) -> None:
+    def __init__(
+        self,
+        url: str,
+        *,
+        timeout: float = 30.0,
+        token: str | None = None,
+        allow_insecure_transport: bool = False,
+    ) -> None:
+        parsed = urlparse(url)
+        if (
+            parsed.scheme.lower() == "http"
+            and not allow_insecure_transport
+            and not _is_loopback_host(parsed.hostname or "")
+        ):
+            raise ValueError("HttpExchange refuses plain http to a non-loopback host")
         self._url = url
         self._timeout = timeout
+        self._token = token
 
     def exchange(self, request: bytes) -> bytes:
         req = Request(self._url, data=request, method="POST")
+        if self._token is not None:
+            req.add_header("Authorization", f"Bearer {self._token}")
         try:
             with urlopen(req, timeout=self._timeout) as resp:
                 return resp.read()
@@ -81,6 +103,9 @@ class HttpExchange:
 
     def close(self) -> None:
         return None
+
+    def __repr__(self) -> str:
+        return "HttpExchange(<redacted>)"
 
 
 def serve_stream(stream: BinaryIO, handler: Handler) -> None:
@@ -113,14 +138,36 @@ class RunningHttpExchange:
         self._thread.join(timeout=5)
         self._server.server_close()
 
+    def __repr__(self) -> str:
+        return f"RunningHttpExchange(url={self.url!r})"
 
-def serve_http(handler: Handler, *, host: str = "127.0.0.1", port: int = 0) -> RunningHttpExchange:
-    """Serve ``POST`` of raw bytes. The handler's return value is the body."""
+
+def serve_http(
+    handler: Handler,
+    *,
+    host: str = "127.0.0.1",
+    port: int = 0,
+    token: str | None = None,
+    allow_non_loopback: bool = False,
+) -> RunningHttpExchange:
+    """Serve ``POST`` of raw bytes. The handler's return value is the body.
+
+    Binds a loopback address unless ``allow_non_loopback`` is set. When
+    ``token`` is set, a request without a matching bearer header gets HTTP
+    401 and an empty body.
+    """
+    if not allow_non_loopback and not _is_loopback_host(host):
+        raise ValueError("serve_http binds a loopback address unless allow_non_loopback=True")
 
     class _Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_POST(self) -> None:  # noqa: N802
+            if token is not None and not _bearer_matches(self.headers.get("Authorization"), token):
+                self.send_response(401)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
             except ValueError:
@@ -151,8 +198,30 @@ def serve_http(handler: Handler, *, host: str = "127.0.0.1", port: int = 0) -> R
     )
     thread.start()
     bound_host, bound_port = server.server_address[:2]
-    url = f"http://{bound_host}:{bound_port}/"
+    host_text = str(bound_host)
+    if ":" in host_text:
+        host_text = f"[{host_text}]"
+    url = f"http://{host_text}:{bound_port}/"
     return RunningHttpExchange(server, thread, url)
+
+
+def _is_loopback_host(host: str) -> bool:
+    name = host.strip().lower()
+    if name.startswith("[") and name.endswith("]"):
+        name = name[1:-1]
+    if name in {"localhost", "localhost."}:
+        return True
+    try:
+        return ipaddress.ip_address(name).is_loopback
+    except ValueError:
+        return False
+
+
+def _bearer_matches(presented: str | None, token: str) -> bool:
+    if not isinstance(presented, str):
+        return False
+    expected = f"Bearer {token}"
+    return hmac.compare_digest(presented.encode("utf-8"), expected.encode("utf-8"))
 
 
 def _write_frame(stream: BinaryIO, payload: bytes) -> None:

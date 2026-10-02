@@ -8,6 +8,8 @@ import subprocess
 import sys
 import threading
 from pathlib import Path
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
 import pytest
 
@@ -149,3 +151,76 @@ def test_worker_report_omits_the_exchanged_map(tmp_path: Path):
     assert report["form"] == "path"
     assert report["is_reference"] is False
     assert report["strategy"] == "native"
+
+
+TOKEN = "CANARY-refresh-7f3a"
+
+
+def _post(url: str, *, token: str | None = None) -> bytes:
+    headers = {}
+    if token is not None:
+        headers["Authorization"] = f"Bearer {token}"
+    req = Request(url, data=b"{}", method="POST", headers=headers)
+    with urlopen(req, timeout=5) as resp:
+        return resp.read()
+
+
+def test_missing_token_is_401():
+    def handler(body: bytes) -> bytes:
+        raise AssertionError(body)
+
+    running = serve_http(handler, token=TOKEN)
+    try:
+        with pytest.raises(HTTPError) as raised:
+            _post(running.url)
+        assert raised.value.code == 401
+        assert raised.value.read() == b""
+    finally:
+        running.close()
+
+
+def test_wrong_token_is_401():
+    running = serve_http(lambda body: b"ok", token=TOKEN)
+    try:
+        with pytest.raises(HTTPError) as raised:
+            _post(running.url, token="other-token")
+        assert raised.value.code == 401
+        assert raised.value.read() == b""
+        assert _post(running.url, token=TOKEN) == b"ok"
+    finally:
+        running.close()
+
+
+def test_serve_http_refuses_non_loopback_without_flag():
+    with pytest.raises(ValueError, match="loopback"):
+        serve_http(lambda body: body, host="192.0.2.1")
+    running = serve_http(lambda body: body, host="0.0.0.0", allow_non_loopback=True)
+    running.close()
+
+
+def test_http_exchange_refuses_remote_http():
+    with pytest.raises(ValueError, match="non-loopback") as raised:
+        HttpExchange(f"http://example.com/path?token={TOKEN}")
+    assert TOKEN not in str(raised.value)
+    assert "example.com" not in str(raised.value)
+    HttpExchange("http://127.0.0.1:9/")
+    HttpExchange("http://127.42.0.1:9/")
+    HttpExchange("http://localhost:9/")
+    HttpExchange("http://[::1]:9/")
+    HttpExchange("https://example.com/")
+    HttpExchange("http://example.com/", allow_insecure_transport=True)
+    client = HttpExchange("http://127.0.0.1:1/", token=TOKEN, timeout=1.0)
+    with pytest.raises(OSError) as failed:
+        client.exchange(b"x")
+    assert TOKEN not in str(failed.value)
+
+
+def test_reprs_hide_token():
+    running = serve_http(lambda body: body, token=TOKEN)
+    try:
+        client = HttpExchange(f"{running.url}?access_token={TOKEN}", token=TOKEN)
+        assert TOKEN not in repr(running)
+        assert TOKEN not in repr(client)
+        assert "access_token" not in repr(client)
+    finally:
+        running.close()
