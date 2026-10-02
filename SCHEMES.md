@@ -11,6 +11,7 @@ Every URI scheme registered with a `urisolver` deployment is defined here, per R
 | `gov.bnl.nsls2.tiled` | Optional (`[tiled]` extra) | Tiled deployment; document before deploy |
 | `gov.bnl.nsls2.tiled-ssrl` | Optional (`[tiled]` extra) | Tiled deployment; document before deploy |
 | `gov.lbl.mbib` | Documented below | Facility namespace (opaque name → concrete URI) |
+| `https` | Example-only | Not an entry point. A script may register it for `https://zenodo.org/records/<id>` only |
 
 Deployment-specific schemes follow the template below and get a page in this file before
 they are registered.
@@ -71,7 +72,8 @@ base keys for the same scheme. An explicit path or `$URISOLVER_CATALOG` is a com
 catalog and is not merged. `examples/globus/setup.py` writes only the Globus `staging`
 block. Rerun it if an older full copy of the catalog is still in the user file. The
 example scripts register `com.urisolver.example.tiled` and
-`com.urisolver.example.globus`. Installing the package does not.
+`com.urisolver.example.globus`. A script may also register `https` for the
+Zenodo example below. Installing the package does not register any of these.
 
 `native` is the efficient path: `memory`, `file`, or both. It does not remove Tier 0. A
 caller that sets `strict_efficiency` is refused a delivery outside that list. Tiled is
@@ -256,3 +258,61 @@ the secrets provider and is not part of the URI.
 The example scheme name is stable for this repository. The collection it points at is
 deployment data in `examples/catalog.yaml` and can change without renaming the scheme.
 Paths on the tutorial collection are assigned by Globus.
+
+---
+
+## https (Zenodo record example)
+
+### Scheme name
+
+`https` — the IANA permanent scheme. This page does not define `https` in general.
+It defines the example-only registration in this repository: a script may register
+`ZenodoRecordResolver` for `https`. That registration is not a package entry point.
+Installing urisolver does not register `https`.
+
+### Syntax
+
+The example accepts only:
+
+```text
+https://zenodo.org/records/<id>
+https://zenodo.org/records/<id>/
+```
+
+`<id>` is a numeric Zenodo record id. Any other host, a userinfo component, a query,
+a fragment, or a path that is not `/records/<id>` is `InvalidURIError`.
+
+### Semantics
+
+A locator for one public Zenodo record that contains exactly one file. `resolve`
+reads the record JSON and does not download the file. `materialize` streams that
+file and rejects the result when the size or MD5 does not match the record.
+
+### Operations
+
+`info` reports `Kind.FILE`, the record's file size, and a label of the file key.
+`materialize(FileDestination)` copies the file (`strategy="native"`).
+`materialize(MemoryDestination)` for `Form.NATIVE` or `Form.BYTES` returns the
+bytes (`strategy="native"`). A record with a file count other than one is
+`ResolutionError`. Redirects are accepted only when they stay on `https://zenodo.org`.
+
+### Fragments
+
+A fragment is not interpreted (DESIGN.md §4.3). This example rejects a URI that
+carries one (`InvalidURIError`), because the accepted record URL has none.
+
+### Encoding
+
+The record id is ASCII digits. The file is downloaded from the content URL the
+record JSON names, which must also be on `https://zenodo.org`.
+
+### Security and privacy
+
+The record URL is public. This registration sets `opaque_payload = False`. It does
+not read a secrets provider. Credential-bearing URLs are rejected because userinfo
+and queries are `InvalidURIError`.
+
+### Change control
+
+The example registration is not an entry point and is not a general `https` resolver.
+The record id a demo ships can change without renaming the scheme.
