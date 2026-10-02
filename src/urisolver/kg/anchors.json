@@ -1,0 +1,891 @@
+{
+ "anchors": [
+  {
+   "concept": "absolute_uri",
+   "module": "DESIGN.md",
+   "symbol": "1",
+   "kind": "section",
+   "line": 5,
+   "exact": "`urisolver` resolves **absolute URIs** into usable resources.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "scheme_dispatch",
+   "module": "DESIGN.md",
+   "symbol": "4",
+   "kind": "section",
+   "line": 120,
+   "exact": "The core validates syntax before dispatch.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "scheme_dispatch",
+   "module": "src/urisolver/_uriparse.py",
+   "symbol": "split_uri",
+   "kind": "FunctionDef",
+   "line": 28,
+   "exact": "Split an absolute URI into scheme / scheme-specific-part / fragment.",
+   "sha256": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/_uriparse.py"
+  },
+  {
+   "concept": "fragment",
+   "module": "DESIGN.md",
+   "symbol": "4.3",
+   "kind": "section",
+   "line": 195,
+   "exact": "The fragment is not scheme-specific and a scheme definition cannot redefine it (RFC 7595 \u00a73; RFC 3986 \u00a73.5).",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "fragment",
+   "module": "src/urisolver/context.py",
+   "symbol": "_inherit_fragment",
+   "kind": "FunctionDef",
+   "line": 171,
+   "exact": "Carry a request fragment onto a namespace target.",
+   "sha256": "85aa7b141c8a32cc082f02326fb1fddcc7ee9c09d22085058c21ae97ef5e5e1e",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/context.py"
+  },
+  {
+   "concept": "opaque_payload",
+   "module": "DESIGN.md",
+   "symbol": "4.1",
+   "kind": "section",
+   "line": 148,
+   "exact": "The scheme may always appear in the clear (it is needed to diagnose `UnknownSchemeError`).",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "opaque_payload",
+   "module": "src/urisolver/redaction.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "URI and message redaction (\u00a74.1, \u00a724.1).",
+   "sha256": "ca28253f65448742f82e329525c2aa38cc526b7581f0991515e74add68457d71",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py"
+  },
+  {
+   "concept": "redaction",
+   "module": "DESIGN.md",
+   "symbol": "24.1",
+   "kind": "section",
+   "line": 1118,
+   "exact": "Backend exceptions frequently carry URLs with embedded credentials.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "redaction",
+   "module": "src/urisolver/redaction.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "URI and message redaction (\u00a74.1, \u00a724.1).",
+   "sha256": "ca28253f65448742f82e329525c2aa38cc526b7581f0991515e74add68457d71",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py"
+  },
+  {
+   "concept": "scheme_naming",
+   "module": "DESIGN.md",
+   "symbol": "4.2",
+   "kind": "section",
+   "line": 153,
+   "exact": "Scheme names occupy a single global namespace.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "uri_equivalence",
+   "module": "DESIGN.md",
+   "symbol": "4.4",
+   "kind": "section",
+   "line": 215,
+   "exact": "`urisolver` does not implement RFC 3986 \u00a76 normalisation.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "uri_equivalence",
+   "module": "src/urisolver/_uriparse.py",
+   "symbol": "scheme_normalized",
+   "kind": "FunctionDef",
+   "line": 59,
+   "exact": "Return *uri* with only its scheme case-normalised (RFC 3986 \u00a76.2.2.1).",
+   "sha256": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/_uriparse.py"
+  },
+  {
+   "concept": "scheme_definition",
+   "module": "DESIGN.md",
+   "symbol": "4.5",
+   "kind": "section",
+   "line": 227,
+   "exact": "RFC 7595 \u00a73.3 and \u00a73.4 require a scheme definition to state how the scheme is expected to function: how a URI of the scheme maps into an identifier or protocol action, what operations are...",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "scheme_definition",
+   "module": "SCHEMES.md",
+   "symbol": "Registered schemes",
+   "kind": "section",
+   "line": 16,
+   "exact": "Deployment-specific schemes follow the template below and get a page in this file before they are registered.",
+   "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "public_api",
+   "module": "DESIGN.md",
+   "symbol": "5",
+   "kind": "section",
+   "line": 244,
+   "exact": "The context is primary; the module-level function is sugar.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "public_api",
+   "module": "src/urisolver/api.py",
+   "symbol": "resolve",
+   "kind": "FunctionDef",
+   "line": 27,
+   "exact": "Resolve *uri*.",
+   "sha256": "e74f0e38cb2c5fe3cfb647c5ce26272197a517603bcb21b9667504e0106211ea",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/api.py"
+  },
+  {
+   "concept": "resolve_context",
+   "module": "DESIGN.md",
+   "symbol": "23",
+   "kind": "section",
+   "line": 1077,
+   "exact": "`ResolveContext` is a context manager.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "resolve_context",
+   "module": "src/urisolver/context.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "ResolveContext \u2014 session ownership (\u00a75, \u00a723).",
+   "sha256": "85aa7b141c8a32cc082f02326fb1fddcc7ee9c09d22085058c21ae97ef5e5e1e",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/context.py"
+  },
+  {
+   "concept": "resolved_resource",
+   "module": "DESIGN.md",
+   "symbol": "6",
+   "kind": "section",
+   "line": 301,
+   "exact": "A `ResolvedResource` may hold an open session.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "resolved_resource",
+   "module": "src/urisolver/protocols.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Protocol definitions (\u00a76, \u00a714, \u00a717).",
+   "sha256": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/protocols.py"
+  },
+  {
+   "concept": "resource_info",
+   "module": "DESIGN.md",
+   "symbol": "7",
+   "kind": "section",
+   "line": 315,
+   "exact": "Cheap, best-effort description obtained during or shortly after resolution.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "resource_info",
+   "module": "src/urisolver/info.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "ResourceInfo and Kind (\u00a77).",
+   "sha256": "0e2ec6ab3ba8ca11cb1b08fd992e50f9d1eb79fee1e3d58865cf70a54177245d",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/info.py"
+  },
+  {
+   "concept": "tier_0",
+   "module": "DESIGN.md",
+   "symbol": "8",
+   "kind": "section",
+   "line": 351,
+   "exact": "Tier 0 operations are **universally present**.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "materialize",
+   "module": "DESIGN.md",
+   "symbol": "8",
+   "kind": "section",
+   "line": 351,
+   "exact": "Tier 0 operations are **universally present**.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "materialize",
+   "module": "src/urisolver/results.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "MaterializedResult (\u00a710).",
+   "sha256": "1f39d37e743f966d7fb8c827503df21419f9d18f16dedd358b21ea75ce5da18c",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/results.py"
+  },
+  {
+   "concept": "canonical_media_type",
+   "module": "DESIGN.md",
+   "symbol": "8.1",
+   "kind": "section",
+   "line": 383,
+   "exact": "A byte-level representation of a structured resource requires choosing a serialization, and the core must not choose one on the resolver's behalf \u2014 that would be exactly the invented semantics \u00a73...",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "form",
+   "module": "DESIGN.md",
+   "symbol": "9",
+   "kind": "section",
+   "line": 421,
+   "exact": "A form is *what the caller wants back*, independent of protocol.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "form",
+   "module": "src/urisolver/destinations.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Destinations and forms (\u00a79\u2013\u00a712).",
+   "sha256": "d53cdcf647451cbe10e8144a3d3467fd5ae2a3f07559d41df36544fead3de451",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/destinations.py"
+  },
+  {
+   "concept": "materialized_result",
+   "module": "DESIGN.md",
+   "symbol": "10",
+   "kind": "section",
+   "line": 463,
+   "exact": "`__repr__` must use redacted URIs (\u00a74.1) and must never include `value` for memory results.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "materialized_result",
+   "module": "src/urisolver/results.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "MaterializedResult (\u00a710).",
+   "sha256": "1f39d37e743f966d7fb8c827503df21419f9d18f16dedd358b21ea75ce5da18c",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/results.py"
+  },
+  {
+   "concept": "materialization_strategy",
+   "module": "DESIGN.md",
+   "symbol": "10.1",
+   "kind": "section",
+   "line": 481,
+   "exact": "`\"read-then-select\"` must also append a human-readable entry to `warnings`.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "strict_efficiency",
+   "module": "DESIGN.md",
+   "symbol": "10.1",
+   "kind": "section",
+   "line": 481,
+   "exact": "`\"read-then-select\"` must also append a human-readable entry to `warnings`.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "file_destination",
+   "module": "DESIGN.md",
+   "symbol": "11",
+   "kind": "section",
+   "line": 524,
+   "exact": "Failure cleanup removes the temporary artefact only.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "file_destination",
+   "module": "src/urisolver/destinations.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Destinations and forms (\u00a79\u2013\u00a712).",
+   "sha256": "d53cdcf647451cbe10e8144a3d3467fd5ae2a3f07559d41df36544fead3de451",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/destinations.py"
+  },
+  {
+   "concept": "reference_policy",
+   "module": "DESIGN.md",
+   "symbol": "11.2",
+   "kind": "section",
+   "line": 524,
+   "exact": "Failure cleanup removes the temporary artefact only.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "memory_destination",
+   "module": "DESIGN.md",
+   "symbol": "12",
+   "kind": "section",
+   "line": 561,
+   "exact": "The context supplies a default `max_bytes`; `Context(memory_limit=None)` disables it.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "memory_destination",
+   "module": "src/urisolver/destinations.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Destinations and forms (\u00a79\u2013\u00a712).",
+   "sha256": "d53cdcf647451cbe10e8144a3d3467fd5ae2a3f07559d41df36544fead3de451",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/destinations.py"
+  },
+  {
+   "concept": "selection",
+   "module": "DESIGN.md",
+   "symbol": "13",
+   "kind": "section",
+   "line": 586,
+   "exact": "Selection is portable at Tier 0 for one narrow, already-standard case.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "selection",
+   "module": "src/urisolver/selection.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Selection types (\u00a713).",
+   "sha256": "e1ef3816d1756da8dbd0731775d5f11f0b34567922f3d09bccf892d935ff45bf",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/selection.py"
+  },
+  {
+   "concept": "native_selection",
+   "module": "DESIGN.md",
+   "symbol": "13",
+   "kind": "section",
+   "line": 586,
+   "exact": "Selection is portable at Tier 0 for one narrow, already-standard case.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "native_selection",
+   "module": "src/urisolver/selection.py",
+   "symbol": "Native",
+   "kind": "ClassDef",
+   "line": 9,
+   "exact": "Opaque pass-through wrapper declaring protocol coupling (\u00a713).",
+   "sha256": "e1ef3816d1756da8dbd0731775d5f11f0b34567922f3d09bccf892d935ff45bf",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/selection.py"
+  },
+  {
+   "concept": "tier_1_facet",
+   "module": "DESIGN.md",
+   "symbol": "14",
+   "kind": "section",
+   "line": 648,
+   "exact": "A facet is a small, optional, *declared* protocol.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "tier_1_facet",
+   "module": "src/urisolver/protocols.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Protocol definitions (\u00a76, \u00a714, \u00a717).",
+   "sha256": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/protocols.py"
+  },
+  {
+   "concept": "stream_facet",
+   "module": "DESIGN.md",
+   "symbol": "14",
+   "kind": "section",
+   "line": 648,
+   "exact": "A facet is a small, optional, *declared* protocol.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "stream_facet",
+   "module": "src/urisolver/protocols.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Protocol definitions (\u00a76, \u00a714, \u00a717).",
+   "sha256": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/protocols.py"
+  },
+  {
+   "concept": "array_facet",
+   "module": "DESIGN.md",
+   "symbol": "14.2",
+   "kind": "section",
+   "line": 678,
+   "exact": "Numpy basic indexing only.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "array_facet",
+   "module": "src/urisolver/protocols.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Protocol definitions (\u00a76, \u00a714, \u00a717).",
+   "sha256": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/protocols.py"
+  },
+  {
+   "concept": "table_facet",
+   "module": "DESIGN.md",
+   "symbol": "14",
+   "kind": "section",
+   "line": 648,
+   "exact": "A facet is a small, optional, *declared* protocol.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "table_facet",
+   "module": "src/urisolver/protocols.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Protocol definitions (\u00a76, \u00a714, \u00a717).",
+   "sha256": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/protocols.py"
+  },
+  {
+   "concept": "container_facet",
+   "module": "DESIGN.md",
+   "symbol": "14.4",
+   "kind": "section",
+   "line": 699,
+   "exact": "Container keys are validated as single path segments: empty, `.`, `..`, absolute paths, and keys containing a separator or NUL are rejected with `KeyError`.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "container_facet",
+   "module": "src/urisolver/protocols.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Protocol definitions (\u00a76, \u00a714, \u00a717).",
+   "sha256": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/protocols.py"
+  },
+  {
+   "concept": "tier_2_native",
+   "module": "DESIGN.md",
+   "symbol": "15",
+   "kind": "section",
+   "line": 712,
+   "exact": "For everything else, the resolver exposes the protocol's own operations:",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "capability",
+   "module": "DESIGN.md",
+   "symbol": "15.1",
+   "kind": "section",
+   "line": 732,
+   "exact": "`supports(name)` is authoritative.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "policy_filtering",
+   "module": "DESIGN.md",
+   "symbol": "16",
+   "kind": "section",
+   "line": 762,
+   "exact": "In-process Python filtering cannot be enforcement: the caller shares the address space with the session object, the transport, and the credentials.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "resolver",
+   "module": "DESIGN.md",
+   "symbol": "17",
+   "kind": "section",
+   "line": 826,
+   "exact": "The resolver owns:",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "resolver",
+   "module": "src/urisolver/protocols.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Protocol definitions (\u00a76, \u00a714, \u00a717).",
+   "sha256": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/protocols.py"
+  },
+  {
+   "concept": "registry",
+   "module": "DESIGN.md",
+   "symbol": "18",
+   "kind": "section",
+   "line": 845,
+   "exact": "Two schemes may use the same protocol with entirely independent servers, credentials, routing, policy, URI syntax and configuration.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "registry",
+   "module": "src/urisolver/registry.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Scheme \u2192 resolver registry (\u00a718).",
+   "sha256": "bfbe99dc2d8c4ece225902fb0a0407ded35d9bdeda1e70bbe8a06321964565b6",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/registry.py"
+  },
+  {
+   "concept": "plugin",
+   "module": "DESIGN.md",
+   "symbol": "19.1",
+   "kind": "section",
+   "line": 860,
+   "exact": "Installing a package must be sufficient to make a scheme resolvable.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "plugin",
+   "module": "src/urisolver/plugins.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Entry-point plugin discovery (\u00a719).",
+   "sha256": "a127687fb1ab532301a336787e355a26770b3df42d1f2fd715452086029b6f96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/plugins.py"
+  },
+  {
+   "concept": "namespace_indirection",
+   "module": "DESIGN.md",
+   "symbol": "20",
+   "kind": "section",
+   "line": 886,
+   "exact": "*What concrete URI does this identifier resolve to, for this caller, right now?*",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "namespace_indirection",
+   "module": "src/urisolver/namespaces/base.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Namespace types and cache (\u00a720).",
+   "sha256": "18063919796b7bc5ac57b4d8ec62432d5a26a34d26e65c551a19e79d28ae3ce4",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/namespaces/base.py"
+  },
+  {
+   "concept": "namespace_service",
+   "module": "DESIGN.md",
+   "symbol": "21",
+   "kind": "section",
+   "line": 972,
+   "exact": "The server infrastructure is `urisolver`'s.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "namespace_service",
+   "module": "src/urisolver/namespaces/server.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Self-hosted namespace service (\u00a721).",
+   "sha256": "c4d7d6aaa9846e07a0dbcc7335bdc8b00de8d7fcdad6cfcd6a8eeecf91d1803b",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/namespaces/server.py"
+  },
+  {
+   "concept": "namespace_service",
+   "module": "src/urisolver/cli.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "CLI: urisolver serve (\u00a721).",
+   "sha256": "bed9db9a9c243e9b6eac88a8fdb59436823d95864fed1ee7a73a54ed882103fa",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/cli.py"
+  },
+  {
+   "concept": "bespoke_routing",
+   "module": "DESIGN.md",
+   "symbol": "22",
+   "kind": "section",
+   "line": 1020,
+   "exact": "The user-supplied router may contain private and security-sensitive logic: consult private databases, contact internal APIs, decrypt opaque tokens via OpenBao Transit / AWS KMS / Google Cloud KMS...",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "secrets_provider",
+   "module": "DESIGN.md",
+   "symbol": "24",
+   "kind": "section",
+   "line": 1094,
+   "exact": "The provider knows the infrastructure.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "secrets_provider",
+   "module": "src/urisolver/secrets/base.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "SecretsProvider protocol (\u00a724).",
+   "sha256": "81347b97b2626d22a87f8492422c4bae56b5fbba86e497bb22a1553af6e7d7ab",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/secrets/base.py"
+  },
+  {
+   "concept": "error_model",
+   "module": "DESIGN.md",
+   "symbol": "25",
+   "kind": "section",
+   "line": 1198,
+   "exact": "`AccessError` is deliberately not under `ResolutionError`: entitlement is decided at call time, not at resolution time (\u00a716.1), so a resource may resolve cleanly and then raise...",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "error_model",
+   "module": "src/urisolver/errors.py",
+   "symbol": "URIResolverError",
+   "kind": "ClassDef",
+   "line": 6,
+   "exact": "Base error for all urisolver failures.",
+   "sha256": "a4a4180adca61222ecc5a58ca55eea6799c0bbcc5b824ce67a582cc3c310f708",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/errors.py"
+  },
+  {
+   "concept": "async_reservation",
+   "module": "DESIGN.md",
+   "symbol": "26",
+   "kind": "section",
+   "line": 1217,
+   "exact": "Resolvers **may** implement them; `supports(\"aresolve\")` reports whether they do.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "async_reservation",
+   "module": "src/urisolver/api.py",
+   "symbol": "aresolve",
+   "kind": "AsyncFunctionDef",
+   "line": 40,
+   "exact": "Reserved async resolve name (\u00a726).",
+   "sha256": "e74f0e38cb2c5fe3cfb647c5ce26272197a517603bcb21b9667504e0106211ea",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/api.py"
+  },
+  {
+   "concept": "file_scheme",
+   "module": "DESIGN.md",
+   "symbol": "27.1",
+   "kind": "section",
+   "line": 1233,
+   "exact": "Kind FILE (or CONTAINER for a directory) info() stat-derived: exists, size_bytes, media_type by extension facets stream (always), array/table only via optional codecs Tier 2 open(), stat()...",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "file_scheme",
+   "module": "src/urisolver/resolvers/file.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "file: resolver (\u00a727.1).",
+   "sha256": "7be16002d18426e6104079c65f87e11f22ccd19133439c31f5e327bd5ec1c8ae",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/file.py"
+  },
+  {
+   "concept": "tiled_resolver",
+   "module": "DESIGN.md",
+   "symbol": "27.2",
+   "kind": "section",
+   "line": 1243,
+   "exact": "Independently configured schemes: `gov.bnl.nsls2.tiled:`, `gov.bnl.nsls2.tiled-ssrl:`.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "tiled_resolver",
+   "module": "src/urisolver/resolvers/tiled.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Tiled resolver (\u00a727.2).",
+   "sha256": "4dc70ddb8f4a855e27bc3b9eeb7c7bbe77c93f05eb6b071968046dcae3a00a3c",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/tiled.py"
+  },
+  {
+   "concept": "tiled_resolver",
+   "module": "src/urisolver/resolvers/example_tiled.py",
+   "symbol": "ExampleCatalogResolver",
+   "kind": "ClassDef",
+   "line": 20,
+   "exact": "Tiled server named by the local resolution catalog.",
+   "sha256": "21ee0feb5adc01d21f5d407712847ee06ce92068a1c050fadd0f35f30b8ca8dc",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_tiled.py"
+  },
+  {
+   "concept": "globus_resolver",
+   "module": "DESIGN.md",
+   "symbol": "27.3",
+   "kind": "section",
+   "line": 1284,
+   "exact": "`GlobusResolver` (extra `[globus]`) is one path on a Transfer collection.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "globus_resolver",
+   "module": "SCHEMES.md",
+   "symbol": "com.urisolver.example.globus",
+   "kind": "section",
+   "line": 198,
+   "exact": "`com.urisolver.example.globus` \u2014 reverse-DNS private use (RFC 7595 \u00a73.8).",
+   "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "globus_resolver",
+   "module": "src/urisolver/resolvers/globus.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Globus Transfer resolver.",
+   "sha256": "8e2651e3e7b63d95ea3b7863263c0907a2b0dc2b0ff90e6b562af6c67aaf1660",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/globus.py"
+  },
+  {
+   "concept": "globus_resolver",
+   "module": "src/urisolver/resolvers/example_globus.py",
+   "symbol": "ExampleGlobusResolver",
+   "kind": "ClassDef",
+   "line": 28,
+   "exact": "Globus collection named by the local resolution catalog.",
+   "sha256": "afbb47a62f2c9ee9704cdc12c36e7f82e370cf68c19f6ebd87a778d542b80ff3",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_globus.py"
+  },
+  {
+   "concept": "resolution_catalog",
+   "module": "SCHEMES.md",
+   "symbol": "Registered schemes",
+   "kind": "section",
+   "line": 16,
+   "exact": "Deployment-specific schemes follow the template below and get a page in this file before they are registered.",
+   "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "resolution_catalog",
+   "module": "src/urisolver/resolvers/_catalog.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Local resolution catalog shared by the example schemes.",
+   "sha256": "39833aba3fdc5631edd3357b1a5bf73d468a4a819263fa3070af350e782979ff",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/_catalog.py"
+  },
+  {
+   "concept": "resolution_catalog",
+   "module": "src/urisolver/resolvers/_catalog.py",
+   "symbol": "select_secret_id",
+   "kind": "FunctionDef",
+   "line": 95,
+   "exact": "Pick a secret id for one resource path.",
+   "sha256": "39833aba3fdc5631edd3357b1a5bf73d468a4a819263fa3070af350e782979ff",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/_catalog.py"
+  },
+  {
+   "concept": "conformance_baseline",
+   "module": "DESIGN.md",
+   "symbol": "Baseline conformance suite (the important one)",
+   "kind": "section",
+   "line": 1413,
+   "exact": "The suite is shipped as `urisolver.testing.baseline` so third-party resolvers can import and run it.",
+   "sha256": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "conformance_baseline",
+   "module": "src/urisolver/testing/baseline.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Baseline conformance suite (\u00a731) \u2014 matches installed API.",
+   "sha256": "943e6e334bf7202dd93dddc1acb239d1641610459b3f6d61d0da7808d0b28fa4",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/testing/baseline.py"
+  }
+ ],
+ "files": {
+  "DESIGN.md": "fe94fc42aa7e58960589a365fe8a1d817e4f835e17e484911a3018161983a657",
+  "src/urisolver/_uriparse.py": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c",
+  "src/urisolver/context.py": "85aa7b141c8a32cc082f02326fb1fddcc7ee9c09d22085058c21ae97ef5e5e1e",
+  "src/urisolver/redaction.py": "ca28253f65448742f82e329525c2aa38cc526b7581f0991515e74add68457d71",
+  "SCHEMES.md": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+  "src/urisolver/api.py": "e74f0e38cb2c5fe3cfb647c5ce26272197a517603bcb21b9667504e0106211ea",
+  "src/urisolver/protocols.py": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
+  "src/urisolver/info.py": "0e2ec6ab3ba8ca11cb1b08fd992e50f9d1eb79fee1e3d58865cf70a54177245d",
+  "src/urisolver/results.py": "1f39d37e743f966d7fb8c827503df21419f9d18f16dedd358b21ea75ce5da18c",
+  "src/urisolver/destinations.py": "d53cdcf647451cbe10e8144a3d3467fd5ae2a3f07559d41df36544fead3de451",
+  "src/urisolver/selection.py": "e1ef3816d1756da8dbd0731775d5f11f0b34567922f3d09bccf892d935ff45bf",
+  "src/urisolver/registry.py": "bfbe99dc2d8c4ece225902fb0a0407ded35d9bdeda1e70bbe8a06321964565b6",
+  "src/urisolver/plugins.py": "a127687fb1ab532301a336787e355a26770b3df42d1f2fd715452086029b6f96",
+  "src/urisolver/namespaces/base.py": "18063919796b7bc5ac57b4d8ec62432d5a26a34d26e65c551a19e79d28ae3ce4",
+  "src/urisolver/namespaces/server.py": "c4d7d6aaa9846e07a0dbcc7335bdc8b00de8d7fcdad6cfcd6a8eeecf91d1803b",
+  "src/urisolver/cli.py": "bed9db9a9c243e9b6eac88a8fdb59436823d95864fed1ee7a73a54ed882103fa",
+  "src/urisolver/secrets/base.py": "81347b97b2626d22a87f8492422c4bae56b5fbba86e497bb22a1553af6e7d7ab",
+  "src/urisolver/errors.py": "a4a4180adca61222ecc5a58ca55eea6799c0bbcc5b824ce67a582cc3c310f708",
+  "src/urisolver/resolvers/file.py": "7be16002d18426e6104079c65f87e11f22ccd19133439c31f5e327bd5ec1c8ae",
+  "src/urisolver/resolvers/tiled.py": "4dc70ddb8f4a855e27bc3b9eeb7c7bbe77c93f05eb6b071968046dcae3a00a3c",
+  "src/urisolver/resolvers/example_tiled.py": "21ee0feb5adc01d21f5d407712847ee06ce92068a1c050fadd0f35f30b8ca8dc",
+  "src/urisolver/resolvers/globus.py": "8e2651e3e7b63d95ea3b7863263c0907a2b0dc2b0ff90e6b562af6c67aaf1660",
+  "src/urisolver/resolvers/example_globus.py": "afbb47a62f2c9ee9704cdc12c36e7f82e370cf68c19f6ebd87a778d542b80ff3",
+  "src/urisolver/resolvers/_catalog.py": "39833aba3fdc5631edd3357b1a5bf73d468a4a819263fa3070af350e782979ff",
+  "src/urisolver/testing/baseline.py": "943e6e334bf7202dd93dddc1acb239d1641610459b3f6d61d0da7808d0b28fa4"
+ }
+}

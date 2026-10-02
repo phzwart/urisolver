@@ -40,6 +40,17 @@ MIT — see [LICENSE](LICENSE).
 Architecture, contracts, and scope boundaries are specified in [DESIGN.md](DESIGN.md).
 Deployable URI schemes are documented in [SCHEMES.md](SCHEMES.md).
 
+That vocabulary is also a receipt-backed concept graph. Look up a term before describing a contract:
+
+```bash
+python -m urisolver.kg search "opaque payload"
+python -m urisolver.kg card tier_0
+```
+
+Counts and the generated files are in [src/urisolver/kg/out/README.md](src/urisolver/kg/out/README.md).
+Rebuild with `python -m urisolver.kg.build` after the anchored text changes
+(`pip install -e ".[kg]"`; the builder needs Python 3.11 or newer).
+
 ## Conformance
 
 Third-party resolvers can check against the baseline suite:

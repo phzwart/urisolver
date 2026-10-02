@@ -27,6 +27,7 @@ dependencies = []
 tiled = ["tiled>=0.2.16", "pyyaml>=6", "pyarrow>=14"]
 globus = ["globus-sdk>=3.40", "pyyaml>=6"]
 dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.8"]
+kg = ["pygrits>=0.6"]
 
 [project.scripts]
 urisolver = "urisolver.cli:main"
