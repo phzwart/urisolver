@@ -1122,6 +1122,46 @@ retain it (`Context(retain_raw_exceptions=True)`, default `False` in server depl
 
 Provider failure fails explicitly. Never fall back silently to plaintext secret files.
 
+### 24.2 Secrets across processes and machines
+
+The exchange layer (`urisolver.exchange`) carries opaque request and response bytes and
+knows nothing of secrets. `ExchangeSecrets` and `secrets_handler` are the only code that
+knows the bytes are a secret lookup.
+
+The process that holds the secrets store (the **holder**) answers lookups. A process that
+only resolves URIs (the **worker**) gets `Context(secrets=ExchangeSecrets(...))` and never
+opens a secrets store.
+
+**Fail closed.** If the exchange is missing, unreachable, refused, or malformed, the worker
+raises `SecretLookupError`. No code path may fall back to a local secrets file, an
+environment variable, or an unauthenticated retry.
+
+The holder decides which `secret_id`s a given worker may obtain. A refusal is
+indistinguishable on the wire from an unknown id: both are
+`{"ok": false, "error": "denied"}`.
+
+`serve_http` binds a loopback address by default. Binding a non-loopback address requires
+`allow_non_loopback=True`.
+
+`HttpExchange` refuses plain `http` to a non-loopback host unless the caller passes
+`allow_insecure_transport=True`, as `NamespaceClient` does for every `http` URL.
+Loopback `http` (`127.0.0.0/8`, `::1`, and the name `localhost`) is allowed without that
+flag, because the end of an SSH tunnel is a loopback port and SSH encrypts it. This
+listener is not the namespace service in §21. It does not use that service's bearer-token
+or mTLS hooks.
+
+**One endpoint per job.** Each job gets its own endpoint, its own bearer token, and its
+own allowed set. The endpoint is closed when the job ends. A cross-machine tunnel is the
+deployer's transport, for example `ssh -R <port>:127.0.0.1:<port>`. urisolver does not
+open tunnels.
+
+The per-job token reaches the worker over the job's own channel (stdin of the SSH
+session, or an inherited file descriptor). It never appears in argv, the job spec, the
+environment of a long-lived process, or a log line.
+
+Nothing the worker receives from the holder — the bearer token or the secret map — is
+written to disk by urisolver. Delivery of resource bytes still follows §11 and §12.
+
 ---
 
 ## 25. Error model
