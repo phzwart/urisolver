@@ -17,6 +17,14 @@ com.urisolver.example.tiled:
   #   examples/private: tiled-lab
   #   examples/private/raw: tiled-raw
 
+# Public CryoET Data Portal origin. The URI path is one object on it.
+# A .zarr path is an OME-Zarr multiscale array. An .mrc path is one file.
+# No secret: the objects are anonymous HTTPS.
+com.urisolver.example.cryoet:
+  protocol: cryoet
+  base_uri: https://files.cryoetdataportal.cziscience.com
+  native: [memory, file]
+
 # Tutorial Collection 1. staging is this machine's Globus Connect Personal
 # collection. Replace the placeholder UUID and the accessible prefix.
 # Another Globus scheme can reuse the block with `staging: *example-staging`.

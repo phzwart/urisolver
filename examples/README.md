@@ -4,7 +4,7 @@ Each demo starts from a URI. urisolver turns it into a file or an in-memory obje
 
 Start with the shared frontend, then the multi-machine workflow, then tiled, testdrive, and globus.
 
-`examples/catalog.yaml` maps a scheme name to a server. An explicit path or `$URISOLVER_CATALOG` replaces that file. Otherwise `~/.config/urisolver/catalog.yaml` is merged over it. The example Tiled, Globus, and Zenodo resolvers are not package entry points. Each script registers its resolver before `resolve`.
+`examples/catalog.yaml` maps a scheme name to a server. An explicit path or `$URISOLVER_CATALOG` replaces that file. Otherwise `~/.config/urisolver/catalog.yaml` is merged over it. The example Tiled, Globus, Zenodo, and CryoET resolvers are not package entry points. Each script registers its resolver before `resolve`.
 
 ## frontend
 
@@ -23,6 +23,14 @@ Needs the network and the `[tiled]` extra. The public demo needs no credential.
 [examples/tiled/resolve.py](tiled/resolve.py) resolves `com.urisolver.example.tiled://examples/images/astronaut` and prints the array shape and its byte count. The live test is gated on `URISOLVER_TILED_PUBLIC=1`.
 
 See [examples/tiled/README.md](tiled/README.md).
+
+## cryoet
+
+Needs the network. Printing the scale-2 shape needs no credential and does not download voxels. Reading an array needs the `urisolver[cryoet]` extra.
+
+[examples/cryoet/resolve.py](cryoet/resolve.py) resolves `com.urisolver.example.cryoet:///10000/TS_026/Reconstructions/VoxelSpacing13.480/Tomograms/100/TS_026.zarr` and prints scale 2's shape and uncompressed byte count. The live metadata check is gated on `URISOLVER_CRYOET=1`. The frontend does not stage this object: scale 0 is about 3.6 GB uncompressed, and the MRC sibling is 1,781,761,024 bytes.
+
+See [examples/cryoet/README.md](cryoet/README.md).
 
 ## testdrive
 

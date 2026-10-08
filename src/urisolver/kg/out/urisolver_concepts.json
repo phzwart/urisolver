@@ -4,8 +4,8 @@
  "source_repository": "https://github.com/phzwart/urisolver",
  "snapshot": {
   "repository": "https://github.com/phzwart/urisolver",
-  "commit": "39bb790908622c79dcc381ec1f73b9254b7ae9bd",
-  "dirty": false
+  "commit": "8ffd803c3a22b4039888c1cff6485eec6e0737e3",
+  "dirty": true
  },
  "concepts": [
   {
@@ -365,10 +365,10 @@
      "module": "SCHEMES.md",
      "symbol": "Registered schemes",
      "kind": "section",
-     "line": 16,
+     "line": 17,
      "quote": "Deployment-specific schemes follow the template below and get a page in this file before they are registered.",
      "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
-     "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0"
+     "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5"
     }
    ],
    "references": [
@@ -1785,10 +1785,10 @@
      "module": "SCHEMES.md",
      "symbol": "com.urisolver.example.globus",
      "kind": "section",
-     "line": 198,
+     "line": 202,
      "quote": "`com.urisolver.example.globus` — reverse-DNS private use (RFC 7595 §3.8).",
      "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
-     "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0"
+     "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5"
     },
     {
      "module": "src/urisolver/resolvers/globus.py",
@@ -1807,6 +1807,78 @@
      "quote": "Globus collection named by the local resolution catalog.",
      "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_globus.py",
      "sha256": "afbb47a62f2c9ee9704cdc12c36e7f82e370cf68c19f6ebd87a778d542b80ff3"
+    }
+   ],
+   "references": [
+    {
+     "source": "literature",
+     "title": "RFC 7595",
+     "url": "https://www.rfc-editor.org/rfc/rfc7595",
+     "page_title": "Guidelines and Registration Procedures for URI Schemes",
+     "status": "citation",
+     "quote": "",
+     "note": "bibliographic pointer; no sentence was fetched",
+     "fetched": "2026-10-02"
+    }
+   ]
+  },
+  {
+   "id": "cryoet_example",
+   "label": "CryoET example",
+   "kind": "scheme",
+   "aliases": [
+    "cryoet",
+    "OME-Zarr"
+   ],
+   "definition": "An example resolver for one public object on a CryoET Data Portal origin. The origin comes from the local resolution catalog. A .zarr path is an OME-Zarr multiscale array; an .mrc path is a file whose size comes from HEAD.",
+   "literature": [
+    "RFC 7595"
+   ],
+   "relations": [
+    {
+     "type": "INSTANCE_OF",
+     "target": "resolver"
+    },
+    {
+     "type": "USES",
+     "target": "resolution_catalog"
+    },
+    {
+     "type": "USES",
+     "target": "file_destination"
+    },
+    {
+     "type": "USES",
+     "target": "selection"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "SCHEMES.md",
+     "symbol": "com.urisolver.example.cryoet",
+     "kind": "section",
+     "line": 330,
+     "quote": "`com.urisolver.example.cryoet` — reverse-DNS private use (RFC 7595 §3.8).",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+     "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5"
+    },
+    {
+     "module": "src/urisolver/resolvers/example_cryoet.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Example resolver for public objects on one CryoET Data Portal origin.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_cryoet.py",
+     "sha256": "919210b373f537b94375631523bc16d9ab56740d7a94bbf1ae97a53a7d491e54"
+    },
+    {
+     "module": "src/urisolver/resolvers/example_cryoet.py",
+     "symbol": "ExampleCryoetResolver",
+     "kind": "ClassDef",
+     "line": 702,
+     "quote": "CryoET base URL named by the local resolution catalog.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_cryoet.py",
+     "sha256": "919210b373f537b94375631523bc16d9ab56740d7a94bbf1ae97a53a7d491e54"
     }
    ],
    "references": [
@@ -1846,10 +1918,10 @@
      "module": "SCHEMES.md",
      "symbol": "Registered schemes",
      "kind": "section",
-     "line": 16,
+     "line": 17,
      "quote": "Deployment-specific schemes follow the template below and get a page in this file before they are registered.",
      "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
-     "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0"
+     "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5"
     },
     {
      "module": "src/urisolver/resolvers/_catalog.py",

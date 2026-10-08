@@ -14,6 +14,8 @@ pip install -e ".[dev]"
 pip install -e ".[tiled,dev]"
 # Optional Globus Transfer support:
 pip install -e ".[globus,dev]"
+# Optional CryoET Data Portal example (OME-Zarr):
+pip install -e ".[cryoet,dev]"
 ```
 
 ## Resolve one URI

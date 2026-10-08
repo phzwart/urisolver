@@ -135,9 +135,9 @@
    "module": "SCHEMES.md",
    "symbol": "Registered schemes",
    "kind": "section",
-   "line": 16,
+   "line": 17,
    "exact": "Deployment-specific schemes follow the template below and get a page in this file before they are registered.",
-   "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+   "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5",
    "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
   },
   {
@@ -785,9 +785,9 @@
    "module": "SCHEMES.md",
    "symbol": "com.urisolver.example.globus",
    "kind": "section",
-   "line": 198,
+   "line": 202,
    "exact": "`com.urisolver.example.globus` \u2014 reverse-DNS private use (RFC 7595 \u00a73.8).",
-   "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+   "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5",
    "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
   },
   {
@@ -811,13 +811,43 @@
    "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_globus.py"
   },
   {
+   "concept": "cryoet_example",
+   "module": "SCHEMES.md",
+   "symbol": "com.urisolver.example.cryoet",
+   "kind": "section",
+   "line": 330,
+   "exact": "`com.urisolver.example.cryoet` \u2014 reverse-DNS private use (RFC 7595 \u00a73.8).",
+   "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "cryoet_example",
+   "module": "src/urisolver/resolvers/example_cryoet.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Example resolver for public objects on one CryoET Data Portal origin.",
+   "sha256": "919210b373f537b94375631523bc16d9ab56740d7a94bbf1ae97a53a7d491e54",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_cryoet.py"
+  },
+  {
+   "concept": "cryoet_example",
+   "module": "src/urisolver/resolvers/example_cryoet.py",
+   "symbol": "ExampleCryoetResolver",
+   "kind": "ClassDef",
+   "line": 702,
+   "exact": "CryoET base URL named by the local resolution catalog.",
+   "sha256": "919210b373f537b94375631523bc16d9ab56740d7a94bbf1ae97a53a7d491e54",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/resolvers/example_cryoet.py"
+  },
+  {
    "concept": "resolution_catalog",
    "module": "SCHEMES.md",
    "symbol": "Registered schemes",
    "kind": "section",
-   "line": 16,
+   "line": 17,
    "exact": "Deployment-specific schemes follow the template below and get a page in this file before they are registered.",
-   "sha256": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+   "sha256": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5",
    "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
   },
   {
@@ -866,7 +896,7 @@
   "src/urisolver/_uriparse.py": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c",
   "src/urisolver/context.py": "85aa7b141c8a32cc082f02326fb1fddcc7ee9c09d22085058c21ae97ef5e5e1e",
   "src/urisolver/redaction.py": "ca28253f65448742f82e329525c2aa38cc526b7581f0991515e74add68457d71",
-  "SCHEMES.md": "345257663b18613a279b4e54c55267035f7a90e7654ce9431cfb04146828f8a0",
+  "SCHEMES.md": "b82e422ff3229799698337b3ca853954589470143a6287e4a170733f7fc887b5",
   "src/urisolver/api.py": "e74f0e38cb2c5fe3cfb647c5ce26272197a517603bcb21b9667504e0106211ea",
   "src/urisolver/protocols.py": "91448a4cac26e5dcd1f0c69b2b2825951aa5fef4cf3f204a601ac7629cd22a70",
   "src/urisolver/info.py": "0e2ec6ab3ba8ca11cb1b08fd992e50f9d1eb79fee1e3d58865cf70a54177245d",
@@ -885,6 +915,7 @@
   "src/urisolver/resolvers/example_tiled.py": "21ee0feb5adc01d21f5d407712847ee06ce92068a1c050fadd0f35f30b8ca8dc",
   "src/urisolver/resolvers/globus.py": "8e2651e3e7b63d95ea3b7863263c0907a2b0dc2b0ff90e6b562af6c67aaf1660",
   "src/urisolver/resolvers/example_globus.py": "afbb47a62f2c9ee9704cdc12c36e7f82e370cf68c19f6ebd87a778d542b80ff3",
+  "src/urisolver/resolvers/example_cryoet.py": "919210b373f537b94375631523bc16d9ab56740d7a94bbf1ae97a53a7d491e54",
   "src/urisolver/resolvers/_catalog.py": "39833aba3fdc5631edd3357b1a5bf73d468a4a819263fa3070af350e782979ff",
   "src/urisolver/testing/baseline.py": "943e6e334bf7202dd93dddc1acb239d1641610459b3f6d61d0da7808d0b28fa4"
  }

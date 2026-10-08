@@ -43,5 +43,6 @@
 "file_scheme","file scheme","scheme","The built-in resolver for local paths: stat for info, a stream facet, and byte contents for memory delivery.","file:","","Concept"
 "tiled_resolver","Tiled resolver","scheme","An optional resolver that reads a Tiled node. The server address and the secret id come from the local resolution catalog.","tiled","RFC 7595","Concept"
 "globus_resolver","Globus resolver","scheme","An optional Transfer resolver for one collection path. File delivery is a copy; memory delivery stages through the catalog's staging collection.","Globus","RFC 7595","Concept"
+"cryoet_example","CryoET example","scheme","An example resolver for one public object on a CryoET Data Portal origin. The origin comes from the local resolution catalog. A .zarr path is an OME-Zarr multiscale array; an .mrc path is a file whose size comes from HEAD.","cryoet;OME-Zarr","RFC 7595","Concept"
 "resolution_catalog","Resolution catalog","architecture","A local YAML file that binds a scheme to a server, a secret id, and optional path-prefix overrides. Secret values are not in the file.","catalog","","Concept"
 "conformance_baseline","Conformance baseline","contract","A resolver-agnostic test suite shipped with the package. A plugin that does not pass it is not a conforming resolver.","run_baseline_suite","","Concept"

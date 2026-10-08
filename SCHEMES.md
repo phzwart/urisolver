@@ -12,6 +12,7 @@ Every URI scheme registered with a `urisolver` deployment is defined here, per R
 | `gov.bnl.nsls2.tiled-ssrl` | Optional (`[tiled]` extra) | Tiled deployment; document before deploy |
 | `gov.lbl.mbib` | Documented below | Facility namespace (opaque name → concrete URI) |
 | `https` | Example-only | Not an entry point. A script may register it for `https://zenodo.org/records/<id>` only |
+| `com.urisolver.example.cryoet` | Example-only | Public CryoET Data Portal objects; documented below |
 
 Deployment-specific schemes follow the template below and get a page in this file before
 they are registered.
@@ -43,7 +44,8 @@ com.urisolver.example.globus:
       - /CHANGE_ME
 ```
 
-`protocol` selects the server kind. A tiled entry requires `base_uri`. One secrets
+`protocol` selects the server kind. A tiled entry requires `base_uri`. A cryoet entry
+requires an `https` `base_uri` and reads no secret. One secrets
 manager holds every secret, one file per id. Resolve asks that manager for the id this
 resource selected.
 
@@ -71,13 +73,15 @@ Lookup order is an explicit path, then `$URISOLVER_CATALOG`, then the bundled ca
 base keys for the same scheme. An explicit path or `$URISOLVER_CATALOG` is a complete
 catalog and is not merged. `examples/globus/setup.py` writes only the Globus `staging`
 block. Rerun it if an older full copy of the catalog is still in the user file. The
-example scripts register `com.urisolver.example.tiled` and
-`com.urisolver.example.globus`. A script may also register `https` for the
-Zenodo example below. Installing the package does not register any of these.
+example scripts register `com.urisolver.example.tiled`,
+`com.urisolver.example.globus`, and `com.urisolver.example.cryoet`. A script may
+also register `https` for the Zenodo example below. Installing the package does
+not register any of these.
 
 `native` is the efficient path: `memory`, `file`, or both. It does not remove Tier 0. A
 caller that sets `strict_efficiency` is refused a delivery outside that list. Tiled is
 `memory`. Globus is `file`, so memory delivery, including `Form.BYTES`, is refused.
+CryoET is `memory` and `file`: an array read and an object GET are both direct.
 
 The Globus URI path is the absolute path on `collection`.
 `com.urisolver.example.globus:///share/godata/file1.txt` is `/share/godata/file1.txt` on
@@ -316,3 +320,85 @@ and queries are `InvalidURIError`.
 
 The example registration is not an entry point and is not a general `https` resolver.
 The record id a demo ships can change without renaming the scheme.
+
+---
+
+## com.urisolver.example.cryoet
+
+### Scheme name
+
+`com.urisolver.example.cryoet` — reverse-DNS private use (RFC 7595 §3.8). Example
+scheme for public objects on one CryoET Data Portal origin. Not registered with
+IANA. Not a package entry point. It does not claim `https`.
+
+### Syntax
+
+```text
+com.urisolver.example.cryoet:///<object-key>
+com.urisolver.example.cryoet:/<object-key>
+```
+
+- `<object-key>` is a path under the catalog `base_uri`. It must end in `.zarr` or `.mrc`.
+- An empty interior segment (`a//b`), a `.` or `..` segment, or a query is `InvalidURIError`.
+- Each segment is percent-decoded once.
+- The scheme is case-insensitive (RFC 3986 §6.2.2.1). The path is case-sensitive.
+
+### Semantics
+
+A locator for one anonymous object on the catalog's HTTPS origin. The bundled catalog
+binds the scheme to `https://files.cryoetdataportal.cziscience.com`. The example object
+is dataset 10000, run TS_026, tomogram TM-621 (DeePiCt *S. pombe* cells with defocus):
+
+```text
+com.urisolver.example.cryoet:///10000/TS_026/Reconstructions/VoxelSpacing13.480/Tomograms/100/TS_026.zarr
+```
+
+That key is an OME-Zarr v2 multiscale group (OME-NGFF 0.4). Scales are stored z, y, x.
+Scale 0 is `(1000, 928, 960)` `float32` at 13.481 Å. Scale 1 is `(500, 464, 480)`. Scale 2
+is `(250, 232, 240)`, 55,680,000 bytes uncompressed, one chunk. The sibling MRC is the
+same path with `.mrc` instead of `.zarr`. Its `Content-Length` is 1,781,761,024 bytes.
+Those figures are properties of the objects, not of the scheme.
+
+### Operations
+
+`resolve` of a `.zarr` reads `.zattrs`, `.zgroup`, and each level's `.zarray`. It does
+not download chunks. `info` reports `Kind.ARRAY`, scale 0's shape and dtype,
+`canonical_media_type` `application/x-npy`, and `size_bytes` equal to the scale-0 array.
+`facet("array").levels` lists every scale (`path`, `shape`, `dtype`, `chunks`, `nbytes`).
+
+`materialize(MemoryDestination())` reads scale 0 (`strategy="native"`). Numpy basic
+indexing is pushed to that array (`strategy="native-selection"`). `Native(n)` reads
+scale `n`. `Native((n, index))` pushes basic indexing to scale `n`. A full scale whose
+`nbytes` exceeds the memory limit raises `MemoryLimitError` before any chunk is read.
+`Form.BYTES` is an `.npy` encoding of that array (`strategy="converted"` when the read
+itself was `native`). `FileDestination` copies the zarr store (metadata and every chunk)
+into a directory (`strategy="native"`) and does not apply a selection.
+
+`resolve` of an `.mrc` is a `HEAD`. `info().size_bytes` is `Content-Length`.
+`materialize(FileDestination)` streams the object to a temporary name and renames it
+into place (`strategy="native"`). `materialize(MemoryDestination)` does the same into
+memory. A short or long body is `MaterializationError` and leaves no file. Only
+`ReferencePolicy.COPY`.
+
+`strict_efficiency` allows `memory` and `file` for the bundled entry. `Form.BYTES`
+counts as `file`, the same way the Tiled resolver counts a serialized array.
+
+### Fragments
+
+Fragments are not interpreted (DESIGN.md §4.3).
+
+### Encoding
+
+UTF-8 percent-encoding (RFC 3986 §2.1). The resolver decodes each segment once.
+
+### Security and privacy
+
+Public objects only. The resolver reads no secret and sends no credential. Metadata,
+MRC bytes, and zarr store copies refuse a redirect off the `base_uri` host. An array
+read is performed by `zarr`. `opaque_payload` is false.
+
+### Change control
+
+The example scheme name is stable for this repository. The origin is deployment data
+in `examples/catalog.yaml`. Object keys, shapes, and byte counts are assigned by the
+CryoET Data Portal.

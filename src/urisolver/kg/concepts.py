@@ -390,6 +390,24 @@ c(
     refs=["RFC 7595"], aliases=["Globus"],
 )
 c(
+    "cryoet_example", "CryoET example", "scheme",
+    "An example resolver for one public object on a CryoET Data Portal origin. "
+    "The origin comes from the local resolution catalog. A .zarr path is an "
+    "OME-Zarr multiscale array; an .mrc path is a file whose size comes from HEAD.",
+    [
+        ("SCHEMES.md", "com.urisolver.example.cryoet"),
+        ("src/urisolver/resolvers/example_cryoet.py", ""),
+        ("src/urisolver/resolvers/example_cryoet.py", "ExampleCryoetResolver"),
+    ],
+    [
+        ("INSTANCE_OF", "resolver"),
+        ("USES", "resolution_catalog"),
+        ("USES", "file_destination"),
+        ("USES", "selection"),
+    ],
+    refs=["RFC 7595"], aliases=["cryoet", "OME-Zarr"],
+)
+c(
     "resolution_catalog", "Resolution catalog", "architecture",
     "A local YAML file that binds a scheme to a server, a secret id, and "
     "optional path-prefix overrides. Secret values are not in the file.",
