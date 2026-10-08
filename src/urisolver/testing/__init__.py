@@ -1,1 +1,10 @@
-"""Binder conformance suite. The checks land with the CLI phase."""
+"""Binder conformance suite."""
+
+from urisolver.testing.conformance import ConformanceCase, ConformanceFailure, ConformanceResult, run_conformance
+
+__all__ = [
+    "ConformanceCase",
+    "ConformanceFailure",
+    "ConformanceResult",
+    "run_conformance",
+]

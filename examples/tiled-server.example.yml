@@ -1,0 +1,16 @@
+# Target server. Proxy adapters are config import strings; workers use tiled.client only.
+authentication:
+  single_user_api_key: replace-me
+trees:
+  - path: /
+    tree: catalog
+    args:
+      uri: sqlite:////data/catalog.db
+      readable_storage:
+        - /data/srv
+      writable_storage:
+        - /data/catalog
+      init_if_not_exists: true
+      adapters_by_mimetype:
+        application/x-urisolver-tiled-proxy;structure=array: urisolver.tiled_server.proxy:RemoteArrayAdapter
+        application/x-urisolver-tiled-proxy;structure=table: urisolver.tiled_server.proxy:RemoteTableAdapter

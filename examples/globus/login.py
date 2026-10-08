@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-"""Write a Globus refresh token for the example catalog.
+"""Store a Globus refresh token for the globus source in the site file.
 
-Register a native app at https://app.globus.org. The redirect URL is
-https://auth.globus.org/v2/web/auth-code. The client id comes from
-URISOLVER_GLOBUS_CLIENT_ID or --client-id.
-
-The local secrets manager stores client_id and refresh_token, mode 0600.
-An access token is not stored. After the secret is stored, stdout is the
-path and nothing else.
+Skips unless URISOLVER_GLOBUS_CLIENT_ID or --client-id is set. The secret id
+is the one named by that source. An access token is not stored.
 """
 from __future__ import annotations
 
@@ -15,9 +10,8 @@ import argparse
 import os
 import sys
 
-from urisolver.resolvers._catalog import entry
-from urisolver.resolvers.example_globus import SCHEME
 from urisolver.secrets.jsonfile import LocalSecretsManager
+from urisolver.site import Site
 
 _TRANSFER_SCOPE = "urn:globus:auth:scope:transfer.api.globus.org:all"
 _TRANSFER_RS = "transfer.api.globus.org"
@@ -28,32 +22,33 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--client-id", default=os.environ.get("URISOLVER_GLOBUS_CLIENT_ID"))
     args = parser.parse_args(argv)
     if not args.client_id:
-        print("set URISOLVER_GLOBUS_CLIENT_ID or pass --client-id", file=sys.stderr)
-        return 1
+        print("skip: set URISOLVER_GLOBUS_CLIENT_ID or pass --client-id")
+        return 0
     try:
         return _run(args.client_id)
     except Exception as exc:
         status = getattr(exc, "http_status", None)
-        if status:
-            print(f"login failed: HTTP {status}", file=sys.stderr)
-        else:
-            print("login failed", file=sys.stderr)
+        print(f"login failed: HTTP {status}" if status else "login failed", file=sys.stderr)
         return 1
 
 
 def _run(client_id: str) -> int:
     import globus_sdk
 
-    found = entry(SCHEME, protocol="globus")
-    collections = [found["collection"]]
-    staging = found.get("staging")
-    if isinstance(staging, dict) and isinstance(staging.get("collection"), str):
-        collections.append(staging["collection"])
+    site = Site.load()
+    source = next((item for item in site.sources.values() if item.protocol == "globus"), None)
+    if source is None:
+        print("site has no globus source", file=sys.stderr)
+        return 1
+    collections = [str(source.params.get("collection") or "")]
+    if site.landing is not None and site.landing.globus_collection:
+        collections.append(site.landing.globus_collection)
+    collections = [item for item in collections if item]
     refresh = _login(globus_sdk, client_id, [_TRANSFER_SCOPE])
     extra = _data_access(globus_sdk, client_id, refresh, collections)
     if extra:
         refresh = _login(globus_sdk, client_id, [_TRANSFER_SCOPE, *extra])
-    secret_id = found.get("secret_id") or "globus-example"
+    secret_id = str(source.params.get("secret_id") or "globus-example")
     path = LocalSecretsManager.default().put_secret(
         secret_id,
         {"client_id": client_id, "refresh_token": refresh},
@@ -81,14 +76,12 @@ def _data_access(sdk: object, client_id: str, refresh: str, collections: list[st
             detail = f"HTTP {status}" if status else "lookup failed"
             print(f"{collection}: {detail}", file=sys.stderr)
             continue
-        entity = _entity_type(info)
-        if entity == "GCSv5_mapped_collection":
+        if _entity_type(info) == "GCSv5_mapped_collection":
             scopes.append(_data_access_scope(sdk, collection))
     return scopes
 
 
 def _data_access_scope(sdk: object, collection: str) -> object:
-    # globus-sdk 3 names this GCSCollectionScopeBuilder. 4.x names it GCSCollectionScopes.
     builder = getattr(sdk, "GCSCollectionScopeBuilder", None)
     if builder is None:
         from globus_sdk.scopes import GCSCollectionScopes
