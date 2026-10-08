@@ -5,7 +5,7 @@ Names are resolved on first access.
 """
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.2.0.dev0"
 
 _CONTEXT = {"BindContext", "Context", "NamespaceConfig"}
 _BIND = {
