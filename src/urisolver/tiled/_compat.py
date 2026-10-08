@@ -40,6 +40,7 @@ _check_tiled_version()
 
 from tiled.adapters.utils import IncompatibleShapeError, init_adapter_from_catalog  # noqa: E402
 from tiled.client.register import resolve_mimetype, strip_suffixes  # noqa: E402
+from tiled.utils import import_object  # noqa: E402
 from tiled.mimetypes import (  # noqa: E402
     DEFAULT_MIMETYPES_BY_FILE_EXT,
     DEFAULT_REGISTRATION_ADAPTERS_BY_MIMETYPE,
@@ -49,6 +50,7 @@ from tiled.ndslice import NDSlice  # noqa: E402
 __all__ = [
     "DEFAULT_MIMETYPES_BY_FILE_EXT",
     "DEFAULT_REGISTRATION_ADAPTERS_BY_MIMETYPE",
+    "import_object",
     "IncompatibleShapeError",
     "NDSlice",
     "init_adapter_from_catalog",

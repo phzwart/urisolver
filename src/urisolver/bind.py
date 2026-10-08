@@ -18,6 +18,7 @@ from urisolver.errors import (
     URIResolverError,
 )
 from urisolver.redaction import is_opaque_scheme, redact_uri
+from urisolver.tiled.origin import ORIGIN_SPEC, origin_metadata
 
 __version_source__ = None
 
@@ -36,8 +37,6 @@ class OnConflict(str, Enum):
 
 
 _PREFERENCE = (Mode.EXISTING, Mode.REFERENCE, Mode.PROXY, Mode.ACQUIRE)
-
-ORIGIN_SPEC = {"name": "urisolver-origin", "version": "1"}
 
 
 @dataclass(frozen=True)
@@ -269,15 +268,7 @@ def _merge_metadata(node: NodeSpec | None, origin: Origin, caller: Mapping | Non
         return None
     metadata = dict(caller or {})
     metadata.update(node.metadata)
-    metadata["urisolver"] = {
-        "origin": origin.uri,
-        "resolved": origin.resolved_uri,
-        "trail": list(origin.trail),
-        "protocol": origin.protocol,
-        "mode": origin.mode.value,
-        "acquired_from": origin.acquired_from,
-        "version": origin.binder_version,
-    }
+    metadata["urisolver"] = origin_metadata(origin)
     specs = tuple(dict(spec) for spec in node.specs)
     if ORIGIN_SPEC not in [dict(spec) for spec in specs]:
         specs = specs + (dict(ORIGIN_SPEC),)
