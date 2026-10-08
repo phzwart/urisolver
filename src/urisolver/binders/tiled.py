@@ -1,15 +1,17 @@
 """tiled: binder. Return an existing node, or proxy an upstream array or table."""
 from __future__ import annotations
 
+import os
 from dataclasses import asdict
 from enum import Enum
+from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
 
 from urisolver._uriparse import split_uri
-from urisolver.bind import BinderPlan, Mode, NodeSpec
+from urisolver.bind import Acquisition, BinderPlan, Mode, NodeSpec
 from urisolver.context import BindContext
-from urisolver.errors import BindError, InvalidURIError, SiteConfigError
+from urisolver.errors import AcquireError, BindError, InvalidURIError, SiteConfigError
 from urisolver.redaction import sanitize_exception
 from urisolver.site import Source, select_secret_id
 
@@ -75,6 +77,8 @@ class TiledBinder:
         family = _family(node)
         if mode is Mode.EXISTING:
             return BinderPlan(existing_path="/" + "/".join(segments))
+        if mode is Mode.ACQUIRE:
+            return _plan_acquire(uri, ctx, family, segments, key)
         if mode is not Mode.PROXY:
             raise BindError(f"tiled binder cannot plan mode {mode.value} yet")
         from tiled.structures.data_source import Asset, DataSource, Management
@@ -104,8 +108,55 @@ class TiledBinder:
             )
         )
 
-    def acquire(self, acquisition, ctx: BindContext, *, timeout: float | None):
-        raise NotImplementedError("tiled acquire is implemented with landing exports")
+    def acquire(self, acquisition: Acquisition, ctx: BindContext, *, timeout: float | None):
+        del timeout
+        if ctx.site is None:
+            raise SiteConfigError("landing is not configured")
+        source = ctx.site.source_for(acquisition.resolved_uri)
+        if source is None:
+            raise BindError("tiled URIs need a source")
+        node = _open_node(acquisition.resolved_uri, source, ctx)
+        family = _family(node)
+        dest = Path(acquisition.landing_local)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        tmp = dest.with_name(dest.name + ".partial")
+        try:
+            if family == "array":
+                import numpy as np
+
+                with tmp.open("wb") as handle:
+                    np.save(handle, np.asarray(node.read()))
+            elif family == "table":
+                frame = node.read()
+                frame.to_parquet(tmp)
+            else:
+                raise AcquireError(f"structure family {family!r} cannot be acquired")
+            os.replace(tmp, dest)
+        except Exception:
+            tmp.unlink(missing_ok=True)
+            raise
+        return dest
+
+
+def _plan_acquire(uri: str, ctx: BindContext, family: str, segments: list[str], key: str | None) -> BinderPlan:
+    if ctx.site is None or ctx.site.landing is None:
+        raise SiteConfigError("landing is not configured")
+    if family not in {"array", "table"}:
+        raise BindError(f"structure family {family!r} cannot be acquired")
+    derived = segments[-1] if segments else None
+    stem = _safe_key(key, derived)
+    suffix = ".npy" if family == "array" else ".parquet"
+    landing = ctx.site.landing_path("tiled", uri, f"{stem}{suffix}")
+    notes = ("array acquire reads the whole array",) if family == "array" else ()
+    return BinderPlan(
+        acquisition=Acquisition(
+            protocol="tiled",
+            resolved_uri=uri,
+            landing_local=str(landing),
+            recursive=False,
+        ),
+        notes=notes,
+    )
 
 
 def _open_node(uri: str, source: Source, ctx: BindContext):

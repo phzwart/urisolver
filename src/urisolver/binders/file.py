@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -75,7 +76,30 @@ class FileBinder:
         return BinderPlan(node=node, notes=tuple(notes))
 
     def acquire(self, acquisition: Acquisition, ctx: BindContext, *, timeout: float | None) -> Path:
-        raise NotImplementedError("file acquire is implemented with landing copies")
+        del ctx, timeout
+        source, _recursive = _resolve(acquisition.resolved_uri)
+        return _land_copy(source, Path(acquisition.landing_local), directory=acquisition.recursive)
+
+
+def _land_copy(source: Path, dest: Path, *, directory: bool) -> Path:
+    """Copy ``source`` onto ``dest`` via a sibling temp path, then rename."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_name(dest.name + ".partial")
+    if tmp.exists():
+        shutil.rmtree(tmp) if tmp.is_dir() else tmp.unlink()
+    try:
+        if directory:
+            shutil.copytree(source, tmp)
+        else:
+            shutil.copy2(source, tmp)
+        os.replace(tmp, dest)
+    except Exception:
+        if tmp.is_dir():
+            shutil.rmtree(tmp, ignore_errors=True)
+        else:
+            tmp.unlink(missing_ok=True)
+        raise
+    return dest
 
 
 def _describe_tree(local: Path, server: Path, ctx: BindContext, *, key: str | None, recursive: bool, top: bool):

@@ -18,6 +18,9 @@ from urisolver.tiled._compat import (
     resolve_mimetype,
 )
 
+_PARQUET_MIMETYPE = "application/x-parquet"
+_EXTRA_MIMETYPES = {".parquet": _PARQUET_MIMETYPE}
+
 
 @dataclass(frozen=True)
 class Description:
@@ -40,7 +43,11 @@ def describe_local(
 
     Asset ``data_uri`` values are rewritten from the local path onto ``server_uri``.
     """
-    mimetypes = ChainMap(dict(mimetypes_by_file_ext or {}), DEFAULT_MIMETYPES_BY_FILE_EXT)
+    mimetypes = ChainMap(
+        dict(mimetypes_by_file_ext or {}),
+        _EXTRA_MIMETYPES,
+        DEFAULT_MIMETYPES_BY_FILE_EXT,
+    )
     mimetype = resolve_mimetype(path, mimetypes)
     if mimetype is None:
         return None
@@ -51,6 +58,17 @@ def describe_local(
         return None
     if isinstance(adapter_cls, str):
         adapter_cls = import_object(adapter_cls)
+    if not hasattr(adapter_cls, "from_uris"):
+        if mimetype != _PARQUET_MIMETYPE:
+            return None
+        rewritten = (_rewrite_source(_parquet_source(path, mimetype), path.as_uri(), server_uri),)
+        return Description(
+            structure_family="table",
+            mimetype=mimetype,
+            data_sources=rewritten,
+            metadata={},
+            specs=(),
+        )
     adapter = adapter_cls.from_uris(path.as_uri())
     if hasattr(adapter, "generate_data_sources"):
         data_sources = adapter.generate_data_sources(mimetype, _dict_or_none, path, is_directory)
@@ -80,6 +98,32 @@ def _dict_or_none(structure: Any) -> dict | None:
     if structure is None:
         return None
     return _plain(asdict(structure))
+
+
+def _parquet_source(path: Path, mimetype: str) -> Any:
+    """One parquet file. Tiled's parquet adapter has no ``from_uris``."""
+    import pandas as pd
+    from tiled.structures.core import StructureFamily
+    from tiled.structures.data_source import Asset, DataSource, Management
+    from tiled.structures.table import TableStructure
+
+    frame = pd.read_parquet(path)
+    return DataSource(
+        structure_family=StructureFamily.table,
+        mimetype=mimetype,
+        structure=_dict_or_none(TableStructure.from_pandas(frame)),
+        parameters={},
+        management=Management.external,
+        assets=[
+            Asset(
+                data_uri=path.as_uri(),
+                is_directory=False,
+                size=path.stat().st_size,
+                parameter="data_uris",
+                num=0,
+            )
+        ],
+    )
 
 
 def _single_asset(adapter: Any, mimetype: str, path: Path, is_directory: bool) -> Any:
