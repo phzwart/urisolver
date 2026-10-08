@@ -1,17 +1,15 @@
-"""Namespace resolution, cache, server, recursion."""
+"""Namespace resolution and cache rules."""
 
 from __future__ import annotations
 
 import threading
-from datetime import timedelta
-from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from urisolver import (
     Context,
     InvalidURIError,
-    MemoryDestination,
     NamespaceConfig,
     NamespaceNotFoundError,
     NamespaceRestrictedError,
@@ -26,8 +24,7 @@ from urisolver.namespaces.base import (
 )
 from urisolver.namespaces.client import NamespaceClient
 from urisolver.namespaces.server import NullAuthenticator, ServerConfig, serve
-from urisolver.plugins import ensure_builtin_file_resolver
-from urisolver.resolvers.file import FileResolver
+from urisolver.site import Site
 
 
 class MapRouter:
@@ -47,22 +44,23 @@ class MapRouter:
         return self.mapping[identifier]
 
 
-def test_namespace_available(tmp_path: Path):
-    ensure_builtin_file_resolver()
-    data = tmp_path / "n.dat"
-    data.write_bytes(b"ns")
-    target = data.resolve().as_uri()
+def _context(**kwargs):
+    kwargs.setdefault("site", Site.from_mapping({}))
+    return Context(**kwargs)
+
+
+def test_namespace_available():
+    target = "file:///data/n.dat"
     router = MapRouter(
         {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
     )
-    with Context(
+    with _context(
         namespaces=NamespaceConfig(resolvers={"gov.lbl.mbib": router}),
         principal=Principal(id="alice"),
     ) as ctx:
-        r = ctx.resolve("gov.lbl.mbib:abc")
-        assert r.uri == "gov.lbl.mbib:abc"
-        assert r.resolved_uri == target
-        assert r.materialize(MemoryDestination()).value == b"ns"
+        resolved, trail = ctx.resolve_chain("gov.lbl.mbib:abc")
+        assert resolved == target
+        assert trail == ("gov.lbl.mbib:abc",)
 
 
 def test_namespace_statuses():
@@ -75,138 +73,140 @@ def test_namespace_statuses():
             ),
         }
     )
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
         with pytest.raises(NamespaceNotFoundError):
-            ctx.resolve("ns:gone")
+            ctx.resolve_chain("ns:gone")
         with pytest.raises(NamespaceRestrictedError):
-            ctx.resolve("ns:nope")
+            ctx.resolve_chain("ns:nope")
         with pytest.raises(NamespaceUnavailableError):
-            ctx.resolve("ns:tape")
+            ctx.resolve_chain("ns:tape")
 
 
-def test_namespace_cache_keyed_by_principal(tmp_path: Path):
-    ensure_builtin_file_resolver()
-    data = tmp_path / "c.dat"
-    data.write_bytes(b"c")
-    target = data.resolve().as_uri()
+def test_namespace_cache_keyed_by_principal():
+    target = "file:///data/c.dat"
     router = MapRouter(
         {"x": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
     )
     cfg = NamespaceConfig(resolvers={"ns": router})
-    with Context(namespaces=cfg, principal=Principal(id="a"), namespace_cache=True) as ctx:
-        ctx.resolve("ns:x")
-        ctx.resolve("ns:x")
+    with _context(namespaces=cfg, principal=Principal(id="a"), namespace_cache=True) as ctx:
+        ctx.resolve_chain("ns:x")
+        ctx.resolve_chain("ns:x")
     assert len(router.calls) == 1
     assert router.calls[0][1] == "a"
 
-    with Context(namespaces=cfg, principal=Principal(id="b"), namespace_cache=True) as ctx:
-        ctx.resolve("ns:x")
+    with _context(namespaces=cfg, principal=Principal(id="b"), namespace_cache=True) as ctx:
+        ctx.resolve_chain("ns:x")
     assert router.calls[-1][1] == "b"
+
+
+def test_negative_results_are_not_cached():
+    router = MapRouter({})
+    cfg = NamespaceConfig(resolvers={"ns": router})
+    with _context(namespaces=cfg) as ctx:
+        for _ in range(2):
+            with pytest.raises(NamespaceNotFoundError):
+                ctx.resolve_chain("ns:missing")
+        router.mapping["nope"] = NamespaceResolution(status=ResolutionStatus.RESTRICTED)
+        for _ in range(2):
+            with pytest.raises(NamespaceRestrictedError):
+                ctx.resolve_chain("ns:nope")
+        router.mapping["down"] = NamespaceResolution(status=ResolutionStatus.UNAVAILABLE)
+        for _ in range(2):
+            with pytest.raises(NamespaceUnavailableError):
+                ctx.resolve_chain("ns:down")
+    assert router.calls.count(("missing", None)) == 2
+    assert router.calls.count(("nope", None)) == 2
+    assert router.calls.count(("down", None)) == 2
+
+
+def test_unavailable_cached_only_for_retry_after(monkeypatch):
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    clock = {"now": start}
+
+    class FakeDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return clock["now"]
+
+    monkeypatch.setattr("urisolver.namespaces.base.datetime", FakeDateTime)
+    router = MapRouter(
+        {
+            "tape": NamespaceResolution(
+                status=ResolutionStatus.UNAVAILABLE, retry_after=timedelta(seconds=30)
+            )
+        }
+    )
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        with pytest.raises(NamespaceUnavailableError):
+            ctx.resolve_chain("ns:tape")
+        clock["now"] = start + timedelta(seconds=29)
+        with pytest.raises(NamespaceUnavailableError):
+            ctx.resolve_chain("ns:tape")
+        assert len(router.calls) == 1
+        clock["now"] = start + timedelta(seconds=30)
+        with pytest.raises(NamespaceUnavailableError):
+            ctx.resolve_chain("ns:tape")
+        assert len(router.calls) == 2
 
 
 def test_resolution_loop():
     router = MapRouter(
         {"a": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri="ns:b")},
     )
-    router.mapping["b"] = NamespaceResolution(
-        status=ResolutionStatus.AVAILABLE, uri="ns:a"
-    )
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+    router.mapping["b"] = NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri="ns:a")
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
         with pytest.raises(ResolutionLoopError):
-            ctx.resolve("ns:a")
+            ctx.resolve_chain("ns:a")
 
 
-def test_namespace_fragment_not_in_identifier(tmp_path: Path):
-    ensure_builtin_file_resolver()
-    data = tmp_path / "frag.dat"
-    data.write_bytes(b"frag")
-    target = data.resolve().as_uri()
-    router = MapRouter(
-        {"abc123": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
-    )
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
-        r = ctx.resolve("ns:abc123#/entry/data")
-        assert router.calls[-1][0] == "abc123"
-        assert r.uri == "ns:abc123#/entry/data"
-
-
-def test_namespace_fragment_inherited(tmp_path: Path):
-    ensure_builtin_file_resolver()
-    data = tmp_path / "frag.dat"
-    data.write_bytes(b"frag")
-    target = data.resolve().as_uri()
-    seen_file_uris: list[str] = []
-
-    class RecordingFileResolver(FileResolver):
-        def resolve(self, uri: str, context: object):
-            seen_file_uris.append(uri)
-            return super().resolve(uri, context)
-
-    from urisolver.registry import get_global_registry
-
-    get_global_registry().override("file", RecordingFileResolver())
+def test_namespace_fragment_inherited():
+    target = "file:///data/frag.dat"
     router = MapRouter(
         {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
     )
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
-        r = ctx.resolve("ns:abc#frag")
-        assert seen_file_uris[-1] == f"{target}#frag"
-        assert r.uri == "ns:abc#frag"
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        resolved, trail = ctx.resolve_chain("ns:abc#frag")
+        assert router.calls[-1][0] == "abc"
+        assert resolved == f"{target}#frag"
+        assert trail == ("ns:abc#frag",)
 
 
-def test_namespace_fragment_target_wins(tmp_path: Path):
-    ensure_builtin_file_resolver()
-    data = tmp_path / "frag.dat"
-    data.write_bytes(b"frag")
-    target = data.resolve().as_uri()
-    seen_file_uris: list[str] = []
-
-    class RecordingFileResolver(FileResolver):
-        def resolve(self, uri: str, context: object):
-            seen_file_uris.append(uri)
-            return super().resolve(uri, context)
-
-    from urisolver.registry import get_global_registry
-
-    get_global_registry().override("file", RecordingFileResolver())
+def test_namespace_fragment_target_wins():
+    target = "file:///data/frag.dat"
     router = MapRouter(
         {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=f"{target}#own")}
     )
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
-        r = ctx.resolve("ns:abc#frag")
-        assert seen_file_uris[-1] == f"{target}#own"
-        assert r.uri == "ns:abc#frag"
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        resolved, _trail = ctx.resolve_chain("ns:abc#frag")
+        assert resolved == f"{target}#own"
 
 
 def test_resolution_loop_case_insensitive_scheme():
     router = MapRouter(
         {"abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri="NS:abc")},
     )
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
         with pytest.raises(ResolutionLoopError, match="loop"):
-            ctx.resolve("ns:abc")
+            ctx.resolve_chain("ns:abc")
     assert len(router.calls) <= 2
 
 
 def test_namespace_rejects_double_slash():
     router = MapRouter({})
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
         with pytest.raises(InvalidURIError, match="RFC 7595"):
-            ctx.resolve("ns://abc")
+            ctx.resolve_chain("ns://abc")
 
 
-def test_namespace_single_slash_identifier(tmp_path: Path):
-    ensure_builtin_file_resolver()
-    data = tmp_path / "slash.dat"
-    data.write_bytes(b"s")
-    target = data.resolve().as_uri()
+def test_namespace_single_slash_identifier():
+    target = "file:///data/slash.dat"
     router = MapRouter(
         {"/abc": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target)}
     )
-    with Context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
-        r = ctx.resolve("ns:/abc")
+    with _context(namespaces=NamespaceConfig(resolvers={"ns": router})) as ctx:
+        resolved, _trail = ctx.resolve_chain("ns:/abc")
         assert router.calls[-1][0] == "/abc"
-        assert r.materialize(MemoryDestination()).value == b"s"
+        assert resolved == target
 
 
 def test_namespace_client_requires_https():
@@ -218,11 +218,8 @@ def test_namespace_client_requires_https():
         NamespaceClient("ftp://example.com")
 
 
-def test_namespace_server_and_client(tmp_path: Path):
-    ensure_builtin_file_resolver()
-    data = tmp_path / "s.dat"
-    data.write_bytes(b"srv")
-    target = data.resolve().as_uri()
+def test_namespace_server_and_client():
+    target = "file:///data/s.dat"
     router = MapRouter(
         {
             "id1": NamespaceResolution(status=ResolutionStatus.AVAILABLE, uri=target),

@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from urisolver.kg.graph import ConceptGraph
-
-ROOT = Path(__file__).resolve().parents[1]
-KG = ROOT / "src" / "urisolver" / "kg"
+ROOT = Path(__file__).resolve().parents[3]
+KG = ROOT / "tools" / "kg"
+sys.path.insert(0, str(ROOT / "tools"))
+from kg.graph import ConceptGraph  # noqa: E402
 OUT = KG / "out"
 
 

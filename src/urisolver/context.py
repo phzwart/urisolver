@@ -1,56 +1,77 @@
-"""ResolveContext — session ownership (§5, §23)."""
+"""BindContext: site, secrets, namespaces, and binder lookup for one session."""
 from __future__ import annotations
+
 import uuid
-import weakref
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any, Callable
+
+from urisolver._uriparse import split_uri
+from urisolver.binders._registry import BinderRegistry, get_global_registry
 from urisolver.errors import (
-    ContextClosedError, InvalidURIError, NamespaceNotFoundError, NamespaceResolutionError,
-    NamespaceRestrictedError, NamespaceUnavailableError, ResolutionLoopError,
+    InvalidURIError,
+    NamespaceNotFoundError,
+    NamespaceResolutionError,
+    NamespaceRestrictedError,
+    NamespaceUnavailableError,
+    ResolutionLoopError,
+    URIResolverError,
 )
 from urisolver.namespaces.base import (
-    NamespaceCache, NamespaceRequestContext, NamespaceResolver, Principal, ResolutionStatus,
+    NamespaceCache,
+    NamespaceRequestContext,
+    NamespaceResolver,
+    Principal,
+    ResolutionStatus,
 )
-from urisolver._uriparse import SplitURI, split_uri
-from urisolver.registry import Registry, get_global_registry
-if TYPE_CHECKING:
-    from urisolver.protocols import ResolvedResource
-    from urisolver.secrets.base import SecretsProvider
+from urisolver.site import Site
+
 
 @dataclass
 class NamespaceConfig:
     resolvers: dict[str, NamespaceResolver] = field(default_factory=dict)
     default_ttl_seconds: int = 300
 
+
 @dataclass
-class ResolveContext:
-    secrets: SecretsProvider | None = None
-    registry: Registry | None = None
+class BindContext:
+    site: Site | None = None
+    secrets: Any | None = None
     namespaces: NamespaceConfig | None = None
-    memory_limit: int | None = 2 * 2**30
-    strict_efficiency: bool = False
-    allow_recursive: bool = True
-    namespace_cache: bool = True
-    max_resolution_depth: int = 4
-    tmpdir: Path | None = None
-    retain_raw_exceptions: bool = False
     principal: Principal | None = None
+    max_resolution_depth: int = 4
+    namespace_cache: bool = True
+    binders: BinderRegistry | None = None
 
     _closed: bool = field(default=False, init=False, repr=False)
-    _instantiated: list[Any] = field(default_factory=list, init=False, repr=False)
-    _resources: weakref.WeakSet[Any] = field(default_factory=weakref.WeakSet, init=False, repr=False)
     _cache: NamespaceCache | None = field(default=None, init=False, repr=False)
+    _clients: dict[tuple, Any] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
-        if self.registry is None:
-            self.registry = get_global_registry()
+        if self.binders is None:
+            self.binders = get_global_registry()
+        if self.binders is get_global_registry():
+            from urisolver.binders._plugins import bootstrap
+
+            bootstrap(self.binders)
+        if self.site is None:
+            self.site = Site.load()
+        if self.secrets is None:
+            self.secrets = _default_secrets()
         if self.namespace_cache:
             from datetime import timedelta
+
             ttl = self.namespaces.default_ttl_seconds if self.namespaces else 300
             self._cache = NamespaceCache(default_ttl=timedelta(seconds=ttl))
 
-    def __enter__(self) -> ResolveContext:
+    @classmethod
+    def default(cls) -> BindContext:
+        """Process-wide lazily created instance."""
+        global _DEFAULT
+        if _DEFAULT is None or _DEFAULT.closed:
+            _DEFAULT = cls()
+        return _DEFAULT
+
+    def __enter__(self) -> BindContext:
         return self
 
     def __exit__(self, *exc: object) -> None:
@@ -64,89 +85,78 @@ class ResolveContext:
         if self._closed:
             return
         self._closed = True
-        for resource in list(self._resources):
-            inv = getattr(resource, "_invalidate", None)
-            if callable(inv):
-                inv()
-        self._resources.clear()
-        for resolver in self._instantiated:
-            close = getattr(resolver, "close", None)
-            if callable(close):
+        for client in list(self._clients.values()):
+            closer = getattr(client, "close", None)
+            if callable(closer):
                 try:
-                    close()
+                    closer()
                 except Exception:
                     pass
-        self._instantiated.clear()
+        self._clients.clear()
         if self._cache is not None:
             self._cache.clear()
 
+    def cache(self, key: tuple, factory: Callable[[], Any]) -> Any:
+        """Return a context-scoped client. Closing the context drops it."""
+        self._ensure_open()
+        if key not in self._clients:
+            self._clients[key] = factory()
+        return self._clients[key]
+
+    def resolve_chain(self, uri: str) -> tuple[str, tuple[str, ...]]:
+        """Resolve namespace hops. Returns the concrete URI and the hop trail."""
+        self._ensure_open()
+        self._parse_uri(uri)
+        return self._resolve_chain(uri, depth=0, seen=set(), trail=[])
+
     def _ensure_open(self) -> None:
         if self._closed:
-            raise ContextClosedError("ResolveContext is closed")
+            raise URIResolverError("BindContext is closed")
 
-    def track_resource(self, resource: Any) -> None:
-        self._resources.add(resource)
-
-    def track_resolver(self, resolver: Any) -> None:
-        if resolver not in self._instantiated:
-            self._instantiated.append(resolver)
-
-    def _parse_uri(self, uri: str) -> SplitURI:
+    def _parse_uri(self, uri: str):
         try:
             return split_uri(uri)
         except ValueError as exc:
             raise InvalidURIError(str(exc)) from exc
 
-    def resolve(self, uri: str) -> ResolvedResource:
-        self._ensure_open()
-        self._parse_uri(uri)
-        return self._resolve_chain(uri, depth=0, seen=set())
-
-    def _resolve_chain(self, uri: str, *, depth: int, seen: set[str], trail: list[str] | None = None) -> ResolvedResource:
-        if trail is None:
-            trail = []
+    def _resolve_chain(
+        self, uri: str, *, depth: int, seen: set[str], trail: list[str]
+    ) -> tuple[str, tuple[str, ...]]:
         if depth > self.max_resolution_depth:
-            raise ResolutionLoopError(f"resolution depth exceeded max_resolution_depth={self.max_resolution_depth}")
+            raise ResolutionLoopError(
+                f"resolution depth exceeded max_resolution_depth={self.max_resolution_depth}"
+            )
         parts = self._parse_uri(uri)
         key = parts.scheme + ":" + uri[len(parts.raw_scheme) + 1 :]
         if key in seen:
             raise ResolutionLoopError(f"resolution loop detected at {uri!r}")
-        seen = set(seen); seen.add(key)
+        seen = set(seen)
+        seen.add(key)
         scheme = parts.scheme
-
         if self.namespaces is not None and scheme in self.namespaces.resolvers:
-            identifier = parts.body
             if parts.body.startswith("//"):
                 raise InvalidURIError(
                     f"namespace scheme {scheme!r} defines no authority component; "
                     f"{uri!r} uses '//' after the scheme (RFC 7595 §3.2). "
                     f"Use the opaque form {scheme}:<identifier>."
                 )
-            ns = self._resolve_namespace(scheme, identifier)
-            if ns.status is ResolutionStatus.NOT_FOUND:
+            resolution = self._resolve_namespace(scheme, parts.body)
+            if resolution.status is ResolutionStatus.NOT_FOUND:
                 raise NamespaceNotFoundError(f"namespace {scheme!r}: not found")
-            if ns.status is ResolutionStatus.RESTRICTED:
-                raise NamespaceRestrictedError(ns.detail or f"namespace {scheme!r}: restricted")
-            if ns.status is ResolutionStatus.UNAVAILABLE:
+            if resolution.status is ResolutionStatus.RESTRICTED:
+                raise NamespaceRestrictedError(resolution.detail or f"namespace {scheme!r}: restricted")
+            if resolution.status is ResolutionStatus.UNAVAILABLE:
                 raise NamespaceUnavailableError(
-                    ns.detail or f"namespace {scheme!r}: unavailable", retry_after=ns.retry_after
+                    resolution.detail or f"namespace {scheme!r}: unavailable",
+                    retry_after=resolution.retry_after,
                 )
-            if ns.uri is None:
+            if resolution.uri is None:
                 raise NamespaceResolutionError(f"namespace {scheme!r} returned AVAILABLE without uri")
-            trail = trail + [uri]
-            target = _inherit_fragment(ns.uri, parts.fragment)
-            resource = self._resolve_chain(target, depth=depth + 1, seen=seen, trail=trail)
-            bind = getattr(resource, "_bind_request_uri", None)
-            if callable(bind):
-                bind(uri, trail=tuple(trail))
-            return resource
-
-        assert self.registry is not None
-        resolver = self.registry.get(scheme)
-        self.track_resolver(resolver)
-        resource = resolver.resolve(uri, self)
-        self.track_resource(resource)
-        return resource
+            target = _inherit_fragment(resolution.uri, parts.fragment)
+            return self._resolve_chain(
+                target, depth=depth + 1, seen=seen, trail=trail + [uri]
+            )
+        return uri, tuple(trail)
 
     def _resolve_namespace(self, namespace: str, identifier: str):
         assert self.namespaces is not None
@@ -156,22 +166,36 @@ class ResolveContext:
             if cached is not None:
                 return cached
         resolver = self.namespaces.resolvers[namespace]
-        req = NamespaceRequestContext(
+        if getattr(resolver, "opaque_payload", False):
+            from urisolver.redaction import register_opaque_scheme
+
+            register_opaque_scheme(namespace)
+        request = NamespaceRequestContext(
             principal=self.principal, secrets=self.secrets, request_id=str(uuid.uuid4())
         )
-        result = resolver.resolve_namespace(identifier, req)
+        result = resolver.resolve_namespace(identifier, request)
         if self._cache is not None:
             self._cache.put(namespace, identifier, principal_id, result)
         return result
 
-Context = ResolveContext
+
+Context = BindContext
+_DEFAULT: BindContext | None = None
+
+
+def _default_secrets():
+    from urisolver.secrets.jsonfile import LocalSecretsManager, default_secrets_directory
+
+    if default_secrets_directory().is_dir():
+        return LocalSecretsManager.default()
+    return None
 
 
 def _inherit_fragment(target: str, fragment: str | None) -> str:
     """Carry a request fragment onto a namespace target.
 
-    Mirrors RFC 9110 §10.2.2: a target that names its own fragment keeps it;
-    otherwise the fragment of the request is inherited.
+    A target that names its own fragment keeps it. Otherwise the fragment of
+    the request is inherited.
     """
     if fragment is None:
         return target

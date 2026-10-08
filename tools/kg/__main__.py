@@ -11,7 +11,7 @@ import argparse
 import json
 import sys
 
-from urisolver.kg.graph import ConceptGraph, GraphError
+from .graph import ConceptGraph, GraphError
 
 
 def main(argv: list[str] | None = None) -> int:
