@@ -47,7 +47,7 @@ def _assert_assets_readable(node, srvview: Path) -> None:
 
 @pytest.fixture
 def checked(tiled_site):
-    client, site, real, srvview = tiled_site
+    client, site, real, srvview, _server = tiled_site
     yield client, site, real, srvview
     _assert_assets_readable(client, srvview)
 

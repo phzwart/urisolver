@@ -29,6 +29,6 @@ def tiled_site(tmp_path: Path):
         }
     )
     try:
-        yield client, site, real, srvview
+        yield client, site, real, srvview, server
     finally:
         server.close()

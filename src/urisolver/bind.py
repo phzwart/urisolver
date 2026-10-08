@@ -331,8 +331,16 @@ def _target_label(into: Any) -> str:
 
 
 def _node_at(into: Any, path: str) -> Any:
-    context = getattr(into, "context", None)
-    node = context if context is not None else into
+    """Walk ``path`` from the server root. ``into`` may already be a nested node."""
+    node = into
+    for _ in range(64):
+        parts = [part for part in (getattr(node, "path_parts", None) or []) if part]
+        if not parts:
+            break
+        parent = getattr(node, "parent", None)
+        if parent is None or parent is node:
+            break
+        node = parent
     for part in path.strip("/").split("/"):
         if part:
             node = node[part]
