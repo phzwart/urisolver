@@ -50,12 +50,29 @@ def _parser() -> argparse.ArgumentParser:
 
     site = sub.add_parser("site", help="site configuration")
     site_sub = site.add_subparsers(dest="site_command", required=True)
-    check = site_sub.add_parser("check", help="load a site file and report errors")
+    check = site_sub.add_parser(
+        "check", help="load a site file and require readable and landing directories"
+    )
     check.add_argument("path", nargs="?")
     check.set_defaults(func=_site_check)
 
     binders = sub.add_parser("binders", help="list built-in binders")
     binders.set_defaults(func=_binders)
+
+    proxy = sub.add_parser("proxy", help="server-side proxy credentials")
+    proxy_sub = proxy.add_subparsers(dest="proxy_command", required=True)
+    credentials = proxy_sub.add_parser(
+        "credentials",
+        help="write the mode-0600 upstream key file the server reads",
+    )
+    credentials.add_argument("--base", required=True, help="upstream Tiled base URI")
+    credentials.add_argument("--file", required=True, help="URISOLVER_PROXY_CREDENTIALS path")
+    credentials.add_argument(
+        "--api-key",
+        default=None,
+        help="upstream key; default is TILED_UPSTREAM_API_KEY",
+    )
+    credentials.set_defaults(func=_proxy_credentials)
     return parser
 
 
@@ -99,10 +116,33 @@ def _register(args: argparse.Namespace) -> int:
 
 
 def _site_check(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
     from urisolver.site import Site
 
     site = Site.load(args.path)
+    for index, entry in enumerate(site.readable):
+        _require_dir(Path(str(entry.local)), f"readable[{index}].local")
+        _require_dir(Path(str(entry.server)), f"readable[{index}].server")
+    if site.landing is not None:
+        _require_dir(Path(str(site.landing.local)), "landing.local")
     print(f"ok sources={len(site.sources)} readable={len(site.readable)}")
+    return 0
+
+
+def _require_dir(path, key: str) -> None:
+    if not path.is_dir():
+        raise SiteConfigError(f"{key} is not a directory: {path}")
+
+
+def _proxy_credentials(args: argparse.Namespace) -> int:
+    from urisolver.tiled_server.credentials import write_credentials
+
+    api_key = args.api_key or os.environ.get("TILED_UPSTREAM_API_KEY")
+    if not api_key:
+        raise SiteConfigError("set --api-key or TILED_UPSTREAM_API_KEY")
+    path = write_credentials(args.file, args.base, api_key)
+    print(f"wrote {path}")
     return 0
 
 

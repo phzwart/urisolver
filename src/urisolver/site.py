@@ -4,6 +4,11 @@ Lookup order is an explicit path, then ``URISOLVER_SITE``, then
 ``~/.config/urisolver/site.yaml``. Entry-point sources are merged under the
 file (the file wins per scheme). An explicit path or environment variable is
 used whole and is not merged with the user file.
+
+Relative ``readable`` and ``landing.local`` paths in a site file are resolved
+against that file's directory. Symlinks are kept as written, because Tiled
+compares the server root as text. ``from_mapping`` still requires absolute
+paths.
 """
 from __future__ import annotations
 
@@ -121,7 +126,7 @@ class Site:
             file = _user_site()
         data: dict[str, Any] = {}
         if file.is_file():
-            data = _read_yaml(file)
+            data = _resolve_relative_paths(_read_yaml(file), Path(file).absolute().parent)
         elif explicit:
             raise SiteConfigError(f"site file not found: {file}")
         data = _merge_entry_point_sources(data)
@@ -199,6 +204,34 @@ class Site:
         if relative_path.is_absolute() or ".." in relative_path.parts:
             raise SiteConfigError(f"landing layout escaped the landing directory: {relative}")
         return Path(self.landing.local) / Path(relative_path)
+
+
+def _resolve_relative_paths(data: dict[str, Any], base: Path) -> dict[str, Any]:
+    """Make readable and landing paths absolute without following symlinks."""
+    resolved = dict(data)
+    readable = resolved.get("readable")
+    if isinstance(readable, list):
+        entries = []
+        for item in readable:
+            if isinstance(item, Mapping):
+                item = dict(item)
+                for key in ("local", "server"):
+                    if isinstance(item.get(key), str):
+                        item[key] = _against_site_file(item[key], base)
+            entries.append(item)
+        resolved["readable"] = entries
+    landing = resolved.get("landing")
+    if isinstance(landing, Mapping) and isinstance(landing.get("local"), str):
+        landing = dict(landing)
+        landing["local"] = _against_site_file(landing["local"], base)
+        resolved["landing"] = landing
+    return resolved
+
+
+def _against_site_file(value: str, base: Path) -> str:
+    if PurePosixPath(value).is_absolute():
+        return value
+    return os.path.normpath(os.path.join(str(base), value))
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:

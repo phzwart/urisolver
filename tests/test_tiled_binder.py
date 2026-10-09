@@ -115,6 +115,36 @@ def proxy_target(tiled_site, tmp_path, upstream_tiled):
     clear_client_cache()
 
 
+def test_keyless_client_reads_proxied_array(proxy_target, tmp_path, monkeypatch, capsys):
+    from tiled.client import from_uri
+
+    from urisolver.cli import main
+
+    client, ctx, base, api_key = proxy_target
+    creds = tmp_path / "server-creds.json"
+    code = main(
+        ["proxy", "credentials", "--base", base, "--file", str(creds), "--api-key", api_key]
+    )
+    captured = capsys.readouterr()
+    assert code == 0
+    assert api_key not in captured.out
+    assert api_key not in captured.err
+    monkeypatch.setenv(ENV, str(creds))
+    clear_client_cache()
+    register("lab.tiled://img", client, key="img-keyless", context=ctx)
+    target_key = client.context.api_key
+    assert target_key != api_key
+    reader = from_uri(str(client.uri), api_key=target_key)
+    assert reader.context.api_key == target_key
+    assert api_key not in str(reader.uri)
+    assert api_key not in (reader.context.api_key or "")
+    node = reader["img-keyless"]
+    metadata = json.dumps(node.metadata, default=str)
+    assert api_key not in metadata
+    expected = np.arange(48, dtype=np.float32).reshape(6, 8)
+    assert np.array_equal(np.asarray(node.read()), expected)
+
+
 def test_proxy_array_full_slice_and_block(proxy_target):
     client, ctx, _base, _key = proxy_target
     binding = register("lab.tiled://img", client, context=ctx)

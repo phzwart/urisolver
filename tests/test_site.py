@@ -131,6 +131,30 @@ def test_server_root_is_not_resolved(tmp_path: Path):
     assert "real" not in mapped.as_posix() or str(server_link) in mapped.as_posix()
 
 
+def test_site_file_resolves_relative_paths_without_following_symlinks(tmp_path):
+    real = tmp_path / "real"
+    incoming = real / "incoming"
+    incoming.mkdir(parents=True)
+    link = tmp_path / "srvview"
+    link.symlink_to(real, target_is_directory=True)
+    site_file = tmp_path / "site.yaml"
+    site_file.write_text(
+        "version: 1\n"
+        "readable:\n"
+        "  - local: real\n"
+        "    server: srvview\n"
+        "landing:\n"
+        "  local: real/incoming\n"
+        "  layout: '{protocol}/{sha12}/{name}'\n",
+        encoding="utf-8",
+    )
+    site = Site.load(str(site_file))
+    assert site.readable[0].local == PurePosixPath(str(real))
+    assert site.readable[0].server == PurePosixPath(str(link))
+    assert site.landing is not None
+    assert site.landing.local == PurePosixPath(str(incoming))
+
+
 def test_explicit_path_is_not_merged_with_user_file(tmp_path, monkeypatch):
     home = tmp_path / "home"
     config = home / ".config" / "urisolver"

@@ -2,7 +2,10 @@
 """Proxy an upstream Tiled array or table.
 
 Skips unless URISOLVER_SITE, URISOLVER_TILED_URI, and URISOLVER_INTO are set.
-TILED_UPSTREAM_API_KEY is the upstream key named by the site source.
+TILED_UPSTREAM_API_KEY is the site secret used at registration. The server
+process reads a different file, written by ``urisolver proxy credentials``
+and named by URISOLVER_PROXY_CREDENTIALS. The worker client never receives
+that upstream key.
 """
 from __future__ import annotations
 

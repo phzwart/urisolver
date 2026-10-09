@@ -23,7 +23,7 @@ application/x-urisolver-tiled-proxy;structure=array: urisolver.tiled_server.prox
 application/x-urisolver-tiled-proxy;structure=table: urisolver.tiled_server.proxy:RemoteTableAdapter
 ```
 
-Upstream keys live in the mode-0600 file named by `URISOLVER_PROXY_CREDENTIALS`. A missing entry is anonymous. A shape, dtype, or column change fails the read.
+The server process holds upstream keys in the mode-0600 file named by `URISOLVER_PROXY_CREDENTIALS`. `urisolver proxy credentials` writes that file. Workers use the site `secret_id` only while registering and do not receive the key on read. A missing entry is anonymous. A shape, dtype, or column change fails the read.
 
 ## globus
 

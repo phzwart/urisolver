@@ -8,6 +8,32 @@ import numpy as np
 from urisolver.cli import main
 
 
+def test_proxy_credentials_command_writes_mode_0600(tmp_path, capsys, monkeypatch):
+    monkeypatch.delenv("TILED_UPSTREAM_API_KEY", raising=False)
+    path = tmp_path / "creds.json"
+    secret = "upstreamkey"
+    code = main(
+        [
+            "proxy",
+            "credentials",
+            "--base",
+            "http://127.0.0.1:9/api/v1/",
+            "--file",
+            str(path),
+            "--api-key",
+            secret,
+        ]
+    )
+    captured = capsys.readouterr()
+    assert code == 0
+    assert secret not in captured.out
+    assert secret not in captured.err
+    assert (path.stat().st_mode & 0o777) == 0o600
+    loaded = json.loads(path.read_text(encoding="utf-8"))
+    assert loaded == {"http://127.0.0.1:9/api/v1": {"api_key": secret}}
+    assert main(["proxy", "credentials", "--base", "http://127.0.0.1:9/api/v1", "--file", str(path)]) == 5
+
+
 def test_usage_and_binders():
     assert main([]) == 2
     assert main(["plan"]) == 2
@@ -18,18 +44,42 @@ def test_usage_and_binders():
 def test_site_check(tmp_path, capsys):
     missing = main(["site", "check", str(tmp_path / "nope.yaml")])
     assert missing == 5
+    real = tmp_path / "real"
+    incoming = real / "incoming"
+    incoming.mkdir(parents=True)
+    srvview = tmp_path / "srvview"
+    srvview.symlink_to(real, target_is_directory=True)
     site = tmp_path / "site.yaml"
-    root = tmp_path / "real"
-    root.mkdir()
-    incoming = root / "incoming"
-    incoming.mkdir()
     site.write_text(
-        f"version: 1\nreadable:\n  - local: {root}\n    server: /data\n"
+        f"version: 1\nreadable:\n  - local: {real}\n    server: {srvview}\n"
         f"landing:\n  local: {incoming}\n  layout: '{{protocol}}/{{sha12}}/{{name}}'\n",
         encoding="utf-8",
     )
     assert main(["site", "check", str(site)]) == 0
     assert "ok sources=0" in capsys.readouterr().out
+    absent = tmp_path / "absent.yaml"
+    absent.write_text(
+        f"version: 1\nreadable:\n  - local: {tmp_path / 'missing'}\n    server: {srvview}\n",
+        encoding="utf-8",
+    )
+    assert main(["site", "check", str(absent)]) == 5
+    assert "not a directory" in capsys.readouterr().err
+    no_landing = tmp_path / "no-landing.yaml"
+    no_landing.write_text(
+        f"version: 1\nreadable:\n  - local: {real}\n    server: {srvview}\n"
+        f"landing:\n  local: {real / 'incoming-missing'}\n"
+        "  layout: '{protocol}/{sha12}/{name}'\n",
+        encoding="utf-8",
+    )
+    assert main(["site", "check", str(no_landing)]) == 5
+    assert "landing.local" in capsys.readouterr().err
+    no_server = tmp_path / "no-server.yaml"
+    no_server.write_text(
+        f"version: 1\nreadable:\n  - local: {real}\n    server: {tmp_path / 'missing-srv'}\n",
+        encoding="utf-8",
+    )
+    assert main(["site", "check", str(no_server)]) == 5
+    assert "readable[0].server" in capsys.readouterr().err
 
 
 def test_plan_and_register(tiled_site, tmp_path, capsys, monkeypatch):

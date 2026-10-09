@@ -39,6 +39,6 @@ from urisolver import Mode
 print(" ".join(mode.value for mode in Mode))
 ```
 
-`examples/reference.py`, `examples/proxy.py`, `examples/acquire_globus.py`, and `examples/acquire_zenodo.py` perform a bind. The live scripts skip unless their environment variable is set. The design is in [DESIGN.md](DESIGN.md). Schemes are in [SCHEMES.md](SCHEMES.md).
+`examples/reference.py` registers a file on a local Tiled server and reads those bytes back. `examples/proxy.py`, `examples/acquire_globus.py`, and `examples/acquire_zenodo.py` skip unless their environment variable is set. The design is in [DESIGN.md](DESIGN.md). Schemes are in [SCHEMES.md](SCHEMES.md).
 
 MIT — see [LICENSE](LICENSE).

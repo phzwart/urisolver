@@ -12,6 +12,7 @@ htmlcov/
 .ruff_cache/
 .venv/
 venv/
+examples/local/real/sample.npy
 *.egg
 .DS_Store
 .idea/

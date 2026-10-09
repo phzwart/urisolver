@@ -3,10 +3,12 @@ target:
   base_uri: http://127.0.0.1:8000/api/v1
   secret_id: tiled-local
 readable:
-  - local: /data/real
-    server: /data/srv
+  # Relative to this file. local/real holds the bytes. local/srvview is the
+  # symlink Tiled compares as readable storage.
+  - local: local/real
+    server: local/srvview
 landing:
-  local: /data/real/incoming
+  local: local/real/incoming
   layout: "{protocol}/{sha12}/{name}"
   globus:
     collection: dest-collection

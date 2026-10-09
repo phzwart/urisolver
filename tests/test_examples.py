@@ -56,36 +56,14 @@ def test_live_examples_skip_without_env():
     assert "skip:" in _run("acquire_globus.py", {})
     assert "skip:" in _run("acquire_zenodo.py", {})
     assert "skip:" in _run("globus/login.py", {})
-    assert "skip:" in _run("reference.py", {})
     assert "skip:" in _run("proxy.py", {})
 
 
-def test_reference_example_registers(tiled_site, tmp_path):
-    client, _site, real, srvview, server = tiled_site
-    array = real / "sample.npy"
-    np.save(array, np.arange(4, dtype=np.float32))
-    site = tmp_path / "site.yaml"
-    site.write_text(
-        "\n".join(
-            [
-                "version: 1",
-                "readable:",
-                f"  - local: {real}",
-                f"    server: {srvview}",
-            ]
-        ),
-        encoding="utf-8",
-    )
-    output = _run(
-        "reference.py",
-        {
-            "URISOLVER_SITE": str(site),
-            "URISOLVER_FILE_URI": array.as_uri(),
-            "URISOLVER_INTO": server.uri,
-        },
-    )
+def test_reference_example_reads_the_file_bytes():
+    payload = np.arange(4, dtype=np.float32).tobytes().hex()
+    output = _run("reference.py", {})
+    assert payload in output
     assert "/sample" in output
-    assert "sample" in list(client)
 
 
 def test_proxy_example_registers(tiled_site, tmp_path, monkeypatch):
@@ -142,12 +120,17 @@ def test_proxy_example_registers(tiled_site, tmp_path, monkeypatch):
 
 
 def test_example_site_and_server_config_load():
+    from urisolver.cli import main
     from urisolver.site import Site
 
-    loaded = yaml.safe_load((EXAMPLES / "site.example.yaml").read_text(encoding="utf-8"))
-    site = Site.from_mapping(loaded)
+    site = Site.load(str(EXAMPLES / "site.example.yaml"))
     assert site.sources["lab.globus"].params["secret_id"] == "globus-example"
+    assert site.readable[0].local.name == "real"
+    assert site.readable[0].server.name == "srvview"
+    assert Path(str(site.readable[0].server)).is_symlink()
+    assert main(["site", "check", str(EXAMPLES / "site.example.yaml")]) == 0
     server = yaml.safe_load((EXAMPLES / "tiled-server.example.yml").read_text(encoding="utf-8"))
+    assert server["trees"][0]["args"]["readable_storage"] == ["local/srvview"]
     adapters = server["trees"][0]["args"]["adapters_by_mimetype"]
     assert "urisolver.tiled_server.proxy:RemoteArrayAdapter" in adapters.values()
     assert "urisolver.tiled_server.proxy:RemoteTableAdapter" in adapters.values()

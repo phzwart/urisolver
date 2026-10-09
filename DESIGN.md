@@ -77,7 +77,7 @@ Landing paths use `{protocol}/{sha12}/{name}` by default. An acquire writes a si
 
 Binder API version is 2. Version 1 raises `PluginVersionError`. Two entry points for one protocol raise `PluginConflictError` the first time that protocol is used. Lazy proxies do not import their module at registration.
 
-The CLI commands are `plan`, `register`, `site check`, and `binders`. Exit codes: 0 ok, 2 usage, 3 bind error, 4 access error, 5 site or plugin error.
+The CLI commands are `plan`, `register`, `site check`, `binders`, and `proxy credentials`. Exit codes: 0 ok, 2 usage, 3 bind error, 4 access error, 5 site or plugin error. `site check` fails when a readable root or the landing directory is missing. `proxy credentials` writes the mode-0600 upstream key file the server reads.
 
 ## Binders
 
@@ -85,7 +85,7 @@ File URIs follow RFC 8089. `?recursive` is the only allowed query. REFERENCE use
 
 Tiled URIs use a source with `protocol: tiled`. EXISTING applies when the normalized source base equals the target base. PROXY stores the upstream base as an external asset and the remote path as a parameter. The mimetypes are `application/x-urisolver-tiled-proxy;structure=array` and `application/x-urisolver-tiled-proxy;structure=table`. Upstream metadata is copied under `metadata["upstream"]`. ACQUIRE saves arrays with `numpy.save` of `node.read()` and tables with `to_parquet`, and notes that the array path reads the whole array. PROXY and ACQUIRE of containers are out of scope.
 
-The proxy adapters resolve the remote node on each read, cache one client per upstream base, and raise `IncompatibleShapeError` when the shape, dtype, or columns differ. `URISOLVER_PROXY_CREDENTIALS` is a mode-0600 JSON file of upstream API keys. A looser mode is refused. A missing entry uses an anonymous client. API keys never appear in exceptions.
+The proxy adapters resolve the remote node on each read, cache one client per upstream base, and raise `IncompatibleShapeError` when the shape, dtype, or columns differ. The server process, not the worker, holds `URISOLVER_PROXY_CREDENTIALS`, a mode-0600 JSON file of upstream API keys. `urisolver proxy credentials` writes that file. Registration still uses the site `secret_id`. A looser mode is refused. A missing entry uses an anonymous client. API keys never appear in exceptions. A client that reads the proxied node does not receive the upstream key.
 
 `describe_local` follows Tiled's single-item registration (mimetype, `from_uris`, `generate_data_sources` or one asset) and rewrites paths. Site overrides live under `tiled.mimetypes_by_file_ext` and `tiled.adapters_by_mimetype`. A `.parquet` file is described as one external table asset because Tiled's parquet adapter has no `from_uris`.
 
