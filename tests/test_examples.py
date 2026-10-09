@@ -135,7 +135,7 @@ def test_example_site_and_server_config_load():
     assert "urisolver.tiled_server.proxy:RemoteArrayAdapter" in adapters.values()
     assert "urisolver.tiled_server.proxy:RemoteTableAdapter" in adapters.values()
     key = server["authentication"]["single_user_api_key"]
-    assert isinstance(key, str) and key.isalnum()
+    assert isinstance(key, str) and key.isalnum() and len(set(key)) == 1
     root = EXAMPLES
     storage = server["trees"][0]["args"]["readable_storage"] + server["trees"][0]["args"]["writable_storage"]
     for item in storage:

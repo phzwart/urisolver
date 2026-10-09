@@ -8,4 +8,4 @@
 
 `acquire_globus.py` and `acquire_zenodo.py` copy bytes into the landing area. Each skips unless its live flag is `1` (`URISOLVER_GLOBUS_LIVE` or `URISOLVER_ZENODO`) and `URISOLVER_SITE`, the source URI, and `URISOLVER_INTO` are set.
 
-`globus/login.py` stores the refresh token named by the globus source. It skips unless `URISOLVER_GLOBUS_CLIENT_ID` or `--client-id` is set. The site is `URISOLVER_SITE`, or `site.example.yaml` when that variable is unset. The server example's API key is `localexamplekey`. Tiled rejects a key that is not alphanumeric. `local/catalog` is the writable directory named by that file.
+`globus/login.py` stores the refresh token named by the globus source. It skips unless `URISOLVER_GLOBUS_CLIENT_ID` or `--client-id` is set. The site is `URISOLVER_SITE`, or `site.example.yaml` when that variable is unset. The server example's API key is `xxxxxxxx`. Tiled rejects a key that is not alphanumeric. `local/catalog` is the writable directory named by that file.
