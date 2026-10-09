@@ -1,0 +1,3 @@
+":START_ID(Concept)",":END_ID(Reference)",":TYPE","receipt"
+"file_binder","ref:literature:rfc8089","DEFINED_IN","evi:lit:file_binder:1"
+"absolute_uri","ref:literature:rfc3986","DEFINED_IN","evi:lit:absolute_uri:1"

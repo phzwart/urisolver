@@ -1,75 +1,46 @@
 # urisolver
 
-Resolve URI references into usable resources.
-
-Given a URI, `urisolver` dispatches to the appropriate resolver plugin, guarantees a
-small set of universal delivery operations (Tier 0), and exposes the underlying
-protocol's native capabilities to callers who opt in (Tier 2).
-
-## Install
+Register a URI as a node on a Tiled server. Workers then read that node with a Tiled client and do not import urisolver.
 
 ```bash
-pip install -e ".[dev]"
-# Optional Tiled support:
-pip install -e ".[tiled,dev]"
-# Optional Globus Transfer support:
-pip install -e ".[globus,dev]"
-# Optional CryoET Data Portal example (OME-Zarr):
-pip install -e ".[cryoet,dev]"
+pip install urisolver
 ```
 
-## Resolve one URI
+Optional extras install these packages. `tiled` installs `tiled[client]` and PyYAML. `server` installs `tiled[server]` and PyYAML. `globus` installs `globus-sdk` and PyYAML. `dev` installs the test tools, `tiled[all]`, numpy, pandas, pyarrow, and globus-sdk. `examples/reference.py` imports numpy and `tiled.server`. Numpy is part of the `dev` extra.
 
-A catalog entry names a server. The URI names an object on that server. `examples/catalog.yaml` is the example, and [examples/README.md](examples/README.md) walks through tiled, then testdrive, then globus.
+The examples are in the repository. A source distribution includes `examples/site.example.yaml`.
+
+## List the built-in binders
 
 ```python
-from urisolver import Context, FileDestination, MemoryDestination
+from urisolver.context import BindContext
+from urisolver.site import Site
 
-with Context() as ctx:
-    resource = ctx.resolve("file:///tmp/data.h5")
-    path = resource.materialize(FileDestination("/scratch/x")).value
-    data = resource.materialize(MemoryDestination()).value
+ctx = BindContext(site=Site.from_mapping({"version": 1}))
+print(" ".join(sorted(ctx.binders.protocols())))
 ```
 
-A third-party resolver implements the contract in [DESIGN.md](DESIGN.md). Scheme pages live in [SCHEMES.md](SCHEMES.md).
+## Describe a landing area
 
-## License
+```python
+from urisolver.site import Site
+
+site = Site.from_mapping({
+    "version": 1,
+    "readable": [{"local": "/data/real", "server": "/data/srv"}],
+    "landing": {"local": "/data/real/incoming", "layout": "{protocol}/{sha12}/{name}"},
+})
+print(site.landing.layout)
+```
+
+## Ask which modes exist
+
+```python
+from urisolver import Mode
+
+print(" ".join(mode.value for mode in Mode))
+```
+
+`examples/reference.py` registers a file on a local Tiled server and reads those bytes back. `examples/proxy.py` skips unless `URISOLVER_SITE`, `URISOLVER_TILED_URI`, and `URISOLVER_INTO` are set. `examples/acquire_globus.py` skips unless `URISOLVER_GLOBUS_LIVE` is `1` and the site, URI, and into values are set. `examples/acquire_zenodo.py` skips unless `URISOLVER_ZENODO` is `1` and the site, URI, and into values are set. The design is in [DESIGN.md](DESIGN.md). Schemes are in [SCHEMES.md](SCHEMES.md).
 
 MIT — see [LICENSE](LICENSE).
-
-## Design
-
-Architecture, contracts, and scope boundaries are specified in [DESIGN.md](DESIGN.md).
-Deployable URI schemes are documented in [SCHEMES.md](SCHEMES.md).
-
-That vocabulary is also a receipt-backed concept graph. Look up a term before describing a contract:
-
-```bash
-python -m urisolver.kg search "opaque payload"
-python -m urisolver.kg card tier_0
-```
-
-Counts and the generated files are in [src/urisolver/kg/out/README.md](src/urisolver/kg/out/README.md).
-Rebuild with `python -m urisolver.kg.build` after the anchored text changes
-(`pip install -e ".[kg]"`; the builder needs Python 3.11 or newer).
-
-## Conformance
-
-Third-party resolvers can check against the baseline suite:
-
-```python
-from urisolver.testing import run_baseline_suite, BaselineResult, ConformanceFixtures
-```
-
-`run_baseline_suite` returns a `BaselineResult` with split skip reasons
-`(check_name, reason)`. With the default `raise_on_failure=True`, failures raise
-`ConformanceFailure` carrying the full result so coverage and skip summaries appear
-together in pytest output.
-
-Run CI tests as a **non-root** user when possible; see [DESIGN.md §36](DESIGN.md) for
-root-proof §11.2 hazard checks.
-
-## Behavior notes
-
-- Missing local `file:` paths raise **`FileNotFoundError`** (Python stdlib), not a
-  urisolver error type.

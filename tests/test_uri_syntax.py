@@ -6,9 +6,8 @@ import pytest
 
 from urisolver import Context, InvalidURIError
 from urisolver._uriparse import scheme_normalized, split_uri
-from urisolver.plugins import ensure_builtin_file_resolver
 from urisolver.redaction import redact_uri
-
+from urisolver.site import Site
 
 INVALID_EVIDENCE = [
     r"C:\data\x.tif",
@@ -19,10 +18,11 @@ INVALID_EVIDENCE = [
 ]
 
 
-@pytest.fixture(autouse=True)
-def _builtins():
-    ensure_builtin_file_resolver()
-    yield
+@pytest.fixture
+def ctx(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.delenv("URISOLVER_SITE", raising=False)
+    return Context(site=Site.from_mapping({}))
 
 
 @pytest.mark.parametrize("uri", INVALID_EVIDENCE)
@@ -32,10 +32,9 @@ def test_invalid_scheme_split_uri(uri: str):
 
 
 @pytest.mark.parametrize("uri", INVALID_EVIDENCE)
-def test_invalid_scheme_resolve(uri: str):
-    with Context() as ctx:
-        with pytest.raises(InvalidURIError):
-            ctx.resolve(uri)
+def test_invalid_scheme_resolve(uri: str, ctx):
+    with pytest.raises(InvalidURIError):
+        ctx.resolve_chain(uri)
 
 
 def test_split_uri_file():

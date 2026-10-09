@@ -1,0 +1,375 @@
+{
+ "anchors": [
+  {
+   "concept": "registration",
+   "module": "DESIGN.md",
+   "symbol": "urisolver",
+   "kind": "section",
+   "line": 3,
+   "exact": "urisolver runs at registration time.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "registration",
+   "module": "src/urisolver/bind.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Plan and register a URI as a node on a Tiled server.",
+   "sha256": "c9332704fe4f0950d237a90b3c1fda962e456c41b5016153df675e527d0b403a",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py"
+  },
+  {
+   "concept": "auto_mode",
+   "module": "DESIGN.md",
+   "symbol": "Modes",
+   "kind": "section",
+   "line": 7,
+   "exact": "`mode=\"auto\"` picks the first feasible mode in this order: EXISTING, REFERENCE, PROXY, ACQUIRE.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "auto_mode",
+   "module": "src/urisolver/bind.py",
+   "symbol": "Mode",
+   "kind": "ClassDef",
+   "line": 27,
+   "exact": "Bind modes, in auto order: EXISTING, REFERENCE, PROXY, ACQUIRE.",
+   "sha256": "c9332704fe4f0950d237a90b3c1fda962e456c41b5016153df675e527d0b403a",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py"
+  },
+  {
+   "concept": "site",
+   "module": "DESIGN.md",
+   "symbol": "Site",
+   "kind": "section",
+   "line": 59,
+   "exact": "Lookup order is an explicit path, then `URISOLVER_SITE`, then `~/.config/urisolver/site.yaml`.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "site",
+   "module": "src/urisolver/site.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Site configuration: readable storage, landing, and sources.",
+   "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py"
+  },
+  {
+   "concept": "site_load",
+   "module": "src/urisolver/site.py",
+   "symbol": "load",
+   "kind": "FunctionDef",
+   "line": 119,
+   "exact": "Load a site file, resolve relative storage paths, and merge entry-point sources underneath it.",
+   "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py"
+  },
+  {
+   "concept": "server_path",
+   "module": "src/urisolver/site.py",
+   "symbol": "to_server_path",
+   "kind": "FunctionDef",
+   "line": 172,
+   "exact": "Map a local file onto the server path of the longest containing root.",
+   "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py"
+  },
+  {
+   "concept": "origin",
+   "module": "src/urisolver/tiled/origin.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Origin metadata written on every node urisolver creates.",
+   "sha256": "74853425529b1c16b8848236948fae535eecec8cae4df7daf7e00e1a630536d3",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/origin.py"
+  },
+  {
+   "concept": "origin",
+   "module": "DESIGN.md",
+   "symbol": "Register",
+   "kind": "section",
+   "line": 35,
+   "exact": "`plan()` describes a bind and does not write a node.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "on_conflict",
+   "module": "DESIGN.md",
+   "symbol": "Defaults",
+   "kind": "section",
+   "line": 95,
+   "exact": "With `on_conflict=\"return\"`, an existing key is returned when its stored origin or resolved URI matches this registration.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "on_conflict",
+   "module": "src/urisolver/tiled/apply.py",
+   "symbol": "create",
+   "kind": "FunctionDef",
+   "line": 11,
+   "exact": "Create ``node_spec`` under ``into``.",
+   "sha256": "0d7229f1595d0b63d51b4a2dcd12e45d40d9b16f342fd72f32510fafb9ab3562",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py"
+  },
+  {
+   "concept": "command_line",
+   "module": "DESIGN.md",
+   "symbol": "Errors",
+   "kind": "section",
+   "line": 71,
+   "exact": "The CLI exits 0 on success, 2 on usage, 3 on `BindError` or any other `URIResolverError`, 4 on `AccessError`, 5 on `SiteConfigError` or `PluginError`, and 1 on any other exception.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "command_line",
+   "module": "src/urisolver/cli.py",
+   "symbol": "main",
+   "kind": "FunctionDef",
+   "line": 14,
+   "exact": "Run one command.",
+   "sha256": "a11a6c5972d000f5515bb63fceb7bb06937d85ebab3b2f52969d4281c876cb2a",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/cli.py"
+  },
+  {
+   "concept": "file_binder",
+   "module": "SCHEMES.md",
+   "symbol": "file",
+   "kind": "section",
+   "line": 7,
+   "exact": "`file:///absolute/path` and `file://localhost/absolute/path` are local files (RFC 8089).",
+   "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "file_binder",
+   "module": "src/urisolver/binders/file.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Reference bytes the target server can already read, or copy them into landing storage.",
+   "sha256": "c4df60523faa0a67f1a81393603e0451b0bdbeefa3e96a2a80f6ee763608be10",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/file.py"
+  },
+  {
+   "concept": "tiled_binder",
+   "module": "SCHEMES.md",
+   "symbol": "tiled",
+   "kind": "section",
+   "line": 15,
+   "exact": "A source supplies `base_uri` and, when the server requires a key, `secret_id`.",
+   "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "tiled_binder",
+   "module": "src/urisolver/binders/tiled.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Return an existing Tiled node, proxy an upstream array or table, or copy one into landing storage.",
+   "sha256": "4389684581493e7f4872ca8381b31bc380e1bfbbd28c5a8a8a8718c9ff40bdbc",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/tiled.py"
+  },
+  {
+   "concept": "globus_binder",
+   "module": "SCHEMES.md",
+   "symbol": "globus",
+   "kind": "section",
+   "line": 30,
+   "exact": "A source supplies `collection` and `secret_id`.",
+   "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "globus_binder",
+   "module": "src/urisolver/binders/globus.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "ACQUIRE transfers a Globus path onto the landing collection, then renames the local file.",
+   "sha256": "d8303d1fbc9a54c3979b7123698aae0c1d445f916dc7ee3d47456c93544d4c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/globus.py"
+  },
+  {
+   "concept": "zenodo_binder",
+   "module": "SCHEMES.md",
+   "symbol": "zenodo",
+   "kind": "section",
+   "line": 36,
+   "exact": "`zenodo:/records/<id>/<filename>` downloads that file from the record.",
+   "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md"
+  },
+  {
+   "concept": "zenodo_binder",
+   "module": "src/urisolver/binders/zenodo.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "ACQUIRE downloads one named file from a Zenodo record.",
+   "sha256": "fb92e815afb7f26a4fdf664f213c8df33ca9fc5bfeb425e57bd1e0250dfdcc37",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/zenodo.py"
+  },
+  {
+   "concept": "proxy_credentials",
+   "module": "src/urisolver/tiled_server/credentials.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "The server process holds upstream API keys in the mode-0600 file named by URISOLVER_PROXY_CREDENTIALS.",
+   "sha256": "370b0986b6cc2326398583d22ca432031e643f0fc26252123579b99adf67d809",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled_server/credentials.py"
+  },
+  {
+   "concept": "proxy_credentials",
+   "module": "DESIGN.md",
+   "symbol": "Binders",
+   "kind": "section",
+   "line": 81,
+   "exact": "File URIs follow RFC 8089.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "describe_local",
+   "module": "src/urisolver/tiled/describe.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Describe local bytes the way Tiled registers a file, with server path rewrite.",
+   "sha256": "ce817bfa226eefa8b83154bb7a032942ed3b141edc55781cdcae811857615d46",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/describe.py"
+  },
+  {
+   "concept": "opaque_payload",
+   "module": "src/urisolver/redaction.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Redaction replaces an opaque URI payload with the scheme and a digest.",
+   "sha256": "03257a7e4d385bc9a460d4658b6480e185bab34cc1ec182fbd3a0a7561eff50a",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py"
+  },
+  {
+   "concept": "redaction",
+   "module": "src/urisolver/redaction.py",
+   "symbol": "redact_message",
+   "kind": "FunctionDef",
+   "line": 41,
+   "exact": "Replace secret-shaped text and listed opaque URI payloads in a message.",
+   "sha256": "03257a7e4d385bc9a460d4658b6480e185bab34cc1ec182fbd3a0a7561eff50a",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py"
+  },
+  {
+   "concept": "light_import",
+   "module": "DESIGN.md",
+   "symbol": "Layout",
+   "kind": "section",
+   "line": 27,
+   "exact": "`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "light_import",
+   "module": "src/urisolver/__init__.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "urisolver public exports.",
+   "sha256": "9d01ae548d19d9342037dfd4447292d8a09c4e62543f7fbdef681b7602b24343",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/__init__.py"
+  },
+  {
+   "concept": "tiled_internals",
+   "module": "src/urisolver/tiled/_compat.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "The only module that imports Tiled internals.",
+   "sha256": "b6a3137fe38ac3e1122a6af4be988f0d9acde03ab5df90a7fab3a78e945145c3",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/_compat.py"
+  },
+  {
+   "concept": "tiled_internals",
+   "module": "DESIGN.md",
+   "symbol": "Layout",
+   "kind": "section",
+   "line": 27,
+   "exact": "`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow.",
+   "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md"
+  },
+  {
+   "concept": "absolute_uri",
+   "module": "src/urisolver/_uriparse.py",
+   "symbol": "split_uri",
+   "kind": "FunctionDef",
+   "line": 28,
+   "exact": "Split an absolute URI into scheme / scheme-specific-part / fragment.",
+   "sha256": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/_uriparse.py"
+  },
+  {
+   "concept": "bind_context",
+   "module": "src/urisolver/context.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "BindContext: site, secrets, namespaces, and binder lookup for one session.",
+   "sha256": "f5783b6ad8e5711e88522ae2249bab2356c9a2b20a23b8e2c46489793a86b4aa",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/context.py"
+  },
+  {
+   "concept": "node_create",
+   "module": "src/urisolver/tiled/apply.py",
+   "symbol": "create",
+   "kind": "FunctionDef",
+   "line": 11,
+   "exact": "Create ``node_spec`` under ``into``.",
+   "sha256": "0d7229f1595d0b63d51b4a2dcd12e45d40d9b16f342fd72f32510fafb9ab3562",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py"
+  },
+  {
+   "concept": "error_hierarchy",
+   "module": "src/urisolver/errors.py",
+   "symbol": "",
+   "kind": "module",
+   "line": 1,
+   "exact": "Error hierarchy for bind-time failures.",
+   "sha256": "c28697b9e9b2b275fb3f35450c0c820093d897e021b05586c0f59624a8fa73ab",
+   "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/errors.py"
+  }
+ ],
+ "files": {
+  "DESIGN.md": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+  "src/urisolver/bind.py": "c9332704fe4f0950d237a90b3c1fda962e456c41b5016153df675e527d0b403a",
+  "src/urisolver/site.py": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd",
+  "src/urisolver/tiled/origin.py": "74853425529b1c16b8848236948fae535eecec8cae4df7daf7e00e1a630536d3",
+  "src/urisolver/tiled/apply.py": "0d7229f1595d0b63d51b4a2dcd12e45d40d9b16f342fd72f32510fafb9ab3562",
+  "src/urisolver/cli.py": "a11a6c5972d000f5515bb63fceb7bb06937d85ebab3b2f52969d4281c876cb2a",
+  "SCHEMES.md": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+  "src/urisolver/binders/file.py": "c4df60523faa0a67f1a81393603e0451b0bdbeefa3e96a2a80f6ee763608be10",
+  "src/urisolver/binders/tiled.py": "4389684581493e7f4872ca8381b31bc380e1bfbbd28c5a8a8a8718c9ff40bdbc",
+  "src/urisolver/binders/globus.py": "d8303d1fbc9a54c3979b7123698aae0c1d445f916dc7ee3d47456c93544d4c96",
+  "src/urisolver/binders/zenodo.py": "fb92e815afb7f26a4fdf664f213c8df33ca9fc5bfeb425e57bd1e0250dfdcc37",
+  "src/urisolver/tiled_server/credentials.py": "370b0986b6cc2326398583d22ca432031e643f0fc26252123579b99adf67d809",
+  "src/urisolver/tiled/describe.py": "ce817bfa226eefa8b83154bb7a032942ed3b141edc55781cdcae811857615d46",
+  "src/urisolver/redaction.py": "03257a7e4d385bc9a460d4658b6480e185bab34cc1ec182fbd3a0a7561eff50a",
+  "src/urisolver/__init__.py": "9d01ae548d19d9342037dfd4447292d8a09c4e62543f7fbdef681b7602b24343",
+  "src/urisolver/tiled/_compat.py": "b6a3137fe38ac3e1122a6af4be988f0d9acde03ab5df90a7fab3a78e945145c3",
+  "src/urisolver/_uriparse.py": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c",
+  "src/urisolver/context.py": "f5783b6ad8e5711e88522ae2249bab2356c9a2b20a23b8e2c46489793a86b4aa",
+  "src/urisolver/errors.py": "c28697b9e9b2b275fb3f35450c0c820093d897e021b05586c0f59624a8fa73ab"
+ }
+}

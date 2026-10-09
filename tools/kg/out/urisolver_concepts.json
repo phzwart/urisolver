@@ -1,0 +1,821 @@
+{
+ "version": "0.1.0",
+ "generated": "2026-10-02",
+ "source_repository": "https://github.com/phzwart/urisolver",
+ "snapshot": {
+  "repository": "https://github.com/phzwart/urisolver",
+  "commit": "ec341b69589d863bb8f87621cc444ab2c89a2221",
+  "dirty": false
+ },
+ "concepts": [
+  {
+   "id": "registration",
+   "label": "Registration",
+   "kind": "architecture",
+   "aliases": [
+    "register",
+    "bind"
+   ],
+   "definition": "urisolver creates a Tiled node from a URI at registration time. Workers then read that node with a Tiled client.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "auto_mode"
+    },
+    {
+     "type": "USES",
+     "target": "site"
+    },
+    {
+     "type": "USES",
+     "target": "origin"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "DESIGN.md",
+     "symbol": "urisolver",
+     "kind": "section",
+     "line": 3,
+     "quote": "urisolver runs at registration time.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    },
+    {
+     "module": "src/urisolver/bind.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Plan and register a URI as a node on a Tiled server.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py",
+     "sha256": "c9332704fe4f0950d237a90b3c1fda962e456c41b5016153df675e527d0b403a"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "auto_mode",
+   "label": "Auto mode",
+   "kind": "contract",
+   "aliases": [
+    "mode auto"
+   ],
+   "definition": "mode=\"auto\" selects the first feasible mode in the order EXISTING, REFERENCE, PROXY, ACQUIRE.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "PART_OF",
+     "target": "registration"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "DESIGN.md",
+     "symbol": "Modes",
+     "kind": "section",
+     "line": 7,
+     "quote": "`mode=\"auto\"` picks the first feasible mode in this order: EXISTING, REFERENCE, PROXY, ACQUIRE.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    },
+    {
+     "module": "src/urisolver/bind.py",
+     "symbol": "Mode",
+     "kind": "ClassDef",
+     "line": 27,
+     "quote": "Bind modes, in auto order: EXISTING, REFERENCE, PROXY, ACQUIRE.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py",
+     "sha256": "c9332704fe4f0950d237a90b3c1fda962e456c41b5016153df675e527d0b403a"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "site",
+   "label": "Site",
+   "kind": "architecture",
+   "aliases": [
+    "site file"
+   ],
+   "definition": "A site names readable storage, a landing area, sources, and the target server. Lookup is an explicit path, then URISOLVER_SITE, then the user file.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "PART_OF",
+     "target": "registration"
+    },
+    {
+     "type": "USES",
+     "target": "server_path"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "DESIGN.md",
+     "symbol": "Site",
+     "kind": "section",
+     "line": 59,
+     "quote": "Lookup order is an explicit path, then `URISOLVER_SITE`, then `~/.config/urisolver/site.yaml`.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    },
+    {
+     "module": "src/urisolver/site.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Site configuration: readable storage, landing, and sources.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+     "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "site_load",
+   "label": "Site load",
+   "kind": "contract",
+   "aliases": [
+    "relative path"
+   ],
+   "definition": "Loading a site file resolves relative readable and landing paths against that file and does not follow symlinks. from_mapping requires absolute paths.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "PART_OF",
+     "target": "site"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/site.py",
+     "symbol": "load",
+     "kind": "FunctionDef",
+     "line": 119,
+     "quote": "Load a site file, resolve relative storage paths, and merge entry-point sources underneath it.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+     "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "server_path",
+   "label": "Server path",
+   "kind": "contract",
+   "aliases": [
+    "readable storage"
+   ],
+   "definition": "to_server_path maps a local file onto the longest containing readable root and joins the relative path onto the server root verbatim.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "PART_OF",
+     "target": "site"
+    },
+    {
+     "type": "USES",
+     "target": "file_binder"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/site.py",
+     "symbol": "to_server_path",
+     "kind": "FunctionDef",
+     "line": 172,
+     "quote": "Map a local file onto the server path of the longest containing root.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+     "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "origin",
+   "label": "Origin",
+   "kind": "contract",
+   "aliases": [
+    "urisolver-origin"
+   ],
+   "definition": "Every created node stores origin metadata at metadata[\"urisolver\"] and carries the urisolver-origin spec.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "PART_OF",
+     "target": "registration"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/tiled/origin.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Origin metadata written on every node urisolver creates.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/origin.py",
+     "sha256": "74853425529b1c16b8848236948fae535eecec8cae4df7daf7e00e1a630536d3"
+    },
+    {
+     "module": "DESIGN.md",
+     "symbol": "Register",
+     "kind": "section",
+     "line": 35,
+     "quote": "`plan()` describes a bind and does not write a node.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "on_conflict",
+   "label": "On conflict",
+   "kind": "contract",
+   "aliases": [
+    "return",
+    "replace"
+   ],
+   "definition": "The default on_conflict value return keeps an existing key when the stored origin or resolved URI matches. A different origin raises KeyConflictError.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "origin"
+    },
+    {
+     "type": "PART_OF",
+     "target": "registration"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "DESIGN.md",
+     "symbol": "Defaults",
+     "kind": "section",
+     "line": 95,
+     "quote": "With `on_conflict=\"return\"`, an existing key is returned when its stored origin or resolved URI matches this registration.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    },
+    {
+     "module": "src/urisolver/tiled/apply.py",
+     "symbol": "create",
+     "kind": "FunctionDef",
+     "line": 11,
+     "quote": "Create ``node_spec`` under ``into``.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py",
+     "sha256": "0d7229f1595d0b63d51b4a2dcd12e45d40d9b16f342fd72f32510fafb9ab3562"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "command_line",
+   "label": "Command line",
+   "kind": "architecture",
+   "aliases": [
+    "urisolver cli"
+   ],
+   "definition": "The commands are plan, register, site check, binders, and proxy credentials. Exit codes are 0, 1, 2, 3, 4, and 5.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "registration"
+    },
+    {
+     "type": "USES",
+     "target": "proxy_credentials"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "DESIGN.md",
+     "symbol": "Errors",
+     "kind": "section",
+     "line": 71,
+     "quote": "The CLI exits 0 on success, 2 on usage, 3 on `BindError` or any other `URIResolverError`, 4 on `AccessError`, 5 on `SiteConfigError` or `PluginError`, and 1 on any other exception.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    },
+    {
+     "module": "src/urisolver/cli.py",
+     "symbol": "main",
+     "kind": "FunctionDef",
+     "line": 14,
+     "quote": "Run one command.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/cli.py",
+     "sha256": "a11a6c5972d000f5515bb63fceb7bb06937d85ebab3b2f52969d4281c876cb2a"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "file_binder",
+   "label": "File binder",
+   "kind": "protocol",
+   "aliases": [
+    "file"
+   ],
+   "definition": "The file binder references a path under readable storage, or copies bytes into landing storage when acquire is selected.",
+   "literature": [
+    "RFC 8089"
+   ],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "server_path"
+    },
+    {
+     "type": "USES",
+     "target": "describe_local"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "SCHEMES.md",
+     "symbol": "file",
+     "kind": "section",
+     "line": 7,
+     "quote": "`file:///absolute/path` and `file://localhost/absolute/path` are local files (RFC 8089).",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+     "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901"
+    },
+    {
+     "module": "src/urisolver/binders/file.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Reference bytes the target server can already read, or copy them into landing storage.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/file.py",
+     "sha256": "c4df60523faa0a67f1a81393603e0451b0bdbeefa3e96a2a80f6ee763608be10"
+    }
+   ],
+   "references": [
+    {
+     "source": "literature",
+     "title": "RFC 8089",
+     "url": "https://www.rfc-editor.org/rfc/rfc8089",
+     "page_title": "The \"file\" URI Scheme",
+     "status": "citation",
+     "quote": "",
+     "note": "bibliographic pointer; no sentence was fetched",
+     "fetched": "2026-10-02"
+    }
+   ]
+  },
+  {
+   "id": "tiled_binder",
+   "label": "Tiled binder",
+   "kind": "protocol",
+   "aliases": [
+    "tiled"
+   ],
+   "definition": "The tiled binder returns an existing node, proxies an upstream array or table, or copies one into landing storage.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "proxy_credentials"
+    },
+    {
+     "type": "USES",
+     "target": "registration"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "SCHEMES.md",
+     "symbol": "tiled",
+     "kind": "section",
+     "line": 15,
+     "quote": "A source supplies `base_uri` and, when the server requires a key, `secret_id`.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+     "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901"
+    },
+    {
+     "module": "src/urisolver/binders/tiled.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Return an existing Tiled node, proxy an upstream array or table, or copy one into landing storage.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/tiled.py",
+     "sha256": "4389684581493e7f4872ca8381b31bc380e1bfbbd28c5a8a8a8718c9ff40bdbc"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "globus_binder",
+   "label": "Globus binder",
+   "kind": "protocol",
+   "aliases": [
+    "globus"
+   ],
+   "definition": "Globus is ACQUIRE only. The transfer lands on landing.globus and the local file is renamed into the landing layout.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "site"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "SCHEMES.md",
+     "symbol": "globus",
+     "kind": "section",
+     "line": 30,
+     "quote": "A source supplies `collection` and `secret_id`.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+     "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901"
+    },
+    {
+     "module": "src/urisolver/binders/globus.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "ACQUIRE transfers a Globus path onto the landing collection, then renames the local file.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/globus.py",
+     "sha256": "d8303d1fbc9a54c3979b7123698aae0c1d445f916dc7ee3d47456c93544d4c96"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "zenodo_binder",
+   "label": "Zenodo binder",
+   "kind": "protocol",
+   "aliases": [
+    "zenodo"
+   ],
+   "definition": "Zenodo is ACQUIRE only. A size or md5 mismatch leaves no file, and a redirect onto another host is refused.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "site"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "SCHEMES.md",
+     "symbol": "zenodo",
+     "kind": "section",
+     "line": 36,
+     "quote": "`zenodo:/records/<id>/<filename>` downloads that file from the record.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+     "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901"
+    },
+    {
+     "module": "src/urisolver/binders/zenodo.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "ACQUIRE downloads one named file from a Zenodo record.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/zenodo.py",
+     "sha256": "fb92e815afb7f26a4fdf664f213c8df33ca9fc5bfeb425e57bd1e0250dfdcc37"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "proxy_credentials",
+   "label": "Proxy credentials",
+   "kind": "contract",
+   "aliases": [
+    "URISOLVER_PROXY_CREDENTIALS"
+   ],
+   "definition": "The Tiled server process holds upstream API keys in the mode-0600 file named by URISOLVER_PROXY_CREDENTIALS. A reading client does not receive that key.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "tiled_binder"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/tiled_server/credentials.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "The server process holds upstream API keys in the mode-0600 file named by URISOLVER_PROXY_CREDENTIALS.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled_server/credentials.py",
+     "sha256": "370b0986b6cc2326398583d22ca432031e643f0fc26252123579b99adf67d809"
+    },
+    {
+     "module": "DESIGN.md",
+     "symbol": "Binders",
+     "kind": "section",
+     "line": 81,
+     "quote": "File URIs follow RFC 8089.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "describe_local",
+   "label": "Describe local",
+   "kind": "contract",
+   "aliases": [
+    "describe_local"
+   ],
+   "definition": "describe_local follows Tiled single-item registration and rewrites each asset data_uri onto the server path.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "server_path"
+    },
+    {
+     "type": "USES",
+     "target": "file_binder"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/tiled/describe.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Describe local bytes the way Tiled registers a file, with server path rewrite.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/describe.py",
+     "sha256": "ce817bfa226eefa8b83154bb7a032942ed3b141edc55781cdcae811857615d46"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "opaque_payload",
+   "label": "Opaque payload",
+   "kind": "contract",
+   "aliases": [
+    "opaque payload"
+   ],
+   "definition": "Redaction replaces an opaque URI payload with the scheme and a digest.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "redaction"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/redaction.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Redaction replaces an opaque URI payload with the scheme and a digest.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py",
+     "sha256": "03257a7e4d385bc9a460d4658b6480e185bab34cc1ec182fbd3a0a7561eff50a"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "redaction",
+   "label": "Redaction",
+   "kind": "contract",
+   "aliases": [
+    "redact"
+   ],
+   "definition": "Messages drop secret-shaped text and listed opaque URI payloads.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "opaque_payload"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/redaction.py",
+     "symbol": "redact_message",
+     "kind": "FunctionDef",
+     "line": 41,
+     "quote": "Replace secret-shaped text and listed opaque URI payloads in a message.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py",
+     "sha256": "03257a7e4d385bc9a460d4658b6480e185bab34cc1ec182fbd3a0a7561eff50a"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "light_import",
+   "label": "Light import",
+   "kind": "contract",
+   "aliases": [
+    "import urisolver"
+   ],
+   "definition": "import urisolver does not import tiled, globus_sdk, numpy, pandas, or pyarrow.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "RELATED_TO",
+     "target": "tiled_internals"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "DESIGN.md",
+     "symbol": "Layout",
+     "kind": "section",
+     "line": 27,
+     "quote": "`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    },
+    {
+     "module": "src/urisolver/__init__.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "urisolver public exports.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/__init__.py",
+     "sha256": "9d01ae548d19d9342037dfd4447292d8a09c4e62543f7fbdef681b7602b24343"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "tiled_internals",
+   "label": "Tiled internals",
+   "kind": "architecture",
+   "aliases": [
+    "_compat"
+   ],
+   "definition": "_compat.py imports Tiled internals. The proxy adapters import tiled.adapters.core and tiled.structures when a server loads them.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "RELATED_TO",
+     "target": "light_import"
+    },
+    {
+     "type": "USES",
+     "target": "tiled_binder"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/tiled/_compat.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "The only module that imports Tiled internals.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/_compat.py",
+     "sha256": "b6a3137fe38ac3e1122a6af4be988f0d9acde03ab5df90a7fab3a78e945145c3"
+    },
+    {
+     "module": "DESIGN.md",
+     "symbol": "Layout",
+     "kind": "section",
+     "line": 27,
+     "quote": "`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+     "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "absolute_uri",
+   "label": "Absolute URI",
+   "kind": "contract",
+   "aliases": [
+    "absolute URI"
+   ],
+   "definition": "split_uri accepts an absolute URI and separates the scheme, the scheme-specific part, and the fragment.",
+   "literature": [
+    "RFC 3986"
+   ],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "registration"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/_uriparse.py",
+     "symbol": "split_uri",
+     "kind": "FunctionDef",
+     "line": 28,
+     "quote": "Split an absolute URI into scheme / scheme-specific-part / fragment.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/_uriparse.py",
+     "sha256": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c"
+    }
+   ],
+   "references": [
+    {
+     "source": "literature",
+     "title": "RFC 3986",
+     "url": "https://www.rfc-editor.org/rfc/rfc3986",
+     "page_title": "Uniform Resource Identifier (URI): Generic Syntax",
+     "status": "citation",
+     "quote": "",
+     "note": "bibliographic pointer; no sentence was fetched",
+     "fetched": "2026-10-02"
+    }
+   ]
+  },
+  {
+   "id": "bind_context",
+   "label": "Bind context",
+   "kind": "architecture",
+   "aliases": [
+    "BindContext"
+   ],
+   "definition": "A BindContext holds the site, secrets, namespaces, and binder lookup for one session.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "site"
+    },
+    {
+     "type": "USES",
+     "target": "registration"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/context.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "BindContext: site, secrets, namespaces, and binder lookup for one session.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/context.py",
+     "sha256": "f5783b6ad8e5711e88522ae2249bab2356c9a2b20a23b8e2c46489793a86b4aa"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "node_create",
+   "label": "Node create",
+   "kind": "contract",
+   "aliases": [
+    "apply.create"
+   ],
+   "definition": "create writes a NodeSpec under a Tiled container and applies the on_conflict rule.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "on_conflict"
+    },
+    {
+     "type": "PART_OF",
+     "target": "registration"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/tiled/apply.py",
+     "symbol": "create",
+     "kind": "FunctionDef",
+     "line": 11,
+     "quote": "Create ``node_spec`` under ``into``.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py",
+     "sha256": "0d7229f1595d0b63d51b4a2dcd12e45d40d9b16f342fd72f32510fafb9ab3562"
+    }
+   ],
+   "references": []
+  },
+  {
+   "id": "error_hierarchy",
+   "label": "Error hierarchy",
+   "kind": "contract",
+   "aliases": [
+    "UrisolverError"
+   ],
+   "definition": "URIResolverError is the base error. Bind failures, site failures, plugin failures, and access failures are subtypes.",
+   "literature": [],
+   "relations": [
+    {
+     "type": "USES",
+     "target": "command_line"
+    }
+   ],
+   "code_evidence": [
+    {
+     "module": "src/urisolver/errors.py",
+     "symbol": "",
+     "kind": "module",
+     "line": 1,
+     "quote": "Error hierarchy for bind-time failures.",
+     "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/errors.py",
+     "sha256": "c28697b9e9b2b275fb3f35450c0c820093d897e021b05586c0f59624a8fa73ab"
+    }
+   ],
+   "references": []
+  }
+ ]
+}

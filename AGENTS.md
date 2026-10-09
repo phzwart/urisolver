@@ -1,16 +1,7 @@
 # AGENTS.md
 
-Before describing a urisolver contract, tier, scheme, or resolver behavior, query the
-concept graph. Do not invent behavior that the card does not show.
+urisolver registers a URI as a Tiled node. Workers read that node with a Tiled client and do not import urisolver. Modes, in auto order, are EXISTING, REFERENCE, PROXY, and ACQUIRE. The design is [DESIGN.md](DESIGN.md). Schemes are [SCHEMES.md](SCHEMES.md).
 
-```bash
-python -m urisolver.kg search "opaque payload"
-python -m urisolver.kg card tier_0
-python -m urisolver.kg module src/urisolver/redaction.py
-python -m urisolver.kg receipt ent:concept:tier_0
-```
+`import urisolver` does not import Tiled or other heavy libraries. `src/urisolver/tiled/_compat.py` imports Tiled internals (`tiled.adapters.utils`, `tiled.client.register`, `tiled.utils`, `tiled.mimetypes`, and `tiled.ndslice`). `src/urisolver/tiled_server/proxy.py` imports `tiled.adapters.core` and `tiled.structures` when a Tiled server loads the proxy adapters.
 
-`definition` is a paraphrase (`definition_receipt`). A `code_evidence` quote is a
-verbatim sentence from `DESIGN.md`, `SCHEMES.md`, or a docstring, hashed with the
-file. On a receipt, `how=quote` is that sentence, `how=derived` is the paraphrase
-or a bibliographic pointer, and `how=inferred` is a relation the builder asserted.
+The concept graph in `tools/kg/` describes this tree. Query it with `PYTHONPATH=tools python -m kg`.

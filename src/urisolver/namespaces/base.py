@@ -58,19 +58,37 @@ class NamespaceCache:
         return entry.resolution
 
     def put(self, namespace: str, identifier: str, principal: str | None, resolution: NamespaceResolution) -> None:
-        stored = resolution
-        if stored.expires_at is None:
+        """Cache AVAILABLE, and UNAVAILABLE only for ``retry_after``.
+
+        NOT_FOUND, RESTRICTED, and UNAVAILABLE without ``retry_after`` are not stored.
+        """
+        key = (namespace, identifier, principal)
+        now = datetime.now(timezone.utc)
+        if resolution.status is ResolutionStatus.AVAILABLE:
+            stored = resolution
+            if stored.expires_at is None:
+                stored = NamespaceResolution(
+                    status=resolution.status,
+                    uri=resolution.uri,
+                    expires_at=now + self._default_ttl,
+                    etag=resolution.etag,
+                    retry_after=resolution.retry_after,
+                    detail=resolution.detail,
+                )
+            self._entries[key] = _CacheEntry(resolution=stored, stored_at=now)
+            return
+        if resolution.status is ResolutionStatus.UNAVAILABLE and resolution.retry_after is not None:
             stored = NamespaceResolution(
                 status=resolution.status,
                 uri=resolution.uri,
-                expires_at=datetime.now(timezone.utc) + self._default_ttl,
+                expires_at=now + resolution.retry_after,
                 etag=resolution.etag,
                 retry_after=resolution.retry_after,
                 detail=resolution.detail,
             )
-        self._entries[(namespace, identifier, principal)] = _CacheEntry(
-            resolution=stored, stored_at=datetime.now(timezone.utc)
-        )
+            self._entries[key] = _CacheEntry(resolution=stored, stored_at=now)
+            return
+        self._entries.pop(key, None)
 
     def clear(self) -> None:
         self._entries.clear()

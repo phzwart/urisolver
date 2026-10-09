@@ -1,47 +1,11 @@
 # Examples
 
-Each demo starts from a URI. urisolver turns it into a file or an in-memory object. The caller does not branch on the backend.
+`site.example.yaml` is a site file. Its readable and landing paths are relative to that file, and `site check` requires those directories. `reference.py` uses those directories and does not open `target.base_uri`.
 
-Start with the shared frontend, then the multi-machine workflow, then tiled, testdrive, and globus.
+`tiled-server.example.yml` names the proxy adapters and a readable-storage path. `reference.py` resolves that path against the file and passes it to a local Tiled server. It does not apply the example API key, sqlite URI, or writable directory.
 
-`examples/catalog.yaml` maps a scheme name to a server. An explicit path or `$URISOLVER_CATALOG` replaces that file. Otherwise `~/.config/urisolver/catalog.yaml` is merged over it. The example Tiled, Globus, Zenodo, and CryoET resolvers are not package entry points. Each script registers its resolver before `resolve`.
+`reference.py` registers `local/real/sample.npy` through the `local/srvview` symlink and reads the bytes back. `proxy.py` proxies an upstream array or table. It skips unless `URISOLVER_SITE`, `URISOLVER_TILED_URI`, and `URISOLVER_INTO` are set. Registration receives the upstream API key from `TILED_UPSTREAM_API_KEY` for every secret id. The server, not the worker, holds the upstream key: `urisolver proxy credentials` writes the mode-0600 file named by `URISOLVER_PROXY_CREDENTIALS`.
 
-## frontend
+`acquire_globus.py` and `acquire_zenodo.py` copy bytes into the landing area. Each skips unless its live flag is `1` (`URISOLVER_GLOBUS_LIVE` or `URISOLVER_ZENODO`) and `URISOLVER_SITE`, the source URI, and `URISOLVER_INTO` are set.
 
-[examples/frontend.py](frontend.py) is one `stage` function for the Tiled demo, the Zenodo record, and the Globus tutorial file. It does not branch on the scheme. `--memory` delivers `MemoryDestination` instead of a file.
-
-## workflow
-
-[examples/workflow/](workflow/) is the holder and the worker. Local mode needs no second machine. The holder opens one loopback endpoint per job and closes it when the worker exits.
-
-See [examples/workflow/README.md](workflow/README.md).
-
-## tiled
-
-Needs the network and the `[tiled]` extra. The public demo needs no credential.
-
-[examples/tiled/resolve.py](tiled/resolve.py) resolves `com.urisolver.example.tiled://examples/images/astronaut` and prints the array shape and its byte count. The live test is gated on `URISOLVER_TILED_PUBLIC=1`.
-
-See [examples/tiled/README.md](tiled/README.md).
-
-## cryoet
-
-Needs the network. Printing the scale-2 shape needs no credential and does not download voxels. Reading an array needs the `urisolver[cryoet]` extra.
-
-[examples/cryoet/resolve.py](cryoet/resolve.py) resolves `com.urisolver.example.cryoet:///10000/TS_026/Reconstructions/VoxelSpacing13.480/Tomograms/100/TS_026.zarr` and prints scale 2's shape and uncompressed byte count. The live metadata check is gated on `URISOLVER_CRYOET=1`. The frontend does not stage this object: scale 0 is about 3.6 GB uncompressed, and the MRC sibling is 1,781,761,024 bytes.
-
-See [examples/cryoet/README.md](cryoet/README.md).
-
-## testdrive
-
-The local `file:` story needs a checkout and nothing else. The Zenodo story needs the network and `URISOLVER_ZENODO=1`.
-
-A parent process ships only a URI. The worker calls `resolve`, `info()`, and `materialize(FileDestination)`, then prints a JSON report. The same worker carries secrets over an inherited file descriptor when a story needs a credential.
-
-See [examples/TESTDRIVE.md](TESTDRIVE.md).
-
-## globus
-
-Needs the `[globus]` extra, a Globus account, and [Globus Connect Personal](https://www.globus.org/globus-connect-personal) on this machine. `setup.py` records this machine's staging collection and does not store a token. `login.py` stores the credential. A file or memory delivery needs both. The live probe is gated on `URISOLVER_GLOBUS_LIVE=1`.
-
-See [examples/globus/README.md](globus/README.md).
+`globus/login.py` stores the refresh token named by the globus source. It skips unless `URISOLVER_GLOBUS_CLIENT_ID` or `--client-id` is set. The site is `URISOLVER_SITE`, or `site.example.yaml` when that variable is unset. The server example's API key is `localexamplekey`. Tiled rejects a key that is not alphanumeric. `local/catalog` is the writable directory named by that file.

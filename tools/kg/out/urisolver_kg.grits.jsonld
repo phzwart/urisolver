@@ -1,0 +1,1938 @@
+{
+  "@context": "https://phzwart.github.io/pygrits/context.jsonld",
+  "@graph": [
+    {
+      "@id": "plan:urisolver-concept-kg-2026-10-02",
+      "@type": "prov:Plan",
+      "name": "urisolver concept knowledge graph: extract architectural contracts from DESIGN.md, SCHEMES.md, and package docstrings",
+      "prompt_digest": "ca4fa56adf48f80794ab43071b1e0c00411b68e7015d9f6caf0e55eb66cb4631",
+      "schema_digest": "4469c04a5e94aa4adea1b30ff23485f81891147e6879f290509d1772b21eabb4",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:registration:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "urisolver runs at registration time."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:urisolver line 3",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:registration:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py",
+        "sha256": "c9332704fe4f0950d237a90b3c1fda962e456c41b5016153df675e527d0b403a",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Plan and register a URI as a node on a Tiled server."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/bind.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/registration",
+      "summary": "Registration: urisolver creates a Tiled node from a URI at registration time. Workers then read that node with a Tiled client.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:registration:USES:auto_mode",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "registration USES auto_mode",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:registration:USES:site",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "registration USES site",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:registration:USES:origin",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "registration USES origin",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:registration",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:registration:0",
+        "evi:code:registration:1"
+      ],
+      "generated": [
+        "ent:concept:registration",
+        "ent:rel:registration:USES:auto_mode",
+        "ent:rel:registration:USES:site",
+        "ent:rel:registration:USES:origin"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:auto_mode:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "`mode=\"auto\"` picks the first feasible mode in this order: EXISTING, REFERENCE, PROXY, ACQUIRE."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Modes line 7",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:auto_mode:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py",
+        "sha256": "c9332704fe4f0950d237a90b3c1fda962e456c41b5016153df675e527d0b403a",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/bind.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Bind modes, in auto order: EXISTING, REFERENCE, PROXY, ACQUIRE."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/bind.py:Mode line 27",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:auto_mode",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/auto_mode",
+      "summary": "Auto mode: mode=\"auto\" selects the first feasible mode in the order EXISTING, REFERENCE, PROXY, ACQUIRE.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:auto_mode:PART_OF:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "auto_mode PART_OF registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:auto_mode",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:auto_mode:0",
+        "evi:code:auto_mode:1"
+      ],
+      "generated": [
+        "ent:concept:auto_mode",
+        "ent:rel:auto_mode:PART_OF:registration"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:site:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Lookup order is an explicit path, then `URISOLVER_SITE`, then `~/.config/urisolver/site.yaml`."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Site line 59",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:site:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+        "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Site configuration: readable storage, landing, and sources."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/site.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:site",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/site",
+      "summary": "Site: A site names readable storage, a landing area, sources, and the target server. Lookup is an explicit path, then URISOLVER_SITE, then the user file.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:site:PART_OF:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "site PART_OF registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:site:USES:server_path",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "site USES server_path",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:site",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:site:0",
+        "evi:code:site:1"
+      ],
+      "generated": [
+        "ent:concept:site",
+        "ent:rel:site:PART_OF:registration",
+        "ent:rel:site:USES:server_path"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:site_load:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+        "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Load a site file, resolve relative storage paths, and merge entry-point sources underneath it."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/site.py:load line 119",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:site_load",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/site_load",
+      "summary": "Site load: Loading a site file resolves relative readable and landing paths against that file and does not follow symlinks. from_mapping requires absolute paths.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:site_load:PART_OF:site",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "site_load PART_OF site",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:site_load",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:site_load:0"
+      ],
+      "generated": [
+        "ent:concept:site_load",
+        "ent:rel:site_load:PART_OF:site"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:server_path:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+        "sha256": "c5970b9d746a025bd9a1977740869a88ddbb8fd8fcfcc85fd488766af73d25dd",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/site.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Map a local file onto the server path of the longest containing root."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/site.py:to_server_path line 172",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:server_path",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/server_path",
+      "summary": "Server path: to_server_path maps a local file onto the longest containing readable root and joins the relative path onto the server root verbatim.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:server_path:PART_OF:site",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "server_path PART_OF site",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:server_path:USES:file_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "server_path USES file_binder",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:server_path",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:server_path:0"
+      ],
+      "generated": [
+        "ent:concept:server_path",
+        "ent:rel:server_path:PART_OF:site",
+        "ent:rel:server_path:USES:file_binder"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:origin:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/origin.py",
+        "sha256": "74853425529b1c16b8848236948fae535eecec8cae4df7daf7e00e1a630536d3",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/origin.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Origin metadata written on every node urisolver creates."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/tiled/origin.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:origin:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "`plan()` describes a bind and does not write a node."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Register line 35",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:origin",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/origin",
+      "summary": "Origin: Every created node stores origin metadata at metadata[\"urisolver\"] and carries the urisolver-origin spec.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:origin:PART_OF:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "origin PART_OF registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:origin",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:origin:0",
+        "evi:code:origin:1"
+      ],
+      "generated": [
+        "ent:concept:origin",
+        "ent:rel:origin:PART_OF:registration"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:on_conflict:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "With `on_conflict=\"return\"`, an existing key is returned when its stored origin or resolved URI matches this registration."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Defaults line 95",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:on_conflict:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py",
+        "sha256": "0d7229f1595d0b63d51b4a2dcd12e45d40d9b16f342fd72f32510fafb9ab3562",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Create ``node_spec`` under ``into``."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/tiled/apply.py:create line 11",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:on_conflict",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/on_conflict",
+      "summary": "On conflict: The default on_conflict value return keeps an existing key when the stored origin or resolved URI matches. A different origin raises KeyConflictError.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:on_conflict:USES:origin",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "on_conflict USES origin",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:on_conflict:PART_OF:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "on_conflict PART_OF registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:on_conflict",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:on_conflict:0",
+        "evi:code:on_conflict:1"
+      ],
+      "generated": [
+        "ent:concept:on_conflict",
+        "ent:rel:on_conflict:USES:origin",
+        "ent:rel:on_conflict:PART_OF:registration"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:command_line:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "The CLI exits 0 on success, 2 on usage, 3 on `BindError` or any other `URIResolverError`, 4 on `AccessError`, 5 on `SiteConfigError` or `PluginError`, and 1 on any other exception."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Errors line 71",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:command_line:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/cli.py",
+        "sha256": "a11a6c5972d000f5515bb63fceb7bb06937d85ebab3b2f52969d4281c876cb2a",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/cli.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Run one command."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/cli.py:main line 14",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:command_line",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/command_line",
+      "summary": "Command line: The commands are plan, register, site check, binders, and proxy credentials. Exit codes are 0, 1, 2, 3, 4, and 5.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:command_line:USES:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "command_line USES registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:command_line:USES:proxy_credentials",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "command_line USES proxy_credentials",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:command_line",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:command_line:0",
+        "evi:code:command_line:1"
+      ],
+      "generated": [
+        "ent:concept:command_line",
+        "ent:rel:command_line:USES:registration",
+        "ent:rel:command_line:USES:proxy_credentials"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:file_binder:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "`file:///absolute/path` and `file://localhost/absolute/path` are local files (RFC 8089)."
+        }
+      },
+      "how": "quote",
+      "summary": "SCHEMES.md:file line 7",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:file_binder:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/file.py",
+        "sha256": "c4df60523faa0a67f1a81393603e0451b0bdbeefa3e96a2a80f6ee763608be10",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/file.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Reference bytes the target server can already read, or copy them into landing storage."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/binders/file.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:lit:file_binder:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Bibliographic pointer copied from the concept's literature list. No sentence was fetched, so this is not a quote.",
+      "summary": "RFC 8089 https://www.rfc-editor.org/rfc/rfc8089",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:file_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/file_binder",
+      "summary": "File binder: The file binder references a path under readable storage, or copies bytes into landing storage when acquire is selected.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:file_binder:USES:server_path",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "file_binder USES server_path",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:file_binder:USES:describe_local",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "file_binder USES describe_local",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:file_binder",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:file_binder:0",
+        "evi:code:file_binder:1",
+        "evi:lit:file_binder:1"
+      ],
+      "generated": [
+        "ent:concept:file_binder",
+        "ent:rel:file_binder:USES:server_path",
+        "ent:rel:file_binder:USES:describe_local"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:tiled_binder:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "A source supplies `base_uri` and, when the server requires a key, `secret_id`."
+        }
+      },
+      "how": "quote",
+      "summary": "SCHEMES.md:tiled line 15",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:tiled_binder:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/tiled.py",
+        "sha256": "4389684581493e7f4872ca8381b31bc380e1bfbbd28c5a8a8a8718c9ff40bdbc",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/tiled.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Return an existing Tiled node, proxy an upstream array or table, or copy one into landing storage."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/binders/tiled.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:tiled_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/tiled_binder",
+      "summary": "Tiled binder: The tiled binder returns an existing node, proxies an upstream array or table, or copies one into landing storage.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:tiled_binder:USES:proxy_credentials",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "tiled_binder USES proxy_credentials",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:tiled_binder:USES:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "tiled_binder USES registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:tiled_binder",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:tiled_binder:0",
+        "evi:code:tiled_binder:1"
+      ],
+      "generated": [
+        "ent:concept:tiled_binder",
+        "ent:rel:tiled_binder:USES:proxy_credentials",
+        "ent:rel:tiled_binder:USES:registration"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:globus_binder:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "A source supplies `collection` and `secret_id`."
+        }
+      },
+      "how": "quote",
+      "summary": "SCHEMES.md:globus line 30",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:globus_binder:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/globus.py",
+        "sha256": "d8303d1fbc9a54c3979b7123698aae0c1d445f916dc7ee3d47456c93544d4c96",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/globus.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "ACQUIRE transfers a Globus path onto the landing collection, then renames the local file."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/binders/globus.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:globus_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/globus_binder",
+      "summary": "Globus binder: Globus is ACQUIRE only. The transfer lands on landing.globus and the local file is renamed into the landing layout.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:globus_binder:USES:site",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "globus_binder USES site",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:globus_binder",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:globus_binder:0",
+        "evi:code:globus_binder:1"
+      ],
+      "generated": [
+        "ent:concept:globus_binder",
+        "ent:rel:globus_binder:USES:site"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:zenodo_binder:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "sha256": "10edd3495f56bb3eeb4710d4c03485adb8b2fb9f48c712654e75a46c98b59901",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/SCHEMES.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "`zenodo:/records/<id>/<filename>` downloads that file from the record."
+        }
+      },
+      "how": "quote",
+      "summary": "SCHEMES.md:zenodo line 36",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:zenodo_binder:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/zenodo.py",
+        "sha256": "fb92e815afb7f26a4fdf664f213c8df33ca9fc5bfeb425e57bd1e0250dfdcc37",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/binders/zenodo.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "ACQUIRE downloads one named file from a Zenodo record."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/binders/zenodo.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:zenodo_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/zenodo_binder",
+      "summary": "Zenodo binder: Zenodo is ACQUIRE only. A size or md5 mismatch leaves no file, and a redirect onto another host is refused.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:zenodo_binder:USES:site",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "zenodo_binder USES site",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:zenodo_binder",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:zenodo_binder:0",
+        "evi:code:zenodo_binder:1"
+      ],
+      "generated": [
+        "ent:concept:zenodo_binder",
+        "ent:rel:zenodo_binder:USES:site"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:proxy_credentials:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled_server/credentials.py",
+        "sha256": "370b0986b6cc2326398583d22ca432031e643f0fc26252123579b99adf67d809",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled_server/credentials.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "The server process holds upstream API keys in the mode-0600 file named by URISOLVER_PROXY_CREDENTIALS."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/tiled_server/credentials.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:proxy_credentials:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "File URIs follow RFC 8089."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Binders line 81",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:proxy_credentials",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/proxy_credentials",
+      "summary": "Proxy credentials: The Tiled server process holds upstream API keys in the mode-0600 file named by URISOLVER_PROXY_CREDENTIALS. A reading client does not receive that key.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:proxy_credentials:USES:tiled_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "proxy_credentials USES tiled_binder",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:proxy_credentials",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:proxy_credentials:0",
+        "evi:code:proxy_credentials:1"
+      ],
+      "generated": [
+        "ent:concept:proxy_credentials",
+        "ent:rel:proxy_credentials:USES:tiled_binder"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:describe_local:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/describe.py",
+        "sha256": "ce817bfa226eefa8b83154bb7a032942ed3b141edc55781cdcae811857615d46",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/describe.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Describe local bytes the way Tiled registers a file, with server path rewrite."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/tiled/describe.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:describe_local",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/describe_local",
+      "summary": "Describe local: describe_local follows Tiled single-item registration and rewrites each asset data_uri onto the server path.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:describe_local:USES:server_path",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "describe_local USES server_path",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:describe_local:USES:file_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "describe_local USES file_binder",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:describe_local",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:describe_local:0"
+      ],
+      "generated": [
+        "ent:concept:describe_local",
+        "ent:rel:describe_local:USES:server_path",
+        "ent:rel:describe_local:USES:file_binder"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:opaque_payload:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py",
+        "sha256": "03257a7e4d385bc9a460d4658b6480e185bab34cc1ec182fbd3a0a7561eff50a",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Redaction replaces an opaque URI payload with the scheme and a digest."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/redaction.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:opaque_payload",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/opaque_payload",
+      "summary": "Opaque payload: Redaction replaces an opaque URI payload with the scheme and a digest.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:opaque_payload:USES:redaction",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "opaque_payload USES redaction",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:opaque_payload",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:opaque_payload:0"
+      ],
+      "generated": [
+        "ent:concept:opaque_payload",
+        "ent:rel:opaque_payload:USES:redaction"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:redaction:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py",
+        "sha256": "03257a7e4d385bc9a460d4658b6480e185bab34cc1ec182fbd3a0a7561eff50a",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/redaction.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Replace secret-shaped text and listed opaque URI payloads in a message."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/redaction.py:redact_message line 41",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:redaction",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/redaction",
+      "summary": "Redaction: Messages drop secret-shaped text and listed opaque URI payloads.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:redaction:USES:opaque_payload",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "redaction USES opaque_payload",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:redaction",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:redaction:0"
+      ],
+      "generated": [
+        "ent:concept:redaction",
+        "ent:rel:redaction:USES:opaque_payload"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:light_import:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Layout line 27",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:light_import:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/__init__.py",
+        "sha256": "9d01ae548d19d9342037dfd4447292d8a09c4e62543f7fbdef681b7602b24343",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/__init__.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "urisolver public exports."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/__init__.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:light_import",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/light_import",
+      "summary": "Light import: import urisolver does not import tiled, globus_sdk, numpy, pandas, or pyarrow.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:light_import:RELATED_TO:tiled_internals",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "light_import RELATED_TO tiled_internals",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:light_import",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:light_import:0",
+        "evi:code:light_import:1"
+      ],
+      "generated": [
+        "ent:concept:light_import",
+        "ent:rel:light_import:RELATED_TO:tiled_internals"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:tiled_internals:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/_compat.py",
+        "sha256": "b6a3137fe38ac3e1122a6af4be988f0d9acde03ab5df90a7fab3a78e945145c3",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/_compat.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "The only module that imports Tiled internals."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/tiled/_compat.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:code:tiled_internals:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "sha256": "ced6b471d25b44ce9d02a32390e20a66353200548d36db012bb2f0f9e7a66c96",
+        "media_type": "text/markdown"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/DESIGN.md",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow."
+        }
+      },
+      "how": "quote",
+      "summary": "DESIGN.md:Layout line 27",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:tiled_internals",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/tiled_internals",
+      "summary": "Tiled internals: _compat.py imports Tiled internals. The proxy adapters import tiled.adapters.core and tiled.structures when a server loads them.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:tiled_internals:RELATED_TO:light_import",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "tiled_internals RELATED_TO light_import",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:tiled_internals:USES:tiled_binder",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "tiled_internals USES tiled_binder",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:tiled_internals",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:tiled_internals:0",
+        "evi:code:tiled_internals:1"
+      ],
+      "generated": [
+        "ent:concept:tiled_internals",
+        "ent:rel:tiled_internals:RELATED_TO:light_import",
+        "ent:rel:tiled_internals:USES:tiled_binder"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:absolute_uri:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/_uriparse.py",
+        "sha256": "ff46a5de3076660436b84ee90c295071e0ecededa33c874e3b538076f4f2538c",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/_uriparse.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Split an absolute URI into scheme / scheme-specific-part / fragment."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/_uriparse.py:split_uri line 28",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "evi:lit:absolute_uri:1",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Bibliographic pointer copied from the concept's literature list. No sentence was fetched, so this is not a quote.",
+      "summary": "RFC 3986 https://www.rfc-editor.org/rfc/rfc3986",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:absolute_uri",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/absolute_uri",
+      "summary": "Absolute URI: split_uri accepts an absolute URI and separates the scheme, the scheme-specific part, and the fragment.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:absolute_uri:USES:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "absolute_uri USES registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:absolute_uri",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:absolute_uri:0",
+        "evi:lit:absolute_uri:1"
+      ],
+      "generated": [
+        "ent:concept:absolute_uri",
+        "ent:rel:absolute_uri:USES:registration"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:bind_context:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/context.py",
+        "sha256": "f5783b6ad8e5711e88522ae2249bab2356c9a2b20a23b8e2c46489793a86b4aa",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/context.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "BindContext: site, secrets, namespaces, and binder lookup for one session."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/context.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:bind_context",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/bind_context",
+      "summary": "Bind context: A BindContext holds the site, secrets, namespaces, and binder lookup for one session.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:bind_context:USES:site",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "bind_context USES site",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:bind_context:USES:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "bind_context USES registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:bind_context",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:bind_context:0"
+      ],
+      "generated": [
+        "ent:concept:bind_context",
+        "ent:rel:bind_context:USES:site",
+        "ent:rel:bind_context:USES:registration"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:node_create:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py",
+        "sha256": "0d7229f1595d0b63d51b4a2dcd12e45d40d9b16f342fd72f32510fafb9ab3562",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/tiled/apply.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Create ``node_spec`` under ``into``."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/tiled/apply.py:create line 11",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:node_create",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/node_create",
+      "summary": "Node create: create writes a NodeSpec under a Tiled container and applies the on_conflict rule.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:node_create:USES:on_conflict",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "node_create USES on_conflict",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:node_create:PART_OF:registration",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "node_create PART_OF registration",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:node_create",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:node_create:0"
+      ],
+      "generated": [
+        "ent:concept:node_create",
+        "ent:rel:node_create:USES:on_conflict",
+        "ent:rel:node_create:PART_OF:registration"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    },
+    {
+      "@id": "evi:code:error_hierarchy:0",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "source": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/errors.py",
+        "sha256": "c28697b9e9b2b275fb3f35450c0c820093d897e021b05586c0f59624a8fa73ab",
+        "media_type": "text/x-python"
+      },
+      "target": {
+        "hasSource": "https://github.com/phzwart/urisolver/blob/main/src/urisolver/errors.py",
+        "selector": {
+          "@type": "oa:TextQuoteSelector",
+          "exact": "Error hierarchy for bind-time failures."
+        }
+      },
+      "how": "quote",
+      "summary": "src/urisolver/errors.py:<module docstring> line 1",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:concept:error_hierarchy",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "derived",
+      "rationale": "Definition paraphrased by the builder from the anchored spec sentences and docstrings listed in the derivation's 'used'; the wording is the builder's, not a quotation.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "plan_variable": "pplan:vars/concept/error_hierarchy",
+      "summary": "Error hierarchy: URIResolverError is the base error. Bind failures, site failures, plugin failures, and access failures are subtypes.",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "ent:rel:error_hierarchy:USES:command_line",
+      "@type": "prov:Entity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "how": "inferred",
+      "rationale": "Relation asserted by the builder from how the anchored text uses or defines the two concepts together; not stated verbatim in any single source.",
+      "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
+      "payload_ref": {
+        "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
+      },
+      "summary": "error_hierarchy USES command_line",
+      "agent": "urisolver-kg-builder/0.1"
+    },
+    {
+      "@id": "act:derive:error_hierarchy",
+      "@type": "prov:Activity",
+      "plan": "plan:urisolver-concept-kg-2026-10-02",
+      "kind": "derivation",
+      "used": [
+        "evi:code:error_hierarchy:0"
+      ],
+      "generated": [
+        "ent:concept:error_hierarchy",
+        "ent:rel:error_hierarchy:USES:command_line"
+      ],
+      "performed_by": "urisolver-kg-builder/0.1",
+      "started_at": "2026-10-02T00:00:00Z",
+      "ended_at": "2026-10-02T23:59:59Z",
+      "plan_step": "pplan:steps/derive_concept"
+    }
+  ]
+}

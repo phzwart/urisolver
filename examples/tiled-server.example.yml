@@ -1,0 +1,19 @@
+# Paths are relative to this file. Tiled accepts only an alphanumeric API key.
+# reference.py uses readable_storage for its local server. It does not apply
+# this key, the sqlite URI, or writable_storage. The server process holds
+# upstream proxy keys.
+authentication:
+  single_user_api_key: localexamplekey
+trees:
+  - path: /
+    tree: catalog
+    args:
+      uri: sqlite:///local/catalog.db
+      readable_storage:
+        - local/srvview
+      writable_storage:
+        - local/catalog
+      init_if_not_exists: true
+      adapters_by_mimetype:
+        application/x-urisolver-tiled-proxy;structure=array: urisolver.tiled_server.proxy:RemoteArrayAdapter
+        application/x-urisolver-tiled-proxy;structure=table: urisolver.tiled_server.proxy:RemoteTableAdapter

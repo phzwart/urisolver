@@ -1,13 +1,10 @@
-from urisolver.testing.baseline import (
-    BaselineResult,
-    ConformanceFailure,
-    ConformanceFixtures,
-    run_baseline_suite,
-)
+"""Binder conformance suite."""
+
+from urisolver.testing.conformance import ConformanceCase, ConformanceFailure, ConformanceResult, run_conformance
 
 __all__ = [
-    "BaselineResult",
+    "ConformanceCase",
     "ConformanceFailure",
-    "ConformanceFixtures",
-    "run_baseline_suite",
+    "ConformanceResult",
+    "run_conformance",
 ]

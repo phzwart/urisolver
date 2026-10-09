@@ -1,5 +1,0 @@
-Build a receipt-backed concept graph for urisolver. Extract the architectural
-contracts in DESIGN.md and SCHEMES.md, anchor each to a verbatim sentence in
-those documents or to a docstring in src/urisolver, and record RFC 3986 and
-RFC 7595 as bibliographic pointers when the contract depends on them.
-Definitions are paraphrases. Spec and code sentences are quotes.

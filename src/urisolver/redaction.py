@@ -1,4 +1,4 @@
-"""URI and message redaction (§4.1, §24.1)."""
+"""Redaction replaces an opaque URI payload with the scheme and a digest."""
 from __future__ import annotations
 import hashlib
 import re
@@ -38,6 +38,7 @@ def redact_uri(uri: str, *, opaque: bool | None = None) -> str:
     return uri
 
 def redact_message(message: str, *, opaque_uris: Iterable[str] = ()) -> str:
+    """Replace secret-shaped text and listed opaque URI payloads in a message."""
     text = message
     for uri in opaque_uris:
         if uri and ":" in uri:
