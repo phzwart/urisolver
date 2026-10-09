@@ -58,7 +58,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/registration",
       "summary": "Registration: urisolver creates a Tiled node from a URI at registration time. Workers then read that node with a Tiled client.",
@@ -73,7 +73,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "registration USES auto_mode",
       "agent": "urisolver-kg-builder/0.1"
@@ -87,7 +87,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "registration USES site",
       "agent": "urisolver-kg-builder/0.1"
@@ -101,7 +101,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "registration USES origin",
       "agent": "urisolver-kg-builder/0.1"
@@ -175,7 +175,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/auto_mode",
       "summary": "Auto mode: mode=\"auto\" selects the first feasible mode in the order EXISTING, REFERENCE, PROXY, ACQUIRE.",
@@ -190,7 +190,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "auto_mode PART_OF registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -262,7 +262,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/site",
       "summary": "Site: A site names readable storage, a landing area, sources, and the target server. Lookup is an explicit path, then URISOLVER_SITE, then the user file.",
@@ -277,7 +277,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "site PART_OF registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -291,7 +291,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "site USES server_path",
       "agent": "urisolver-kg-builder/0.1"
@@ -344,7 +344,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/site_load",
       "summary": "Site load: Loading a site file resolves relative readable and landing paths against that file and does not follow symlinks. from_mapping requires absolute paths.",
@@ -359,7 +359,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "site_load PART_OF site",
       "agent": "urisolver-kg-builder/0.1"
@@ -410,7 +410,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/server_path",
       "summary": "Server path: to_server_path maps a local file onto the longest containing readable root and joins the relative path onto the server root verbatim.",
@@ -425,7 +425,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "server_path PART_OF site",
       "agent": "urisolver-kg-builder/0.1"
@@ -439,7 +439,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "server_path USES file_binder",
       "agent": "urisolver-kg-builder/0.1"
@@ -511,7 +511,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/origin",
       "summary": "Origin: Every created node stores origin metadata at metadata[\"urisolver\"] and carries the urisolver-origin spec.",
@@ -526,7 +526,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "origin PART_OF registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -598,7 +598,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/on_conflict",
       "summary": "On conflict: The default on_conflict value return keeps an existing key when the stored origin or resolved URI matches. A different origin raises KeyConflictError.",
@@ -613,7 +613,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "on_conflict USES origin",
       "agent": "urisolver-kg-builder/0.1"
@@ -627,7 +627,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "on_conflict PART_OF registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -700,7 +700,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/command_line",
       "summary": "Command line: The commands are plan, register, site check, binders, and proxy credentials. Exit codes are 0, 1, 2, 3, 4, and 5.",
@@ -715,7 +715,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "command_line USES registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -729,7 +729,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "command_line USES proxy_credentials",
       "agent": "urisolver-kg-builder/0.1"
@@ -811,7 +811,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/file_binder",
       "summary": "File binder: The file binder references a path under readable storage, or copies bytes into landing storage when acquire is selected.",
@@ -826,7 +826,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "file_binder USES server_path",
       "agent": "urisolver-kg-builder/0.1"
@@ -840,7 +840,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "file_binder USES describe_local",
       "agent": "urisolver-kg-builder/0.1"
@@ -914,7 +914,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/tiled_binder",
       "summary": "Tiled binder: The tiled binder returns an existing node, proxies an upstream array or table, or copies one into landing storage.",
@@ -929,7 +929,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "tiled_binder USES proxy_credentials",
       "agent": "urisolver-kg-builder/0.1"
@@ -943,7 +943,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "tiled_binder USES registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -1016,7 +1016,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/globus_binder",
       "summary": "Globus binder: Globus is ACQUIRE only. The transfer lands on landing.globus and the local file is renamed into the landing layout.",
@@ -1031,7 +1031,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "globus_binder USES site",
       "agent": "urisolver-kg-builder/0.1"
@@ -1103,7 +1103,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/zenodo_binder",
       "summary": "Zenodo binder: Zenodo is ACQUIRE only. A size or md5 mismatch leaves no file, and a redirect onto another host is refused.",
@@ -1118,7 +1118,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "zenodo_binder USES site",
       "agent": "urisolver-kg-builder/0.1"
@@ -1190,7 +1190,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/proxy_credentials",
       "summary": "Proxy credentials: The Tiled server process holds upstream API keys in the mode-0600 file named by URISOLVER_PROXY_CREDENTIALS. A reading client does not receive that key.",
@@ -1205,7 +1205,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "proxy_credentials USES tiled_binder",
       "agent": "urisolver-kg-builder/0.1"
@@ -1257,7 +1257,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/describe_local",
       "summary": "Describe local: describe_local follows Tiled single-item registration and rewrites each asset data_uri onto the server path.",
@@ -1272,7 +1272,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "describe_local USES server_path",
       "agent": "urisolver-kg-builder/0.1"
@@ -1286,7 +1286,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "describe_local USES file_binder",
       "agent": "urisolver-kg-builder/0.1"
@@ -1338,7 +1338,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/opaque_payload",
       "summary": "Opaque payload: Redaction replaces an opaque URI payload with the scheme and a digest.",
@@ -1353,7 +1353,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "opaque_payload USES redaction",
       "agent": "urisolver-kg-builder/0.1"
@@ -1404,7 +1404,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/redaction",
       "summary": "Redaction: Messages drop secret-shaped text and listed opaque URI payloads.",
@@ -1419,7 +1419,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "redaction USES opaque_payload",
       "agent": "urisolver-kg-builder/0.1"
@@ -1490,7 +1490,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/light_import",
       "summary": "Light import: import urisolver does not import tiled, globus_sdk, numpy, pandas, or pyarrow.",
@@ -1505,7 +1505,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "light_import RELATED_TO tiled_internals",
       "agent": "urisolver-kg-builder/0.1"
@@ -1577,7 +1577,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/tiled_internals",
       "summary": "Tiled internals: _compat.py imports Tiled internals. The proxy adapters import tiled.adapters.core and tiled.structures when a server loads them.",
@@ -1592,7 +1592,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "tiled_internals RELATED_TO light_import",
       "agent": "urisolver-kg-builder/0.1"
@@ -1606,7 +1606,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "tiled_internals USES tiled_binder",
       "agent": "urisolver-kg-builder/0.1"
@@ -1668,7 +1668,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/absolute_uri",
       "summary": "Absolute URI: split_uri accepts an absolute URI and separates the scheme, the scheme-specific part, and the fragment.",
@@ -1683,7 +1683,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "absolute_uri USES registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -1735,7 +1735,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/bind_context",
       "summary": "Bind context: A BindContext holds the site, secrets, namespaces, and binder lookup for one session.",
@@ -1750,7 +1750,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "bind_context USES site",
       "agent": "urisolver-kg-builder/0.1"
@@ -1764,7 +1764,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "bind_context USES registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -1816,7 +1816,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/node_create",
       "summary": "Node create: create writes a NodeSpec under a Tiled container and applies the on_conflict rule.",
@@ -1831,7 +1831,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "node_create USES on_conflict",
       "agent": "urisolver-kg-builder/0.1"
@@ -1845,7 +1845,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "node_create PART_OF registration",
       "agent": "urisolver-kg-builder/0.1"
@@ -1897,7 +1897,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "plan_variable": "pplan:vars/concept/error_hierarchy",
       "summary": "Error hierarchy: URIResolverError is the base error. Bind failures, site failures, plugin failures, and access failures are subtypes.",
@@ -1912,7 +1912,7 @@
       "payload": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/concept-schema.json",
       "payload_ref": {
         "uri": "https://github.com/phzwart/urisolver/blob/main/tools/kg/out/urisolver_concepts.json",
-        "sha256": "0ce5c5e685c22be41d666ba9e05680bf28d4f0716240ea6a5ed6e55f91e51eb4"
+        "sha256": "5f974db91253d78eddbd78dc206d92b56e03bb3d530326d445767edcc639a291"
       },
       "summary": "error_hierarchy USES command_line",
       "agent": "urisolver-kg-builder/0.1"
