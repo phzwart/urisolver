@@ -1,4 +1,4 @@
-"""Bibliographic pointers for the two RFCs the design actually depends on.
+"""Bibliographic pointers for the RFCs the binders and the URI parser depend on.
 
 No abstract sentence is fetched. A hit is a title and a URL only.
 """
@@ -14,6 +14,11 @@ RECORDS = [
         "match": "RFC 7595",
         "title": "Guidelines and Registration Procedures for URI Schemes",
         "url": "https://www.rfc-editor.org/rfc/rfc7595",
+    },
+    {
+        "match": "RFC 8089",
+        "title": "The \"file\" URI Scheme",
+        "url": "https://www.rfc-editor.org/rfc/rfc8089",
     },
 ]
 

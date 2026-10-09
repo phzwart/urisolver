@@ -1,9 +1,8 @@
 """Query the committed concept graph.
 
-    python -m urisolver.kg search "opaque payload"
-    python -m urisolver.kg card tier_0
-    python -m urisolver.kg module src/urisolver/redaction.py
-    python -m urisolver.kg receipt ent:concept:tier_0
+    PYTHONPATH=tools python -m kg search "opaque payload"
+    PYTHONPATH=tools python -m kg card registration
+    PYTHONPATH=tools python -m kg module src/urisolver/redaction.py
 """
 from __future__ import annotations
 
@@ -15,7 +14,7 @@ from .graph import ConceptGraph, GraphError
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="urisolver.kg")
+    parser = argparse.ArgumentParser(prog="kg")
     sub = parser.add_subparsers(dest="command", required=True)
     search_p = sub.add_parser("search", help="Rank concepts by label, alias, or definition")
     search_p.add_argument("query")

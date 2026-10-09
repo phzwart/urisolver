@@ -24,6 +24,8 @@ __version_source__ = None
 
 
 class Mode(str, Enum):
+    """Bind modes, in auto order: EXISTING, REFERENCE, PROXY, ACQUIRE."""
+
     EXISTING = "existing"
     REFERENCE = "reference"
     PROXY = "proxy"

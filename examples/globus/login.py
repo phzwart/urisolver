@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Store a Globus refresh token for the globus source in the site file.
 
-Skips unless URISOLVER_GLOBUS_CLIENT_ID or --client-id is set. The secret id
-is the one named by that source. An access token is not stored.
+Skips unless URISOLVER_GLOBUS_CLIENT_ID or --client-id is set. The site is
+URISOLVER_SITE, or examples/site.example.yaml when that variable is unset.
+The secret id is the one named by the globus source. An access token is not stored.
 """
 from __future__ import annotations
 
 import argparse
 import os
 import sys
+from pathlib import Path
 
 from urisolver.secrets.jsonfile import LocalSecretsManager
 from urisolver.site import Site
@@ -35,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
 def _run(client_id: str) -> int:
     import globus_sdk
 
-    site = Site.load()
+    site = _site()
     source = next((item for item in site.sources.values() if item.protocol == "globus"), None)
     if source is None:
         print("site has no globus source", file=sys.stderr)
@@ -55,6 +57,13 @@ def _run(client_id: str) -> int:
     )
     print(path)
     return 0
+
+
+def _site() -> Site:
+    if os.environ.get("URISOLVER_SITE"):
+        return Site.load()
+    example = Path(__file__).resolve().parents[1] / "site.example.yaml"
+    return Site.load(str(example))
 
 
 def _data_access(sdk: object, client_id: str, refresh: str, collections: list[str]) -> list:

@@ -6,7 +6,7 @@ A source in the site file binds a URI scheme to a protocol. With no source, the 
 
 `file:///absolute/path` and `file://localhost/absolute/path` are local files (RFC 8089). Any other host is rejected. A percent-encoded slash is rejected. The only query is `?recursive`.
 
-REFERENCE applies when the path sits under a readable entry. The asset URI is rewritten onto that entry's server path. ACQUIRE copies the file into the landing area when the path is outside readable storage and landing is configured. `mode="auto"` then references the copy. Origin mode stays `acquire`.
+REFERENCE applies when the path sits under a readable entry. The asset URI is rewritten onto that entry's server path. ACQUIRE is feasible whenever landing is configured. `mode="auto"` selects REFERENCE when the path is under a readable entry, and selects ACQUIRE when the path is outside readable storage and landing is configured. A forced acquire copies the file into the landing area and then references the copy. Origin mode stays `acquire`.
 
 A directory that is not one describable item needs `?recursive`. Hidden names are skipped. Files Tiled cannot describe are skipped and listed on `Plan.notes`.
 

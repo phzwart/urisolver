@@ -134,6 +134,15 @@ def test_example_site_and_server_config_load():
     adapters = server["trees"][0]["args"]["adapters_by_mimetype"]
     assert "urisolver.tiled_server.proxy:RemoteArrayAdapter" in adapters.values()
     assert "urisolver.tiled_server.proxy:RemoteTableAdapter" in adapters.values()
+    key = server["authentication"]["single_user_api_key"]
+    assert isinstance(key, str) and key.isalnum()
+    root = EXAMPLES
+    storage = server["trees"][0]["args"]["readable_storage"] + server["trees"][0]["args"]["writable_storage"]
+    for item in storage:
+        path = Path(item)
+        if not path.is_absolute():
+            path = Path(os.path.normpath(root / path))
+        assert path.is_dir()
 
 
 def _upstream():

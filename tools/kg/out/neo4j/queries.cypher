@@ -3,7 +3,7 @@
 MATCH (c:Concept {id: 'opaque_payload'})-[:HAS_CODE_EVIDENCE]->(e)
 RETURN e.module, e.symbol, e.line, e.quote;
 // 2. What does a contract rest on?
-MATCH p = (c:Concept {id: 'tier_0'})-[:USES*1..3]->(d)
+MATCH p = (c:Concept {id: 'registration'})-[:USES*1..3]->(d)
 RETURN DISTINCT d.id, length(p) AS depth ORDER BY depth;
 // 3. Paraphrase plus bibliographic pointers
 MATCH (c:Concept {id: 'scheme_dispatch'})

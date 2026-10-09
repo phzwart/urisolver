@@ -1,6 +1,6 @@
-"""Upstream API keys for the proxy adapters.
+"""The server process holds upstream API keys in the mode-0600 file named by URISOLVER_PROXY_CREDENTIALS.
 
-The Tiled server process holds ``URISOLVER_PROXY_CREDENTIALS``. Workers do not.
+Workers do not.
 The file maps a normalized upstream base URI to ``{"api_key": "..."}`` and its
 mode must be ``0600`` or stricter. A missing entry means the upstream is
 anonymous. Keys are never logged.

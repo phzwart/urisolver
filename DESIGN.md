@@ -4,12 +4,12 @@ urisolver runs at registration time. Given a URI, it creates a node on a Tiled s
 
 ## Modes
 
+`mode="auto"` picks the first feasible mode in this order: EXISTING, REFERENCE, PROXY, ACQUIRE. A forced mode that is not feasible raises `ModeNotAvailableError` with `.feasible` and `.reasons`.
+
 - REFERENCE: an external asset under readable storage.
 - PROXY: a custom adapter forwards reads to an upstream Tiled server.
 - ACQUIRE: land the bytes, then REFERENCE the copy.
 - EXISTING: the data is already a node on the target server.
-
-`mode="auto"` picks the first feasible mode in that order: EXISTING, REFERENCE, PROXY, ACQUIRE. A forced mode that is not feasible raises `ModeNotAvailableError` with `.feasible` and `.reasons`.
 
 | Binder | EXISTING | REFERENCE | PROXY | ACQUIRE |
 |---|---|---|---|---|
@@ -20,26 +20,19 @@ urisolver runs at registration time. Given a URI, it creates a node on a Tiled s
 
 ## Vocabulary
 
-- Bind / register: turn a URI into a node on a Tiled server.
-- Binder: a plugin for one protocol (`file`, `tiled`, `globus`, `zenodo`).
-- Source: a site entry that binds a URI scheme to a protocol and its parameters.
-- Site: readable storage, path mapping, a landing area, and sources.
-- Plan: a description of a bind. `plan()` does not write.
-- Binding: the result of executing a plan.
+A bind turns a URI into a node on a Tiled server. A binder is a plugin for one protocol (`file`, `tiled`, `globus`, `zenodo`). A source is a site entry that binds a URI scheme to a protocol and its parameters. A site holds readable storage, path mapping, a landing area, and sources. A plan describes a bind, and `plan()` does not write. A binding is the result of executing a plan.
 
 ## Layout
 
-The core does not import Tiled at module level: parse, redaction, errors, secrets, namespaces, site, context, the binder registry, and plan dataclasses.
+`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow. The core covers parse, redaction, errors, secrets, namespaces, site, context, the binder registry, and plan dataclasses.
 
-`urisolver.tiled` is client-side (`tiled.client`, `tiled.structures`) plus `tiled/_compat.py`. Only `_compat.py` imports Tiled internals.
+`urisolver.tiled` is client-side (`tiled.client`, `tiled.structures`) plus `tiled/_compat.py`. `_compat.py` imports Tiled internals. `urisolver.tiled_server` is loaded by a Tiled server config. It imports `tiled.adapters.core`, `tiled.structures`, and redaction. It does not import binders, site, Globus, or Zenodo.
 
 Binders use the core and `urisolver.tiled`.
 
-`urisolver.tiled_server` is loaded by a Tiled server config. It imports `tiled.adapters.core` and redaction. It does not import binders, site, Globus, or Zenodo.
-
-`import urisolver` does not import tiled, globus_sdk, numpy, pandas, or pyarrow.
-
 ## Register
+
+`plan()` describes a bind and does not write a node. `register()` executes that plan.
 
 ```python
 plan(uri, into, *, key=None, mode="auto", metadata=None, context=None) -> Plan
@@ -55,7 +48,7 @@ register(uri, into, *, on_conflict="return", acquire_timeout=None, ...) -> Bindi
 7. `urisolver.tiled.apply.create` writes the node.
 8. Return the `Binding`.
 
-`OnConflict.return` returns the existing node when the origin matches and raises `KeyConflictError` otherwise. It does not change the existing node's metadata. `error` always conflicts. `replace` deletes the node recursively with `external_only=True`, then creates it again.
+`OnConflict.return` returns the existing node when the stored origin or resolved URI matches this registration, and raises `KeyConflictError` otherwise. It does not change the existing node's metadata. `error` always conflicts. `replace` deletes the node recursively with `external_only=True`, then creates it again.
 
 Origin metadata is `metadata["urisolver"]` plus spec `urisolver-origin` version `1`. Caller metadata is merged first. A caller `urisolver` key raises `ValueError`. Opaque namespace URIs are redacted in `origin` and `trail`. `resolved` is stored as given.
 
@@ -63,21 +56,25 @@ Origin metadata is `metadata["urisolver"]` plus spec `urisolver-origin` version 
 
 ## Site
 
-Lookup order: an explicit path, `URISOLVER_SITE`, then `~/.config/urisolver/site.yaml`. Entry-point sources merge under the file. An explicit path or env var is not merged with the user file.
+Lookup order is an explicit path, then `URISOLVER_SITE`, then `~/.config/urisolver/site.yaml`. Entry-point sources merge under the file. An explicit path or env var is not merged with the user file.
 
-Validation raises `SiteConfigError` naming the key. Readable paths are absolute and not nested. The landing directory is inside a readable entry. The layout contains `{name}` and `{sha12}` or `{sha64}`. An unknown protocol is an error at bind time, not at load time.
+Validation raises `SiteConfigError` naming the key. After load, readable paths are absolute and not nested. The landing directory is inside a readable entry. The layout contains `{name}` and `{sha12}` or `{sha64}`. An unknown protocol is an error at bind time, not at load time.
+
+A site file may give `readable` local, `readable` server, and `landing.local` as paths relative to that file. Load joins them to the file's directory and does not follow symlinks. `from_mapping` requires those paths to already be absolute.
 
 `to_server_path` resolves the file and each local root, picks the longest containing root, and joins onto the server root verbatim. Tiled compares readable-storage paths as text, so the server root is not resolved again.
 
-Landing paths use `{protocol}/{sha12}/{name}` by default. An acquire writes a sibling `*.partial` file and renames it into place.
+The landing layout comes from the site file. There is no built-in layout string. An acquire writes a sibling `*.partial` file and renames it into place.
 
 ## Errors
 
+The CLI exits 0 on success, 2 on usage, 3 on `BindError` or any other `URIResolverError`, 4 on `AccessError`, 5 on `SiteConfigError` or `PluginError`, and 1 on any other exception. `site check` fails when a readable local directory, a readable server directory, or the landing directory is missing.
+
 `URIResolverError` is aliased as `UrisolverError`. Under it: `InvalidURIError`, `UnknownSchemeError`, `SiteConfigError`, `PluginError` (`PluginConflictError`, `PluginVersionError`), `SecretLookupError`, namespace errors, access errors (`AuthenticationError`, `AuthorizationError`, `ResourceUnavailableError`), and `BindError` (`ModeNotAvailableError`, `NotReadableError`, `KeyConflictError`, `DescribeError`, `AcquireError`, `AcquireTimeoutError`).
 
-Binder API version is 2. Version 1 raises `PluginVersionError`. Two entry points for one protocol raise `PluginConflictError` the first time that protocol is used. Lazy proxies do not import their module at registration.
+Binder API version is 2. Any other `api_version` raises `PluginVersionError`. Two entry points for one protocol raise `PluginConflictError` the first time that protocol is used. Lazy proxies do not import their module at registration.
 
-The CLI commands are `plan`, `register`, `site check`, `binders`, and `proxy credentials`. Exit codes: 0 ok, 2 usage, 3 bind error, 4 access error, 5 site or plugin error. `site check` fails when a readable root or the landing directory is missing. `proxy credentials` writes the mode-0600 upstream key file the server reads.
+The CLI commands are `plan`, `register`, `site check`, `binders`, and `proxy credentials`. `proxy credentials` writes the mode-0600 upstream key file the server reads.
 
 ## Binders
 
@@ -95,4 +92,4 @@ Globus is ACQUIRE only and requires `landing.globus`. A directory needs `?recurs
 
 ## Defaults
 
-Re-registering the same URI returns the existing node. The landing area is a directory inside readable storage and stays `Management.external`. PROXY uses one service identity per upstream. Upstream structure drift fails the read.
+With `on_conflict="return"`, an existing key is returned when its stored origin or resolved URI matches this registration. A different origin raises `KeyConflictError`. The landing area is a directory inside readable storage, and registered assets use `Management.external` unless a data source names another management value. PROXY stores one API key per upstream base. Upstream structure drift fails the read.

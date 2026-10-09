@@ -1,4 +1,4 @@
-"""file: binder. Reference bytes the target server can already read, or describe a copy."""
+"""Reference bytes the target server can already read, or copy them into landing storage."""
 from __future__ import annotations
 
 import os

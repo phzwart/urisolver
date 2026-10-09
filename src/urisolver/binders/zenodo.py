@@ -1,4 +1,4 @@
-"""zenodo: binder. ACQUIRE downloads one named file from a record.
+"""ACQUIRE downloads one named file from a Zenodo record.
 
 The ``https`` scheme is not claimed here. ``https://zenodo.org/records/...``
 is accepted only when a source sets ``host: zenodo.org``.

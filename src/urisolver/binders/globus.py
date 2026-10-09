@@ -1,4 +1,4 @@
-"""globus: binder. ACQUIRE transfers onto the landing collection, then renames locally.
+"""ACQUIRE transfers a Globus path onto the landing collection, then renames the local file.
 
 The SDK is imported only while building a transfer client.
 """

@@ -1,4 +1,4 @@
-"""tiled: binder. Return an existing node, or proxy an upstream array or table."""
+"""Return an existing Tiled node, proxy an upstream array or table, or copy one into landing storage."""
 from __future__ import annotations
 
 import os

@@ -6,7 +6,9 @@ Register a URI as a node on a Tiled server. Workers then read that node with a T
 pip install urisolver
 ```
 
-Tiled, the proxy server, and Globus are extras: `pip install "urisolver[tiled,server,globus]"`.
+Optional extras install these packages. `tiled` installs `tiled[client]` and PyYAML. `server` installs `tiled[server]` and PyYAML. `globus` installs `globus-sdk` and PyYAML. `dev` installs the test tools, `tiled[all]`, numpy, pandas, pyarrow, and globus-sdk. `examples/reference.py` imports numpy and `tiled.server`. Numpy is part of the `dev` extra.
+
+The examples are in the repository. A source distribution includes `examples/site.example.yaml`.
 
 ## List the built-in binders
 
@@ -39,6 +41,6 @@ from urisolver import Mode
 print(" ".join(mode.value for mode in Mode))
 ```
 
-`examples/reference.py` registers a file on a local Tiled server and reads those bytes back. `examples/proxy.py`, `examples/acquire_globus.py`, and `examples/acquire_zenodo.py` skip unless their environment variable is set. The design is in [DESIGN.md](DESIGN.md). Schemes are in [SCHEMES.md](SCHEMES.md).
+`examples/reference.py` registers a file on a local Tiled server and reads those bytes back. `examples/proxy.py` skips unless `URISOLVER_SITE`, `URISOLVER_TILED_URI`, and `URISOLVER_INTO` are set. `examples/acquire_globus.py` skips unless `URISOLVER_GLOBUS_LIVE` is `1` and the site, URI, and into values are set. `examples/acquire_zenodo.py` skips unless `URISOLVER_ZENODO` is `1` and the site, URI, and into values are set. The design is in [DESIGN.md](DESIGN.md). Schemes are in [SCHEMES.md](SCHEMES.md).
 
 MIT — see [LICENSE](LICENSE).

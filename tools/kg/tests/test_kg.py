@@ -80,12 +80,12 @@ def test_search_card_module_and_receipt():
     assert graph.resolve("Opaque payload") == "opaque_payload"
     hits = graph.search("opaque payload")
     assert hits["hits"][0]["id"] == "opaque_payload"
-    card = graph.card("tier_0")
-    assert card["id"] == "tier_0"
-    assert card["definition_receipt"] == "ent:concept:tier_0"
+    card = graph.card("registration")
+    assert card["id"] == "registration"
+    assert card["definition_receipt"] == "ent:concept:registration"
     assert card["code_evidence"]
     receipt = graph.receipt(card["definition_receipt"])
-    assert receipt["node"]["@id"] == "ent:concept:tier_0"
+    assert receipt["node"]["@id"] == "ent:concept:registration"
     assert receipt["node"]["how"] == "derived"
     for anchor in card["code_evidence"]:
         node = graph.receipt(anchor["receipt"])["node"]

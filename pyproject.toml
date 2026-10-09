@@ -61,7 +61,7 @@ include = [
 exclude = ["tools", "docs"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "tools/kg/tests"]
 pythonpath = ["src"]
 
 [tool.ruff]

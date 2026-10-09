@@ -116,7 +116,7 @@ class Site:
 
     @classmethod
     def load(cls, path: str | None = None) -> Site:
-        """Load a site file and merge entry-point sources underneath it."""
+        """Load a site file, resolve relative storage paths, and merge entry-point sources underneath it."""
         explicit = path is not None or bool(os.environ.get(SITE_ENV))
         if path is not None:
             file = Path(path)
